@@ -18,6 +18,7 @@ const alias = {
 };
 
 export default defineConfig({
+  base: process.env.VITE_BASE ?? '/',
   plugins: [react()],
   resolve: {
     // Vite matches longest alias first; the trailing-slash entries handle subpath imports.
