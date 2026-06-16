@@ -39,6 +39,20 @@ describe('DamageSummary', () => {
     expect(screen.getByText('Corrosive')).toBeInTheDocument();
     expect(screen.getByText('30.0%')).toBeInTheDocument(); // crit chance
   });
+
+  it('lists the achievable crit tiers with per-pellet damage and odds', () => {
+    render(<DamageSummary result={RESULT} />);
+    expect(screen.getByLabelText('crit tiers')).toBeInTheDocument();
+    // 30% crit chance → tier 0 (non-crit, 70%) and tier 1 (crit, 30%); no orange/red.
+    expect(screen.getByText('Non-crit')).toBeInTheDocument();
+    expect(screen.getByText('Crit')).toBeInTheDocument();
+    expect(screen.queryByText('Orange crit')).not.toBeInTheDocument();
+    expect(screen.getByText('70%')).toBeInTheDocument();
+    expect(screen.getByText('30%')).toBeInTheDocument();
+    // tier 0 per pellet = 259.7 / 2.02 ≈ 128.6; tier 1 = ×4.4 ≈ 565.7.
+    expect(screen.getByText('128.6')).toBeInTheDocument();
+    expect(screen.getByText('565.7')).toBeInTheDocument();
+  });
 });
 
 describe('ContributionList', () => {

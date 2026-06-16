@@ -61,6 +61,39 @@ export function baseElementalStage(
   };
 }
 
+/**
+ * Stage 1b — quantization. Warframe rounds each damage type to the nearest
+ * **1/32 of the weapon's unmodded base damage** *before* multiplying further
+ * (multishot/crit/faction). Source: `Damage/Calculation` (wiki), cached in
+ * `docs/warframe/mechanics/quantization.md`.
+ *
+ * The wiki rounds the elemental/physical values that sit *inside* the base-damage
+ * factor, i.e. before the `× (1 + Σ base-damage)` (Serration) multiply. We round
+ * `baseElementalStage`'s output (which already includes that multiply) against a
+ * quantum scaled the same way — `quantum = (baseTotal / 32) × (1 + Σ base-damage)`
+ * — which is exactly equivalent: `round(x/q)·q` then `×m` equals rounding `x·m`
+ * to multiples of `q·m`. So the caller passes the already-scaled `quantum`.
+ */
+export function quantizeStage(
+  perType: DamageMap,
+  quantum: number,
+): { perType: DamageMap; stage: PipelineStage } {
+  const out: DamageMap = {};
+  for (const [type, value] of Object.entries(perType) as [DamageType, number][]) {
+    out[type] = quantum > 0 ? Math.round((value ?? 0) / quantum) * quantum : (value ?? 0);
+  }
+  return {
+    perType: out,
+    stage: {
+      id: 'quantize',
+      label: 'Quantization',
+      detail: `each type rounded to nearest ${quantum.toFixed(3)} (base/32 × base-dmg mult)`,
+      perType: { ...out },
+      value: sumDamage(out),
+    },
+  };
+}
+
 /** Stage 2 — multishot: pellet count = baseMultishot × (1 + Σ multishot). */
 export function multishotStage(
   baseMultishot: number,

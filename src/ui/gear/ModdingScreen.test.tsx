@@ -18,7 +18,7 @@ beforeEach(() => {
 describe('ModdingScreen', () => {
   it('renders the 12-slot layout with the weapon name', () => {
     render(<ModdingScreen />);
-    expect(screen.getByRole('heading', { name: 'Braton Prime' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Vulkar Wraith' })).toBeInTheDocument();
     // aura + exilus + 8 normal + 2 arcane = 12 slot buttons (role=button on each slot).
     const slots = screen.getAllByRole('button').filter((b) => {
       const label = b.getAttribute('aria-label') ?? '';

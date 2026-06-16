@@ -2,21 +2,23 @@ import { describe, it, expect } from 'vitest';
 import { loadWeapon, loadMod, loadArcane, loadMods, loadDataset } from './loaders';
 
 describe('data transform — curated weapon', () => {
-  it('normalizes Braton Prime to the curated schema with correct IPS', async () => {
-    const w = await loadWeapon('braton-prime');
+  it('normalizes Vulkar Wraith to the curated schema with correct IPS', async () => {
+    const w = await loadWeapon('vulkar-wraith');
     expect(w).toBeDefined();
-    // IPS comes from damagePerShot order; the flat @wfcd summary mislabels P/S.
-    expect(w!.damage).toEqual({ impact: 1.75, puncture: 12.25, slash: 21 });
-    expect(w!.totalBaseDamage).toBe(35);
-    expect(w!.criticalChance).toBeCloseTo(0.12, 5);
+    // IPS comes from damagePerShot order; only nonzero types are kept (no Slash).
+    expect(w!.damage.impact).toBeCloseTo(245.7, 4);
+    expect(w!.damage.puncture).toBeCloseTo(27.3, 4);
+    expect(w!.damage.slash).toBeUndefined();
+    expect(w!.totalBaseDamage).toBe(273);
+    expect(w!.criticalChance).toBeCloseTo(0.2, 5);
     expect(w!.criticalMultiplier).toBe(2);
-    expect(w!.statusChance).toBeCloseTo(0.26, 4);
-    expect(w!.fireRate).toBeCloseTo(9.583334, 5);
-    expect(w!.magazine).toBe(75);
-    expect(w!.reload).toBeCloseTo(2.15, 4);
+    expect(w!.statusChance).toBeCloseTo(0.25, 4);
+    expect(w!.fireRate).toBeCloseTo(2, 5);
+    expect(w!.magazine).toBe(8);
+    expect(w!.reload).toBeCloseTo(3, 4);
     expect(w!.multishot).toBe(1);
     expect(w!.weaponClass).toBe('rifle');
-    expect(w!.exilusPolarity).toBe('naramon');
+    expect(w!.exilusPolarity).toBe('madurai');
   });
 });
 

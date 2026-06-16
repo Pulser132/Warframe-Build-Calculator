@@ -108,7 +108,7 @@ export interface WeaponData {
   masteryReq: number;
   disposition: number;
   exilusPolarity: Polarity | null;
-  /** Innate slot polarities on the 8 normal slots (Braton Prime has none). */
+  /** Innate slot polarities on the normal slots (Vulkar Wraith ships one Madurai). */
   polarities: Polarity[];
 }
 

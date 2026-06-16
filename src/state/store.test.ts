@@ -18,13 +18,13 @@ const store = () => useBuildStore.getState();
 const result = () => computeResult(store().build, store().combat, dataset);
 
 describe('build store — initialization', () => {
-  it('creates a 12-slot Braton Prime build with the Naramon exilus polarity', () => {
+  it('creates a 12-slot Vulkar Wraith build with the Madurai exilus polarity', () => {
     const { build } = store();
-    expect(build.weaponId).toBe('braton-prime');
+    expect(build.weaponId).toBe('vulkar-wraith');
     expect(build.slots).toHaveLength(12);
     expect(build.slots[0].kind).toBe('aura');
     expect(build.slots[1].kind).toBe('exilus');
-    expect(build.slots[1].polarity).toBe('naramon');
+    expect(build.slots[1].polarity).toBe('madurai');
   });
 });
 

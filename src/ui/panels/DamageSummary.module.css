@@ -45,6 +45,88 @@
   color: var(--c-text);
 }
 
+.tiers {
+  margin-bottom: var(--sp-4);
+  padding: var(--sp-3);
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+}
+.tiersHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--sp-2);
+}
+.tiersTitle {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--c-text-faint);
+}
+.tiersHint {
+  font-size: var(--fs-xs);
+  color: var(--c-text-faint);
+}
+.tierList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.tierRow {
+  display: grid;
+  grid-template-columns: 14px 1fr auto auto auto;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-1) 0;
+}
+.tierDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+.tierName {
+  font-size: var(--fs-sm);
+  color: var(--c-text);
+}
+.tierMult {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--c-text-dim);
+}
+.tierDmg {
+  font-family: var(--font-mono);
+  font-size: var(--fs-md);
+  text-align: right;
+  min-width: 5ch;
+}
+.tierProb {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--c-text-dim);
+  text-align: right;
+  min-width: 4ch;
+}
+
+/* Crit-tier colours (white → yellow → orange → red as the tier climbs). */
+.tierWhite {
+  color: var(--c-text);
+}
+.tierYellow {
+  color: #ffd84d;
+}
+.tierOrange {
+  color: #ff9d3d;
+}
+.tierRed {
+  color: #ff5a5a;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));

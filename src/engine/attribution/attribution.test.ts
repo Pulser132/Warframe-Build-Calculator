@@ -25,7 +25,7 @@ let gun: Gun;
 let modsById: Map<string, ModData>;
 
 beforeAll(async () => {
-  gun = createWeapon((await loadWeapon('braton-prime'))!) as Gun;
+  gun = createWeapon((await loadWeapon('vulkar-wraith'))!) as Gun;
   modsById = new Map((await loadMods()).map((m) => [m.id, m]));
 });
 

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { emptyBucketSums, type BucketSums } from './gather';
 import {
   baseElementalStage,
+  quantizeStage,
   multishotStage,
   critStage,
   statusStage,
@@ -28,10 +29,10 @@ describe('baseElementalStage', () => {
     expect(stage.value).toBeCloseTo(300, 6);
   });
 
-  it('matches the Braton Prime slice subtotal (259.70) pre-crit', () => {
+  it('matches the Vulkar Wraith slice subtotal (2025.66) pre-crit', () => {
     const { perType } = baseElementalStage(
-      { impact: 1.75, puncture: 12.25, slash: 21 },
-      35,
+      { impact: 245.7, puncture: 27.3 },
+      273,
       sums({
         baseDamage: 1.65,
         elements: [
@@ -40,10 +41,30 @@ describe('baseElementalStage', () => {
         ],
       }),
     );
-    expect(sumDamage(perType)).toBeCloseTo(259.7, 2);
-    expect(perType.corrosive).toBeCloseTo(166.95, 2);
-    expect(perType.slash).toBeCloseTo(55.65, 2);
+    expect(sumDamage(perType)).toBeCloseTo(2025.66, 2);
+    expect(perType.corrosive).toBeCloseTo(1302.21, 2);
+    expect(perType.impact).toBeCloseTo(651.105, 2);
     expect(perType.toxin).toBeUndefined(); // combined away
+  });
+});
+
+describe('quantizeStage', () => {
+  it('rounds each damage type to the nearest base/32 (Vulkar + Stormbringer → 520)', () => {
+    // base total 273 → quantum = 273/32 = 8.53125 (no base-damage mods).
+    const { perType, stage } = quantizeStage(
+      { impact: 245.7, puncture: 27.3, electricity: 245.7 },
+      273 / 32,
+    );
+    expect(perType.impact).toBeCloseTo(247.40625, 4); // 29 × 8.53125
+    expect(perType.puncture).toBeCloseTo(25.59375, 4); // 3 × 8.53125
+    expect(perType.electricity).toBeCloseTo(247.40625, 4);
+    expect(sumDamage(perType)).toBeCloseTo(520.40625, 4); // displays as 520 in game
+    expect(stage.id).toBe('quantize');
+  });
+
+  it('passes values through unchanged when the quantum is zero', () => {
+    const { perType } = quantizeStage({ impact: 13.37 }, 0);
+    expect(perType.impact).toBe(13.37);
   });
 });
 
@@ -79,7 +100,7 @@ describe('statusStage', () => {
 
 describe('fireRateStage', () => {
   it('scales fire rate additively', () => {
-    expect(fireRateStage(9.583334, sums({ fireRate: 0.6 })).fireRate).toBeCloseTo(15.3333, 3);
+    expect(fireRateStage(2, sums({ fireRate: 0.6 })).fireRate).toBeCloseTo(3.2, 3);
   });
 });
 

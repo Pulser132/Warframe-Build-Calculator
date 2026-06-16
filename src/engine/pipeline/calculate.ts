@@ -12,6 +12,7 @@ import type { Gun } from '../gear/weapon';
 import { gatherBuckets, type ResolvedSource } from './gather';
 import {
   baseElementalStage,
+  quantizeStage,
   multishotStage,
   critStage,
   statusStage,
@@ -37,6 +38,11 @@ export function calculateBuild(input: CalcInput): DamageResult {
     weapon.totalBaseDamage,
     sums,
   );
+
+  // Stage 1b — quantization. Round each type to base/32 (scaled by the base-damage
+  // multiply already folded into the subtotal) before any further multipliers.
+  const quantum = (weapon.totalBaseDamage / 32) * (1 + sums.baseDamage);
+  const { perType: quantizedPerType, stage: quantStage } = quantizeStage(subtotalPerType, quantum);
 
   // Stage 2 — multishot.
   const { multishot, stage: msStage } = multishotStage(weapon.baseMultishot, sums);
@@ -65,8 +71,8 @@ export function calculateBuild(input: CalcInput): DamageResult {
   // Assemble final per-type average (crit-weighted + conditional multipliers).
   const finalMult = avgCritMultiplier * factionMultiplier * directMultiplier;
   const perType: DamageMap = {};
-  for (const type of Object.keys(subtotalPerType) as DamageType[]) {
-    perType[type] = (subtotalPerType[type] ?? 0) * finalMult;
+  for (const type of Object.keys(quantizedPerType) as DamageType[]) {
+    perType[type] = (quantizedPerType[type] ?? 0) * finalMult;
   }
 
   const perPelletAverage = sumDamage(perType);
@@ -93,6 +99,7 @@ export function calculateBuild(input: CalcInput): DamageResult {
     sustainedDps,
     chain: [
       baseStage,
+      quantStage,
       msStage,
       critS,
       statusS,

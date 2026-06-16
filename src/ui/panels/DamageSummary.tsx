@@ -1,4 +1,5 @@
 import type { DamageResult } from '@engine';
+import { critTiers } from '@engine';
 import type { DamageType } from '@engine/model/types';
 import { fmt, pct, damageLabel } from '../util';
 import styles from './DamageSummary.module.css';
@@ -7,10 +8,23 @@ interface Props {
   result: DamageResult;
 }
 
+/** Display label + colour class per crit tier (0 = non-crit, then yellow/orange/red). */
+const TIER_META = [
+  { label: 'Non-crit', cls: styles.tierWhite },
+  { label: 'Crit', cls: styles.tierYellow },
+  { label: 'Orange crit', cls: styles.tierOrange },
+  { label: 'Red crit', cls: styles.tierRed },
+];
+function tierMeta(tier: number) {
+  return TIER_META[tier] ?? { label: `Tier ${tier} crit`, cls: styles.tierRed };
+}
+
 /** Headline damage panel: per-type damage, average hit, burst/sustained DPS, status. */
 export function DamageSummary({ result }: Props) {
   const types = Object.entries(result.perType) as [DamageType, number][];
   types.sort((a, b) => b[1] - a[1]);
+
+  const tiers = critTiers(result);
 
   return (
     <section className={styles.panel} aria-label="damage summary">
@@ -29,6 +43,27 @@ export function DamageSummary({ result }: Props) {
             <span className={styles.chipValue}>{fmt(value, 1)}</span>
           </span>
         ))}
+      </div>
+
+      <div className={styles.tiers} aria-label="crit tiers">
+        <div className={styles.tiersHead}>
+          <span className={styles.tiersTitle}>Crit Tiers</span>
+          <span className={styles.tiersHint}>per pellet · chance</span>
+        </div>
+        <ul className={styles.tierList}>
+          {tiers.map((t) => {
+            const meta = tierMeta(t.tier);
+            return (
+              <li key={t.tier} className={styles.tierRow}>
+                <span className={`${styles.tierDot} ${meta.cls}`} aria-hidden="true" />
+                <span className={styles.tierName}>{meta.label}</span>
+                <span className={styles.tierMult}>{fmt(t.multiplier, 2)}×</span>
+                <span className={`${styles.tierDmg} ${meta.cls}`}>{fmt(t.perPellet, 1)}</span>
+                <span className={styles.tierProb}>{pct(t.probability, 0)}</span>
+              </li>
+            );
+          })}
+        </ul>
       </div>
 
       <div className={styles.grid}>

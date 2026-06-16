@@ -3,7 +3,7 @@
  * Build-time data transform.
  *
  * Reads the bundled `@wfcd/items` JSON, selects ONLY the Stage-1 slice items
- * (Braton Prime + the slice mods/arcanes), normalizes them to the curated
+ * (Vulkar Wraith + the slice mods/arcanes), normalizes them to the curated
  * internal schema (`src/engine/model/types.ts`), and emits one JSON file per
  * category to `src/data/generated/`.
  *
@@ -28,7 +28,7 @@ const DAMAGE_ORDER = [
 ];
 
 /** Slice weapon, by exact name. */
-const SLICE_WEAPONS = ['Braton Prime'];
+const SLICE_WEAPONS = ['Vulkar Wraith'];
 
 /**
  * Slice mods, keyed by **full** `uniqueName`. The trailing segment is NOT unique

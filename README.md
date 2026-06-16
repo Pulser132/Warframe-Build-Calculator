@@ -5,7 +5,7 @@ your damage comes from** — each equipped mod's contribution is computed by a
 framework-agnostic, fully unit-tested damage engine.
 
 **Stage 1 (this milestone)** proves the whole architecture on a thin vertical
-slice: one primary rifle (**Braton Prime**) modded as in-game — aura + exilus +
+slice: one primary rifle (**Vulkar Wraith**) modded as in-game — aura + exilus +
 8 mod slots + 2 arcane slots — with wiki-accurate damage math, per-mod
 leave-one-out attribution, an expandable pipeline breakdown, and a minimal
 combat-state config. See `docs/planning/Overview.md` for the full architecture
@@ -74,10 +74,10 @@ src/
 
 ## Verifying the math
 
-The slice reference build (9 mods on Braton Prime) is hand-derived from the wiki
+The slice reference build (9 mods on Vulkar Wraith) is hand-derived from the wiki
 in `docs/warframe/mechanics/damage.md` and asserted end-to-end in
-`src/engine/pipeline/calculate.test.ts` (burst ≈ 15,283 DPS unbuffed,
-≈ 19,868 vs Grineer with Bane). Run `npm test`.
+`src/engine/pipeline/calculate.test.ts` (burst ≈ 33,402 DPS unbuffed,
+≈ 43,422 vs Grineer with Bane, post-quantization). Run `npm test`.
 
 ## Status
 

@@ -1,7 +1,7 @@
 /**
  * Constructs the default empty `Build` for a weapon: one `SlotState` per slot in
- * the weapon's layout, with the weapon's innate polarities applied (e.g. Braton
- * Prime's Naramon exilus slot). Theorycrafting defaults: reactor on, 30 capacity.
+ * the weapon's layout, with the weapon's innate polarities applied (e.g. Vulkar
+ * Wraith's Madurai exilus slot). Theorycrafting defaults: reactor on, 30 capacity.
  */
 import type { Build, SlotState } from '@engine/model/build';
 import type { Polarity, WeaponData } from '@engine/model/types';

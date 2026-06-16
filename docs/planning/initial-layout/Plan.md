@@ -21,13 +21,13 @@ unit-tested engine.
 
 ### Slice weapon & mod set
 
-**Slice weapon: Braton Prime** — a fully-automatic, hitscan, single-fire-mode
-crit+status rifle. It exercises every damage bucket (base/elemental/multishot/
-crit/status/fire-rate) without dragging in AoE, incarnon, or multi-mode
-complexity (those are Stages 2 & 6), and its auto trigger maps directly onto the
-Stage 1 per-shot + fire-rate → DPS pipeline. Source its exact stats and mod
+**Slice weapon: Vulkar Wraith** — a hitscan, single-fire-mode, semi-automatic
+crit+status sniper rifle. It exercises every damage bucket (base/elemental/
+multishot/crit/status/fire-rate) without dragging in AoE, incarnon, or multi-mode
+complexity (those are Stages 2 & 6), and its semi-auto trigger maps directly onto
+the Stage 1 per-shot + fire-rate → DPS pipeline. Source its exact stats and mod
 values via the `warframe-info` skill during implementation and cache to
-`docs/warframe/weapons/braton-prime.md`. (Torid/Vinquibus are intentionally
+`docs/warframe/weapons/vulkar-wraith.md`. (Torid/Vinquibus are intentionally
 avoided here — they are multi-mode/incarnon/dual-slot, belonging to later stages,
 though their cached docs are useful references.)
 
