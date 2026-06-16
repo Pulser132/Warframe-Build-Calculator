@@ -37,10 +37,6 @@ honor. Keep this in sync as the foundation evolves.
 
 ## Known simplifications (revisit later)
 
-- **Quantization is omitted.** Real Warframe rounds each damage type to
-  `base/32`. Stage 1 computes continuous values (sub-1% effect for the slice).
-  Add a quantization step between the base+elemental stage and multishot. See
-  `docs/warframe/mechanics/damage.md`.
 - **No enemy/target model.** Conditional mods are toggles; armor / health type /
   level scaling / faction-vs-damage-type tables arrive in **Stage 5**.
 - **Aura slot on a weapon.** Goal.md's Warframe-style layout (aura + exilus + 8 +
