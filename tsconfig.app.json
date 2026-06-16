@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Strictness */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+    "exactOptionalPropertyTypes": false,
+    "noImplicitOverride": true,
+
+    /* Path aliases */
+    "baseUrl": ".",
+    "paths": {
+      "@engine": ["src/engine/index.ts"],
+      "@engine/*": ["src/engine/*"],
+      "@data": ["src/data/index.ts"],
+      "@data/*": ["src/data/*"],
+      "@state": ["src/state/index.ts"],
+      "@state/*": ["src/state/*"],
+      "@ui": ["src/ui/index.ts"],
+      "@ui/*": ["src/ui/*"],
+      "@share": ["src/share/index.ts"],
+      "@share/*": ["src/share/*"]
+    }
+  },
+  "include": ["src"]
+}

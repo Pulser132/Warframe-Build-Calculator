@@ -1,0 +1,42 @@
+.wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.btn {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--c-surface-3);
+  border: 1px solid var(--c-line);
+  border-radius: 3px;
+  color: var(--c-text);
+  font-size: var(--fs-sm);
+  line-height: 1;
+  padding: 0;
+}
+
+.btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.btn:not(:disabled):hover {
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+}
+
+.value {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--c-gold);
+  min-width: 34px;
+  text-align: center;
+}
+
+.max {
+  color: var(--c-text-faint);
+}

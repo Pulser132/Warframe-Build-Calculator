@@ -1,0 +1,65 @@
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  width: 100%;
+  text-align: left;
+  padding: var(--sp-3);
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-line);
+  border-left: 3px solid var(--c-line-strong);
+  border-radius: var(--radius);
+  color: var(--c-text);
+}
+
+.card:hover {
+  border-color: var(--c-primary-dim);
+  border-left-color: var(--c-primary);
+  background: var(--c-surface-3);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.name {
+  flex: 1;
+  font-weight: 600;
+  font-size: var(--fs-md);
+}
+
+.drain {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--c-gold);
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-3);
+}
+
+.stat {
+  font-size: var(--fs-sm);
+  color: var(--c-text-dim);
+}
+
+.rarity {
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-3);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--c-text-faint);
+}
+.rare {
+  color: var(--c-gold);
+}
+.uncommon {
+  color: var(--c-primary);
+}

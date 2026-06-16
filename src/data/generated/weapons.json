@@ -1,0 +1,27 @@
+[
+  {
+    "id": "braton-prime",
+    "uniqueName": "/Lotus/Weapons/Tenno/Rifle/BratonPrime",
+    "name": "Braton Prime",
+    "category": "Primary",
+    "weaponClass": "rifle",
+    "trigger": "Auto",
+    "damage": {
+      "impact": 1.75,
+      "puncture": 12.25,
+      "slash": 21
+    },
+    "totalBaseDamage": 35,
+    "criticalChance": 0.12,
+    "criticalMultiplier": 2,
+    "statusChance": 0.25999999,
+    "fireRate": 9.583334,
+    "magazine": 75,
+    "reload": 2.1500001,
+    "multishot": 1,
+    "masteryReq": 8,
+    "disposition": 4,
+    "exilusPolarity": "naramon",
+    "polarities": []
+  }
+]

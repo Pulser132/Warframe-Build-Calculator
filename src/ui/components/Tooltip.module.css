@@ -1,0 +1,25 @@
+.wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.bubble {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  min-width: 160px;
+  max-width: 260px;
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--c-surface-3);
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  color: var(--c-text);
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+  text-align: left;
+  white-space: normal;
+  pointer-events: none;
+}

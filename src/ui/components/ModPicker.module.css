@@ -1,0 +1,68 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 8vh var(--sp-4) var(--sp-4);
+  background: rgba(3, 6, 10, 0.7);
+  backdrop-filter: blur(2px);
+}
+
+.panel {
+  width: min(560px, 100%);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--c-surface-1);
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.head {
+  display: flex;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border-bottom: 1px solid var(--c-line);
+}
+
+.search {
+  flex: 1;
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--c-bg);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  color: var(--c-text);
+  font-size: var(--fs-md);
+}
+.search:focus {
+  border-color: var(--c-primary);
+  outline: none;
+}
+
+.close {
+  width: 36px;
+  background: var(--c-surface-3);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  color: var(--c-text-dim);
+}
+.close:hover {
+  color: var(--c-danger);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  overflow-y: auto;
+}
+
+.empty {
+  color: var(--c-text-faint);
+  text-align: center;
+  padding: var(--sp-5);
+}

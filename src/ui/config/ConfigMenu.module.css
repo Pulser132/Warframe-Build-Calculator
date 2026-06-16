@@ -1,0 +1,69 @@
+.panel {
+  background: var(--c-surface-1);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  padding: var(--sp-4);
+}
+
+.heading {
+  font-size: var(--fs-lg);
+  margin-bottom: var(--sp-3);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3) 0;
+  border-top: 1px solid var(--c-line);
+}
+
+.groupLabel {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--c-gold-dim);
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--c-text);
+}
+
+.hint {
+  color: var(--c-text-faint);
+  font-size: var(--fs-xs);
+}
+
+.slider {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+.slider input[type='range'] {
+  flex: 1;
+  accent-color: var(--c-primary);
+}
+
+.sliderLabel {
+  font-size: var(--fs-sm);
+  color: var(--c-text-dim);
+  min-width: 130px;
+}
+
+.buff {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.value {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--c-gold);
+  min-width: 48px;
+  text-align: right;
+}

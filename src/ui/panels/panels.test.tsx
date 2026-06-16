@@ -1,0 +1,63 @@
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import type { DamageResult } from '@engine';
+import { DamageSummary } from './DamageSummary';
+import { ContributionList } from './ContributionList';
+import { PipelineChain } from './PipelineChain';
+
+const RESULT: DamageResult = {
+  perType: { impact: 4.64, puncture: 32.46, slash: 55.65, corrosive: 166.95 },
+  perPelletAverage: 259.7,
+  multishot: 1.9,
+  critChance: 0.3,
+  critMultiplier: 4.4,
+  avgCritMultiplier: 2.02,
+  statusChancePerPellet: 0.494,
+  avgProcsPerShot: 0.9386,
+  fireRate: 15.33,
+  avgHitPerShot: 996.7,
+  burstDps: 15283,
+  sustainedDps: 10617,
+  chain: [
+    { id: 'base', label: 'Base + Elemental', detail: '× (1 + 1.65) base damage; elements combined' },
+    { id: 'multishot', label: 'Multishot', detail: '1 × (1 + 0.90) = 1.900 pellets' },
+    { id: 'dps', label: 'DPS', detail: 'burst 15283 → sustained 10617' },
+  ],
+  contributions: [
+    { sourceId: 'serration', label: 'Serration', dpsDelta: 6000, fraction: 0.39 },
+    { sourceId: 'split-chamber', label: 'Split Chamber', dpsDelta: 7200, fraction: 0.47 },
+  ],
+};
+
+describe('DamageSummary', () => {
+  it('renders headline DPS and per-type damage', () => {
+    render(<DamageSummary result={RESULT} />);
+    expect(screen.getByText('Burst DPS')).toBeInTheDocument();
+    expect(screen.getByText('15,283')).toBeInTheDocument();
+    expect(screen.getByText('Sustained DPS')).toBeInTheDocument();
+    expect(screen.getByText('Corrosive')).toBeInTheDocument();
+    expect(screen.getByText('30.0%')).toBeInTheDocument(); // crit chance
+  });
+});
+
+describe('ContributionList', () => {
+  it('lists each mod with its delta and the honest sum caveat', () => {
+    render(<ContributionList contributions={RESULT.contributions!} />);
+    expect(screen.getByText('Serration')).toBeInTheDocument();
+    expect(screen.getByText('Split Chamber')).toBeInTheDocument();
+    expect(screen.getByText('+6,000')).toBeInTheDocument();
+    expect(screen.getByText(/need not sum to 100%/i)).toBeInTheDocument();
+  });
+});
+
+describe('PipelineChain', () => {
+  it('is collapsed by default and expands to show stages', async () => {
+    const user = userEvent.setup();
+    render(<PipelineChain result={RESULT} />);
+    expect(screen.queryByText('Base + Elemental')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /pipeline breakdown/i }));
+    expect(screen.getByText('Base + Elemental')).toBeInTheDocument();
+    expect(screen.getByText('Multishot')).toBeInTheDocument();
+  });
+});

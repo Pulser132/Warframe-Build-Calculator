@@ -1,0 +1,19 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  line-height: 1;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.sm {
+  width: 16px;
+  height: 16px;
+  font-size: var(--fs-xs);
+}

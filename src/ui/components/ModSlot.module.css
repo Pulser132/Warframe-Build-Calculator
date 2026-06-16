@@ -1,0 +1,104 @@
+.slot {
+  position: relative;
+  width: 100%;
+  min-height: var(--slot-size);
+  display: flex;
+  flex-direction: column;
+  padding: var(--sp-2);
+  background: linear-gradient(160deg, var(--c-surface-2), var(--c-surface-1));
+  border: 1px solid var(--c-line);
+  border-radius: var(--slot-radius);
+  transition: border-color 0.12s, box-shadow 0.12s, transform 0.08s;
+}
+
+.slot:hover {
+  border-color: var(--c-line-strong);
+  box-shadow: 0 0 0 1px var(--c-primary-glow);
+}
+
+.slot:active {
+  transform: translateY(1px);
+}
+
+.filled {
+  background: linear-gradient(160deg, var(--c-surface-3), var(--c-surface-2));
+}
+
+/* Aura/exilus read as special slots. */
+.aura {
+  box-shadow: inset 0 0 0 1px rgba(216, 177, 90, 0.15);
+}
+.exilus {
+  box-shadow: inset 0 0 0 1px rgba(54, 197, 214, 0.12);
+}
+.arcane {
+  box-shadow: inset 0 0 0 1px rgba(176, 127, 196, 0.15);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kind {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--c-text-faint);
+}
+
+.forma {
+  background: none;
+  border: none;
+  padding: 0;
+  display: inline-flex;
+}
+
+.name {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--c-text);
+  margin: var(--sp-2) 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-1);
+}
+
+.cost {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--c-text-dim);
+}
+
+.clear {
+  background: none;
+  border: none;
+  color: var(--c-text-faint);
+  font-size: var(--fs-sm);
+  padding: 0 2px;
+}
+.clear:hover {
+  color: var(--c-danger);
+}
+
+.empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-xl);
+  color: var(--c-line-strong);
+}

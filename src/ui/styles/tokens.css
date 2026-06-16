@@ -1,0 +1,74 @@
+/**
+ * Design tokens — the single source of visual truth.
+ *
+ * Aesthetic: an Orokin/Tenno arsenal terminal. Deep void backgrounds, thin
+ * angular borders, a cool cyan primary with a warm Orokin-gold accent, and the
+ * canonical mod polarity colors. Intentionally NOT a flat default dashboard.
+ */
+:root {
+  /* Surfaces — layered void blues. */
+  --c-bg: #070b10;
+  --c-surface-1: #0d141c;
+  --c-surface-2: #131d28;
+  --c-surface-3: #1b2835;
+  --c-line: #24384a;
+  --c-line-strong: #35546e;
+
+  /* Text. */
+  --c-text: #dce8f2;
+  --c-text-dim: #8aa0b4;
+  --c-text-faint: #5a7388;
+
+  /* Brand: cyan energy + Orokin gold. */
+  --c-primary: #36c5d6;
+  --c-primary-dim: #1d7d89;
+  --c-primary-glow: rgba(54, 197, 214, 0.25);
+  --c-gold: #d8b15a;
+  --c-gold-dim: #8a6e2f;
+
+  /* Status / feedback. */
+  --c-danger: #e2554e;
+  --c-warn: #e0a93b;
+  --c-ok: #4fbf78;
+
+  /* Mod polarity colors (canonical-ish). */
+  --pol-madurai: #d76b4c; /* V — attack */
+  --pol-vazarin: #5b8fd6; /* D — defense */
+  --pol-naramon: #c9d4dd; /* — — tactic */
+  --pol-zenurik: #e0c44d; /* = — utility */
+  --pol-unairu: #7fb6a8;
+  --pol-penjaga: #b07fc4;
+  --pol-umbra: #b9472f;
+  --pol-none: #4a5d6e;
+
+  /* Damage-type accent (for chips). */
+  --dt-corrosive: #c6e84f;
+  --dt-physical: #b9c4cd;
+  --dt-heat: #f2683c;
+  --dt-toxin: #9bd64a;
+  --dt-electricity: #6fd6e8;
+
+  /* Spacing scale. */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+
+  /* Slot sizing. */
+  --slot-size: 104px;
+  --slot-radius: 6px;
+
+  /* Typography. */
+  --font-sans: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Consolas', ui-monospace, monospace;
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-md: 14px;
+  --fs-lg: 18px;
+  --fs-xl: 24px;
+
+  --radius: 6px;
+  --shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+}
