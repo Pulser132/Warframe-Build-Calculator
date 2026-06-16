@@ -25,7 +25,9 @@ function signature(input: CalcInput): string {
     .map((b) => `${b.id}:${b.strength}`)
     .sort()
     .join(',');
-  return `${input.weapon.id}|${sources}|${conditions}|${stacks}|${buffs}`;
+  // Fire mode is part of the key: the same loadout yields different results per mode.
+  const mode = input.mode?.name ?? input.weapon.primaryFireMode.name;
+  return `${input.weapon.id}|${mode}|${sources}|${conditions}|${stacks}|${buffs}`;
 }
 
 /** Create a calc function backed by an LRU-ish bounded cache. */

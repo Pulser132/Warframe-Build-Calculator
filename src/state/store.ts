@@ -12,6 +12,7 @@ import type { ModData, Polarity } from '@engine/model/types';
 import type { Dataset } from '@data/loaders';
 import { makeInitialBuild } from './initialBuild';
 import { slotAccepts } from './slotRules';
+import { weaponModGroup, modMatchesGroup } from './modCompat';
 
 interface Snapshot {
   build: Build;
@@ -22,10 +23,16 @@ export interface BuildStore {
   dataset: Dataset | null;
   build: Build;
   combat: CombatState;
+  /** Active fire-mode name (`null` = the weapon's primary mode). */
+  activeMode: string | null;
   past: Snapshot[];
   future: Snapshot[];
 
   initFromDataset: (dataset: Dataset) => void;
+  /** Switch the equipped weapon, rebuilding the slots for its layout. */
+  selectWeapon: (weaponId: string) => void;
+  /** Switch the active fire mode (multi-mode weapons). */
+  setMode: (modeName: string | null) => void;
 
   assignMod: (slotIndex: number, itemId: string) => void;
   clearSlot: (slotIndex: number) => void;
@@ -82,6 +89,7 @@ export const useBuildStore = create<BuildStore>((set, get) => {
     dataset: null,
     build: EMPTY_BUILD,
     combat: EMPTY_COMBAT_STATE,
+    activeMode: null,
     past: [],
     future: [],
 
@@ -91,10 +99,23 @@ export const useBuildStore = create<BuildStore>((set, get) => {
         dataset,
         build: weapon ? makeInitialBuild(weapon) : EMPTY_BUILD,
         combat: EMPTY_COMBAT_STATE,
+        activeMode: null,
         past: [],
         future: [],
       });
     },
+
+    selectWeapon: (weaponId) => {
+      const { dataset, build } = get();
+      if (!dataset || weaponId === build.weaponId) return;
+      const weapon = dataset.weapons.find((w) => w.id === weaponId);
+      if (!weapon) return;
+      // A weapon swap discards the old loadout; the activeMode resets to primary.
+      commit({ build: makeInitialBuild(weapon) });
+      set({ activeMode: null });
+    },
+
+    setMode: (modeName) => set({ activeMode: modeName }),
 
     assignMod: (slotIndex, itemId) => {
       const { build, dataset } = get();
@@ -102,7 +123,11 @@ export const useBuildStore = create<BuildStore>((set, get) => {
       const slot = build.slots[slotIndex];
       if (!slot) return;
       const itemKind = itemKindOf(itemId, dataset);
-      if (!itemKind || !slotAccepts(slot.kind, itemKind)) return; // incompatible — ignore
+      if (!itemKind || !slotAccepts(slot.kind, itemKind)) return; // incompatible slot — ignore
+      // Class-compatibility guard (e.g. a Pistol mod cannot go on a rifle).
+      const mod = dataset.mods.find((m) => m.id === itemId);
+      const weapon = dataset.weapons.find((w) => w.id === build.weaponId);
+      if (mod && weapon && !modMatchesGroup(mod, weaponModGroup(weapon))) return;
       updateSlot(slotIndex, { itemId, rank: defaultRankFor(itemId, slot.kind, dataset) });
     },
 

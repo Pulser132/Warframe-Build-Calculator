@@ -46,3 +46,66 @@ honor. Keep this in sync as the foundation evolves.
   matching-halves and aura-grants only (`state/capacity.ts`).
 - **Single fire mode, hitscan only.** Projectile travel, AoE/falloff, trigger
   types, and multi-mode are Stage 2.
+
+---
+
+# Stage 2 — what's implemented & what's still a seam
+
+Stage 2 (`weapons-coverage/`) generalized the engine to **all primary & secondary
+guns**. The Stage 1 bucket pipeline, attribution, capacity, and data flow are
+unchanged underneath — the Vulkar Wraith DPS numbers are byte-identical (only the
+physical-type *label* was corrected, see the data-quality note below).
+
+## Now implemented
+
+- **`FireMode`** (`engine/model/firemode.ts`) is the calculable unit. A weapon owns
+  one or more; the pipeline runs on a mode, not on gun-level stats. Trigger and
+  delivery are **data on the mode** (no per-mechanic subclasses): `trigger`
+  (auto/semi/burst/charge/held), `components[]` (direct + radial for AoE), plus
+  `burst`/`beam`/`chargeTime`/`falloff` specs.
+- **`Secondary`** gear class + `createWeapon` branch; `Gun` now holds the shared
+  firearm behavior and `fireModes`. `MultiMode` is implemented (`modeNames`,
+  `isMultiMode`, `fireMode(name)`).
+- **Trigger → effective fire rate** (`pipeline/triggers.ts`): auto/semi (10 rps
+  cap, 0.05 floor), burst (`count/(1/FR+(count−1)·delay)`), charge
+  (`1/(modChargeTime+1/modFR)`, bow variant, 10× cap). Folded into the existing
+  `fireRate` chain stage so the Stage 1 chain shape is unchanged.
+- **Beams**: held-continuous, tick rate = FR, 0.5 ammo/tick, **full** per-tick
+  status × multishot (the legacy 0.6× is gone), peak DPS + ramp note. No new bucket.
+- **Shotguns**: pellet count is the multishot vector (`basePellets×(1+Σms)`),
+  per-pellet status/crit, `P(≥1)=1−(1−s)^N`, proc-type weighting. Per-pellet base
+  damage = displayed total ÷ base pellet count.
+- **AoE/falloff**: direct + radial components, linear falloff, center/rim pair in
+  the result. Hitscan/projectile/aoe delivery carried as metadata (no Stage 2
+  damage effect).
+- **Multi-mode**: `calculateBuild` takes a `mode`; the store/UI expose a fire-mode
+  switcher and attribution runs per mode.
+- **Data pipeline**: `build-data.mjs` maps **every** Primary + Secondary gun
+  generically (339 at time of writing), Incarnon alts dropped. Mods stay curated +
+  hand-authored, now filtered to a weapon by `compat` group
+  (`state/modCompat.ts`).
+
+## Conventions / data-quality notes (honor these)
+
+- **`@wfcd falloff.reduction` = remaining multiplier** at max distance (Vulkar 0.5,
+  Vaykor 0.7333). The transform stores `maxReduction = 1 − reduction` (fraction
+  removed); rim factor = `1 − maxReduction`. Tonkor radial: reduction 0.7 → rim ×0.7.
+- **`@wfcd` slash/puncture are unreliable** in `attacks[].damage` and the
+  `damagePerShot` *array* for some weapons (Vaykor Hek, Soma) — the explicit
+  top-level `damage` **object** has unambiguous keys and is authoritative for a
+  single normal component. AoE/multi-mode components must still read `attacks[]`
+  (only source of the split). `damagePerShot` array order is **Impact, Slash,
+  Puncture** (not I/P/S — Stage 1 had these swapped, harmless to its numbers).
+- **Burst count/delay and beam ramp-start are not in the dump** → `BURST_META` /
+  `BEAM_RAMP` tables in `build-data.mjs` (mechanics, not stats). Lanka has
+  `fireRate 0`, so its charge recovery term is treated as 0 (acts bow-like).
+
+## Still a seam (later stages)
+
+- **Incarnon evolutions** are dropped from the mode list (base form only) — Stage 6
+  implements them via the custom-effect registry / mode selection.
+- **Projectile travel & self-stagger** are metadata only; they feed Stage 5 TTK.
+- **Beam ramp-aware TTK** and the enemy/target model are Stage 5 (Stage 2 reports
+  peak DPS + a ramp note).
+- **Un-mappable guns** (chaining beams, status-ramp shotguns, grenade+cloud) are
+  Stage 6 special cases — never hand-edited weapon data.

@@ -33,6 +33,45 @@
   gap: var(--sp-4);
 }
 
+.weaponSelect {
+  background: var(--c-surface-3);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  color: var(--c-text);
+  font-size: var(--fs-md);
+  font-weight: 600;
+  padding: var(--sp-1) var(--sp-2);
+  max-width: 260px;
+}
+.weaponSelect:hover {
+  border-color: var(--c-primary);
+}
+
+.modes {
+  display: flex;
+  gap: var(--sp-1);
+  margin-bottom: var(--sp-3);
+}
+.modeTab {
+  background: var(--c-surface-3);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  color: var(--c-text-dim);
+  font-size: var(--fs-sm);
+  padding: var(--sp-1) var(--sp-3);
+  cursor: pointer;
+}
+.modeTab:hover {
+  border-color: var(--c-primary);
+  color: var(--c-text);
+}
+.modeTabActive {
+  background: var(--c-surface-1);
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+  font-weight: 600;
+}
+
 .reactor {
   display: flex;
   align-items: center;

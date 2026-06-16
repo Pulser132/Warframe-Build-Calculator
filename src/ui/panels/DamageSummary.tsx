@@ -25,6 +25,9 @@ export function DamageSummary({ result }: Props) {
   types.sort((a, b) => b[1] - a[1]);
 
   const tiers = critTiers(result);
+  const isBeam = !!result.beam;
+  const isPellet = !isBeam && result.multishot > 1;
+  const direct = result.components?.find((c) => c.role === 'direct');
 
   return (
     <section className={styles.panel} aria-label="damage summary">
@@ -67,15 +70,48 @@ export function DamageSummary({ result }: Props) {
       </div>
 
       <div className={styles.grid}>
-        <Stat label="Multishot" value={`${fmt(result.multishot, 2)}×`} />
+        <Stat label={isPellet ? 'Pellets / shot' : 'Multishot'} value={`${fmt(result.multishot, 2)}×`} />
         <Stat label="Crit Chance" value={pct(result.critChance)} />
         <Stat label="Crit Mult" value={`${fmt(result.critMultiplier, 2)}×`} />
         <Stat label="Avg Crit" value={`${fmt(result.avgCritMultiplier, 2)}×`} />
         <Stat label="Status / pellet" value={pct(result.statusChancePerPellet)} />
         <Stat label="Procs / shot" value={fmt(result.avgProcsPerShot, 2)} />
-        <Stat label="Fire Rate" value={`${fmt(result.fireRate, 2)}/s`} />
-        <Stat label="Avg Pellet" value={fmt(result.perPelletAverage, 1)} />
+        <Stat
+          label="P(≥1 proc)"
+          value={result.statusProcChance != null ? pct(result.statusProcChance) : '—'}
+        />
+        <Stat label={isBeam ? 'Tick Rate' : 'Fire Rate'} value={`${fmt(result.fireRate, 2)}/s`} />
       </div>
+
+      {result.beam && (
+        <div className={styles.mech} aria-label="beam stats">
+          <div className={styles.mechTitle}>Beam (continuous)</div>
+          <div className={styles.grid}>
+            <Stat label="Per-tick Dmg" value={fmt(result.beam.perTickDamage, 1)} />
+            <Stat label="Ticks / s" value={`${fmt(result.beam.tickRate, 2)}/s`} />
+            <Stat label="Procs / s" value={fmt(result.beam.procsPerSecond, 2)} />
+            <Stat label="Ammo / tick" value={fmt(result.ammoPerShot ?? 0.5, 2)} />
+          </div>
+          <p className={styles.mechNote}>
+            Damage ramps from {pct(result.beam.rampStartPct, 0)} to 100% over{' '}
+            {fmt(result.beam.rampSeconds, 1)}s — DPS shown is peak (post-ramp).
+          </p>
+        </div>
+      )}
+
+      {result.aoe && (
+        <div className={styles.mech} aria-label="aoe stats">
+          <div className={styles.mechTitle}>Area of Effect ({fmt(result.aoe.radius, 0)} m radius)</div>
+          <div className={styles.grid}>
+            <Stat label="Center" value={fmt(result.aoe.centerAverage, 1)} accent />
+            <Stat label="Edge (rim)" value={fmt(result.aoe.rimAverage, 1)} />
+            {direct && <Stat label="Direct hit" value={fmt(direct.perPelletAverage, 1)} />}
+          </div>
+          <p className={styles.mechNote}>
+            Radial damage falls off linearly from center to edge.
+          </p>
+        </div>
+      )}
     </section>
   );
 }

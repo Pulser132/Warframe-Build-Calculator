@@ -7,6 +7,7 @@
  * contribution breakdown.
  */
 import type { DamageType } from './types';
+import type { TriggerType, DeliveryType, FalloffSpec } from './firemode';
 
 export type DamageMap = Partial<Record<DamageType, number>>;
 
@@ -62,4 +63,67 @@ export interface DamageResult {
   chain: PipelineStage[];
   /** Per-source contributions (filled by the attribution layer; optional). */
   contributions?: Contribution[];
+
+  // ── Stage 2 fire-mode / delivery metadata (optional; absent on bare Stage 1 calls) ──
+
+  /** Name of the fire mode this result was computed for. */
+  modeName?: string;
+  /** Trigger type (auto/semi/burst/charge/held). */
+  trigger?: TriggerType;
+  /** Primary delivery (hitscan/projectile/aoe) — metadata for Stage 5 TTK. */
+  delivery?: DeliveryType;
+  /** Ammo consumed per shot/tick (beams = 0.5; otherwise 1). */
+  ammoPerShot?: number;
+
+  /** Per-component breakdown (AoE direct/radial, etc.). `>1` only for AoE modes. */
+  components?: ComponentResult[];
+
+  /** Probability of ≥1 status proc per shot (`1 − (1 − s)^N`). */
+  statusProcChance?: number;
+  /** Proc-type weighting (element share of total damage). */
+  procTypeWeights?: DamageMap;
+
+  /** Beam (held-continuous) extras. */
+  beam?: BeamResult;
+  /** AoE (radial falloff) extras: center vs rim. */
+  aoe?: AoeResult;
+}
+
+/** One simultaneous component's averaged result (crit-weighted, conditionals on). */
+export interface ComponentResult {
+  name: string;
+  role: 'normal' | 'direct' | 'radial';
+  delivery: DeliveryType;
+  /** Average per-type damage of one pellet of this component. */
+  perType: DamageMap;
+  /** Average total of one pellet of this component (sum of `perType`). */
+  perPelletAverage: number;
+  /** Radial floor (rim) average = center × (1 − maxReduction). */
+  rimPerPelletAverage?: number;
+  falloff?: FalloffSpec;
+}
+
+/** Beam continuous-fire reporting. */
+export interface BeamResult {
+  /** Ticks per second (= effective fire rate). */
+  tickRate: number;
+  /** Merged per-tick damage (one pellet × multishot). */
+  perTickDamage: number;
+  /** Status procs per second (per-tick status × tick rate). */
+  procsPerSecond: number;
+  /** Damage ramp starting fraction and duration (peak DPS is reported as DPS). */
+  rampStartPct: number;
+  rampSeconds: number;
+}
+
+/** AoE center/rim reporting (radial component). */
+export interface AoeResult {
+  falloffStart: number;
+  radius: number;
+  /** Average damage at the blast center (full). */
+  centerAverage: number;
+  /** Average damage at the rim (`center × (1 − maxReduction)`). */
+  rimAverage: number;
+  centerPerType: DamageMap;
+  rimPerType: DamageMap;
 }

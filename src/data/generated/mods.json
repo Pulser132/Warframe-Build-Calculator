@@ -152,5 +152,202 @@
     "rawMaxStats": [
       "+12m Beam Range"
     ]
+  },
+  {
+    "id": "hornet-strike",
+    "uniqueName": "/Lotus/Upgrades/Mods/Pistol/WeaponDamageAmountMod",
+    "name": "Hornet Strike",
+    "polarity": "madurai",
+    "baseDrain": 4,
+    "maxRank": 10,
+    "rarity": "Uncommon",
+    "compat": "Pistol",
+    "description": "",
+    "rawMaxStats": [
+      "+220% Damage"
+    ]
+  },
+  {
+    "id": "barrel-diffusion",
+    "uniqueName": "/Lotus/Upgrades/Mods/Pistol/WeaponFireIterationsMod",
+    "name": "Barrel Diffusion",
+    "polarity": "madurai",
+    "baseDrain": 6,
+    "maxRank": 5,
+    "rarity": "Rare",
+    "compat": "Pistol",
+    "description": "",
+    "rawMaxStats": [
+      "+120% Multishot"
+    ]
+  },
+  {
+    "id": "lethal-torrent",
+    "uniqueName": "/Lotus/Upgrades/Mods/Pistol/DualStat/GrinderMod",
+    "name": "Lethal Torrent",
+    "polarity": "madurai",
+    "baseDrain": 6,
+    "maxRank": 5,
+    "rarity": "Rare",
+    "compat": "Pistol",
+    "description": "",
+    "rawMaxStats": [
+      "+60% Fire Rate",
+      "+60% Multishot"
+    ]
+  },
+  {
+    "id": "pistol-gambit",
+    "uniqueName": "/Lotus/Upgrades/Mods/Pistol/WeaponCritChanceMod",
+    "name": "Pistol Gambit",
+    "polarity": "madurai",
+    "baseDrain": 4,
+    "maxRank": 5,
+    "rarity": "Common",
+    "compat": "Pistol",
+    "description": "",
+    "rawMaxStats": [
+      "+120% Critical Chance"
+    ]
+  },
+  {
+    "id": "convulsion",
+    "uniqueName": "/Lotus/Upgrades/Mods/Pistol/WeaponElectricityDamageMod",
+    "name": "Convulsion",
+    "polarity": "naramon",
+    "baseDrain": 6,
+    "maxRank": 5,
+    "rarity": "Uncommon",
+    "compat": "Pistol",
+    "description": "",
+    "rawMaxStats": [
+      "+90% <DT_ELECTRICITY_COLOR>Electricity"
+    ]
+  },
+  {
+    "id": "pathogen-rounds",
+    "uniqueName": "/Lotus/Upgrades/Mods/Pistol/WeaponToxinDamageMod",
+    "name": "Pathogen Rounds",
+    "polarity": "naramon",
+    "baseDrain": 6,
+    "maxRank": 5,
+    "rarity": "Uncommon",
+    "compat": "Pistol",
+    "description": "",
+    "rawMaxStats": [
+      "+90% <DT_POISON_COLOR>Toxin"
+    ]
+  },
+  {
+    "id": "sure-shot",
+    "uniqueName": "/Lotus/Upgrades/Mods/Pistol/WeaponStunChanceMod",
+    "name": "Sure Shot",
+    "polarity": "vazarin",
+    "baseDrain": 2,
+    "maxRank": 5,
+    "rarity": "Uncommon",
+    "compat": "Pistol",
+    "description": "",
+    "rawMaxStats": [
+      "+90% Status Chance"
+    ]
+  },
+  {
+    "id": "gunslinger",
+    "uniqueName": "/Lotus/Upgrades/Mods/Pistol/WeaponFireRateMod",
+    "name": "Gunslinger",
+    "polarity": "madurai",
+    "baseDrain": 4,
+    "maxRank": 5,
+    "rarity": "Uncommon",
+    "compat": "Pistol",
+    "description": "",
+    "rawMaxStats": [
+      "+72% Fire Rate"
+    ]
+  },
+  {
+    "id": "point-blank",
+    "uniqueName": "/Lotus/Upgrades/Mods/Shotgun/WeaponDamageAmountMod",
+    "name": "Point Blank",
+    "polarity": "madurai",
+    "baseDrain": 4,
+    "maxRank": 5,
+    "rarity": "Uncommon",
+    "compat": "Shotgun",
+    "description": "",
+    "rawMaxStats": [
+      "+90% Damage"
+    ]
+  },
+  {
+    "id": "hell-s-chamber",
+    "uniqueName": "/Lotus/Upgrades/Mods/Shotgun/WeaponFireIterationsMod",
+    "name": "Hell's Chamber",
+    "polarity": "madurai",
+    "baseDrain": 10,
+    "maxRank": 5,
+    "rarity": "Rare",
+    "compat": "Shotgun",
+    "description": "",
+    "rawMaxStats": [
+      "+120% Multishot"
+    ]
+  },
+  {
+    "id": "blunderbuss",
+    "uniqueName": "/Lotus/Upgrades/Mods/Shotgun/WeaponCritChanceMod",
+    "name": "Blunderbuss",
+    "polarity": "madurai",
+    "baseDrain": 4,
+    "maxRank": 5,
+    "rarity": "Common",
+    "compat": "Shotgun",
+    "description": "",
+    "rawMaxStats": [
+      "+90% Critical Chance"
+    ]
+  },
+  {
+    "id": "charged-shell",
+    "uniqueName": "/Lotus/Upgrades/Mods/Shotgun/WeaponElectricityDamageMod",
+    "name": "Charged Shell",
+    "polarity": "naramon",
+    "baseDrain": 6,
+    "maxRank": 5,
+    "rarity": "Uncommon",
+    "compat": "Shotgun",
+    "description": "",
+    "rawMaxStats": [
+      "+90% <DT_ELECTRICITY_COLOR>Electricity"
+    ]
+  },
+  {
+    "id": "contagious-spread",
+    "uniqueName": "/Lotus/Upgrades/Mods/Shotgun/WeaponToxinDamageMod",
+    "name": "Contagious Spread",
+    "polarity": "naramon",
+    "baseDrain": 6,
+    "maxRank": 5,
+    "rarity": "Uncommon",
+    "compat": "Shotgun",
+    "description": "",
+    "rawMaxStats": [
+      "+90% <DT_POISON_COLOR>Toxin"
+    ]
+  },
+  {
+    "id": "shotgun-savvy",
+    "uniqueName": "/Lotus/Upgrades/Mods/Shotgun/WeaponStunChanceMod",
+    "name": "Shotgun Savvy",
+    "polarity": "vazarin",
+    "baseDrain": 4,
+    "maxRank": 5,
+    "rarity": "Uncommon",
+    "compat": "Shotgun",
+    "description": "",
+    "rawMaxStats": [
+      "+90% Status Chance"
+    ]
   }
 ]

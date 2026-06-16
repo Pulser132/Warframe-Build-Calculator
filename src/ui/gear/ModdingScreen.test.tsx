@@ -16,9 +16,11 @@ beforeEach(() => {
 });
 
 describe('ModdingScreen', () => {
-  it('renders the 12-slot layout with the weapon name', () => {
+  it('renders the 12-slot layout with the weapon picker', () => {
     render(<ModdingScreen />);
-    expect(screen.getByRole('heading', { name: 'Vulkar Wraith' })).toBeInTheDocument();
+    const picker = screen.getByLabelText('select weapon') as HTMLSelectElement;
+    const selected = picker.options[picker.selectedIndex];
+    expect(selected.textContent).toBe('Vulkar Wraith');
     // aura + exilus + 8 normal + 2 arcane = 12 slot buttons (role=button on each slot).
     const slots = screen.getAllByRole('button').filter((b) => {
       const label = b.getAttribute('aria-label') ?? '';
@@ -53,5 +55,41 @@ describe('ModdingScreen', () => {
     expect(screen.getByText('Serration')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /remove mod/i }));
     expect(screen.queryByText('Serration')).not.toBeInTheDocument();
+  });
+
+  it('switches weapons via the picker and updates the type label', async () => {
+    const user = userEvent.setup();
+    render(<ModdingScreen />);
+    await user.selectOptions(screen.getByLabelText('select weapon'), 'lex-prime');
+    expect(useBuildStore.getState().build.weaponId).toBe('lex-prime');
+    expect(screen.getByText(/Secondary · Pistol/)).toBeInTheDocument();
+  });
+
+  it('filters the mod picker by weapon class (pistol mods on a secondary)', async () => {
+    const user = userEvent.setup();
+    useBuildStore.getState().selectWeapon('lex-prime');
+    render(<ModdingScreen />);
+    const emptyNormal = screen.getAllByRole('button', { name: /empty Mod slot/i })[0];
+    await user.click(emptyNormal);
+    const dialog = screen.getByRole('dialog');
+    // Hornet Strike (pistol) is offered; Serration (rifle) is not.
+    expect(within(dialog).getByRole('button', { name: /Hornet Strike/i })).toBeInTheDocument();
+    expect(within(dialog).queryByRole('button', { name: /^Serration/i })).not.toBeInTheDocument();
+  });
+
+  it('shows a fire-mode switcher for multi-mode weapons and switches modes', async () => {
+    const user = userEvent.setup();
+    useBuildStore.getState().selectWeapon('stradavar-prime');
+    render(<ModdingScreen />);
+    const tablist = screen.getByRole('tablist', { name: /fire modes/i });
+    expect(within(tablist).getByRole('tab', { name: 'Full Auto Mode' })).toBeInTheDocument();
+    await user.click(within(tablist).getByRole('tab', { name: 'Semi-Auto Mode' }));
+    expect(useBuildStore.getState().activeMode).toBe('Semi-Auto Mode');
+  });
+
+  it('hides the fire-mode switcher for single-mode weapons', () => {
+    useBuildStore.getState().selectWeapon('lex-prime');
+    render(<ModdingScreen />);
+    expect(screen.queryByRole('tablist', { name: /fire modes/i })).not.toBeInTheDocument();
   });
 });

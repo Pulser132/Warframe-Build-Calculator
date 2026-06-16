@@ -4,12 +4,15 @@ A client-only web app for building Warframe loadouts and seeing **exactly where
 your damage comes from** — each equipped mod's contribution is computed by a
 framework-agnostic, fully unit-tested damage engine.
 
-**Stage 1 (this milestone)** proves the whole architecture on a thin vertical
-slice: one primary rifle (**Vulkar Wraith**) modded as in-game — aura + exilus +
-8 mod slots + 2 arcane slots — with wiki-accurate damage math, per-mod
-leave-one-out attribution, an expandable pipeline breakdown, and a minimal
-combat-state config. See `docs/planning/Overview.md` for the full architecture
-and the 8-stage roadmap.
+**Stage 2 (current milestone)** generalizes the engine to **every primary and
+secondary gun** in the game: pick any of them, mod it in the same in-game-style
+screen, switch fire modes where it has them, and see accurate per-mode damage/DPS
+and per-mod contributions. Every trigger type (auto/semi/burst/charge), beam
+(held-continuous), shotgun (per-pellet status + pellet multishot), AoE with
+linear falloff, and multi-mode weapons are modeled — each matching a hand-verified
+wiki reference. Stage 1's foundation (the bucket pipeline, attribution, gear
+hierarchy, data pipeline) is unchanged underneath. See `docs/planning/Overview.md`
+for the full architecture and the 8-stage roadmap.
 
 ## Quick start
 
@@ -40,8 +43,11 @@ Framework-agnostic engine, decoupled from React and the store.
 src/
   engine/      PURE TypeScript — no React/store/DOM (enforced by ESLint)
     model/     types: buckets, EffectDescriptor, Build, DamageResult, registry
-    gear/      class hierarchy: Weapon → Gun → Primary (+ capability interfaces)
-    pipeline/  ordered pure-function damage stages → calculateBuild()
+    model/firemode.ts  FireMode: the calculable unit (trigger/delivery/components)
+    gear/      class hierarchy: Weapon → Gun → Primary | Secondary (+ interfaces)
+    pipeline/  ordered pure-function damage stages → calculateBuild(weapon, mode)
+               triggers.ts (fire-rate → effective rate), mechanics.ts (falloff,
+               shotgun P(≥1), proc weighting)
     attribution/  pluggable strategies; leave-one-out is the default
     buffs.ts   data-driven external-buff registry (Roar)
   data/        curated dataset (generated from @wfcd) + authored mod descriptors
@@ -58,29 +64,52 @@ src/
   to 100%** — buckets multiply, so mods amplify each other. This is stated
   honestly in the UI.
 
-## How to add a mod
+## How to add a weapon, a fire mode, or a mod
 
-1. Add its exact `uniqueName` to `SLICE_MOD_UNIQUE_NAMES` in
-   `scripts/build-data.mjs` (find values via
-   `node scripts/warframe-lookup.mjs --exact --category Mods "<name>"`), then run
-   `npm run build:data` to regenerate `src/data/generated/mods.json`.
+**Weapons are not hand-authored.** `npm run build:data` maps **every** Primary +
+Secondary gun from `@wfcd/items` generically: each record's `attacks[]` becomes
+one or more `FireMode`s (single-mode → one; genuine multi-mode → N; AoE → one mode
+with a direct + a radial component), with trigger, pellet count, `shot_type`,
+`charge_time`, and `falloff` read straight off the record. So a new weapon usually
+needs **nothing** — it appears in the picker after the dump updates. The only
+non-dump mechanics are burst count/delay (`BURST_META`) and beam ramp
+(`BEAM_RAMP`) in `scripts/build-data.mjs`; add an entry there if a new burst/beam
+weapon needs precise numbers.
+
+A weapon whose behavior the generic mapping can't express (chaining beams,
+status-ramp shotguns, grenade+cloud) is a **Stage 6 special case** — handled by the
+custom-effect registry, never by hand-editing weapon data.
+
+**Fire modes** are derived automatically from `attacks[]`; the multi-mode switcher
+and per-mode results follow with no extra work.
+
+**Mods _are_ hand-authored** (the dump only gives stat strings):
+
+1. Add the exact `uniqueName` to `MOD_UNIQUE_NAMES` in `scripts/build-data.mjs`
+   (find values via `node scripts/warframe-lookup.mjs --exact --category Mods
+   "<name>"`), then run `npm run build:data`.
 2. Author its structured effect(s) in `src/data/mods/descriptors.ts`, keyed by the
-   mod's slug `id`: `{ bucket, value, element?, condition?, perStack? }`. Values
-   are at **max rank** — the engine scales by the equipped rank. Cross-check the
-   value against the wiki.
-3. That's it — the picker, capacity, pipeline, and attribution pick it up
-   automatically. Special-case mods (set bonuses, Condition Overload) instead
-   register a function in `engine/model/registry.ts` (`CUSTOM_EFFECTS`).
+   mod's slug `id`: `{ bucket, value, element?, condition?, perStack? }` at **max
+   rank**. The `compat` tag (Rifle/Pistol/Shotgun) filters it to the right weapon
+   class automatically (`state/modCompat.ts`).
+3. The picker, capacity, pipeline, and attribution pick it up automatically.
+   Special-case mods register a function in `engine/model/registry.ts`.
 
 ## Verifying the math
 
-The slice reference build (9 mods on Vulkar Wraith) is hand-derived from the wiki
-in `docs/warframe/mechanics/damage.md` and asserted end-to-end in
-`src/engine/pipeline/calculate.test.ts` (burst ≈ 33,402 DPS unbuffed,
-≈ 43,422 vs Grineer with Bane, post-quantization). Run `npm test`.
+The Stage 1 slice (9 mods on Vulkar Wraith) is hand-derived in
+`docs/warframe/mechanics/damage.md` and asserted end-to-end in
+`src/engine/pipeline/calculate.test.ts`. Stage 2 adds one reference weapon **per
+mechanic** in `src/engine/pipeline/weapons.test.ts`, each anchored to its cached
+fixture (`docs/warframe/weapons/*.md`): Glaxion Vandal (beam), Vaykor Hek
+(shotgun), Tonkor (AoE/falloff), Lex Prime (secondary), Hind (burst), Lanka
+(charge), Stradavar Prime (multi-mode). The trigger/falloff/shotgun formulas are
+unit-tested against the locked `docs/warframe/mechanics/*.md` worked examples
+(`triggers.test.ts`, `mechanics.test.ts`), and the data transform against the
+fixtures (`src/data/transform.test.ts`). Run `npm test`.
 
 ## Status
 
-Stage 1 complete. Stages 2–8 (more weapons, melee, warframes, enemy model,
+Stage 2 complete (all gun types). Stages 3–8 (melee, warframes, enemy model,
 incarnon/specials, companions, sharing) build on the seams established here — see
-`docs/planning/initial-layout/STAGE-NOTES.md` for what Stage 2 must honor.
+`docs/planning/initial-layout/STAGE-NOTES.md` for what those stages must honor.

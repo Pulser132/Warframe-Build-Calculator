@@ -49,6 +49,56 @@ export const MOD_DESCRIPTORS: Record<string, AuthoredMod> = {
   'rifle-amp': { slot: 'aura', effects: [{ bucket: 'baseDamage', value: 0.27 }] },
   // Exilus utility — no damage contribution (slot demo). Beam range is inert on hitscan.
   'sinister-reach': { slot: 'exilus', effects: [] },
+
+  // ── Secondary (pistol) mod set ──
+  // Base-damage bucket (the pistol Serration).
+  'hornet-strike': { slot: 'normal', effects: [{ bucket: 'baseDamage', value: 2.2 }] },
+  // Multishot bucket.
+  'barrel-diffusion': { slot: 'normal', effects: [{ bucket: 'multishot', value: 1.2 }] },
+  // Dual-stat: +60% Multishot, +60% Fire Rate (two buckets, both additive within their own).
+  'lethal-torrent': {
+    slot: 'normal',
+    effects: [
+      { bucket: 'multishot', value: 0.6 },
+      { bucket: 'fireRate', value: 0.6 },
+    ],
+  },
+  // Critical chance bucket.
+  'pistol-gambit': { slot: 'normal', effects: [{ bucket: 'critChance', value: 1.2 }] },
+  // Elemental — Electricity.
+  convulsion: {
+    slot: 'normal',
+    effects: [{ bucket: 'elemental', element: 'electricity', value: 0.9 }],
+  },
+  // Elemental — Toxin.
+  'pathogen-rounds': {
+    slot: 'normal',
+    effects: [{ bucket: 'elemental', element: 'toxin', value: 0.9 }],
+  },
+  // Status chance bucket.
+  'sure-shot': { slot: 'normal', effects: [{ bucket: 'statusChance', value: 0.9 }] },
+  // Fire-rate bucket.
+  gunslinger: { slot: 'normal', effects: [{ bucket: 'fireRate', value: 0.72 }] },
+
+  // ── Shotgun mod set ──
+  // Base-damage bucket (the shotgun Serration).
+  'point-blank': { slot: 'normal', effects: [{ bucket: 'baseDamage', value: 0.9 }] },
+  // Multishot bucket — adds pellets.
+  'hell-s-chamber': { slot: 'normal', effects: [{ bucket: 'multishot', value: 1.2 }] },
+  // Critical chance bucket.
+  blunderbuss: { slot: 'normal', effects: [{ bucket: 'critChance', value: 0.9 }] },
+  // Elemental — Electricity.
+  'charged-shell': {
+    slot: 'normal',
+    effects: [{ bucket: 'elemental', element: 'electricity', value: 0.9 }],
+  },
+  // Elemental — Toxin.
+  'contagious-spread': {
+    slot: 'normal',
+    effects: [{ bucket: 'elemental', element: 'toxin', value: 0.9 }],
+  },
+  // Status chance bucket (per pellet on shotguns).
+  'shotgun-savvy': { slot: 'normal', effects: [{ bucket: 'statusChance', value: 0.9 }] },
 };
 
 /** Keyed by curated arcane `id`. */

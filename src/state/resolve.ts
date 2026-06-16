@@ -79,17 +79,21 @@ export function getGun(build: Build, dataset: Dataset): Gun | null {
   return weapon ? (createWeapon(weapon) as Gun) : null;
 }
 
-/** Compute the full damage result + per-source contributions for a build. */
+/** Compute the full damage result + per-source contributions for a build.
+ * `modeName` selects a fire mode (multi-mode weapons); `null` = the primary. */
 export function computeResult(
   build: Build,
   combat: CombatState,
   dataset: Dataset,
+  modeName: string | null = null,
   calc = createMemoizedCalc(),
 ): DamageResult | null {
   const weapon = getGun(build, dataset);
   if (!weapon) return null;
   const sources = resolveSources(build, combat, dataset);
-  const result = calc({ weapon, sources, combat });
-  const contributions = attributeBuild({ weapon, sources, combat }, undefined, calc);
+  const mode = modeName ? weapon.fireMode(modeName) : weapon.primaryFireMode;
+  const input = { weapon, sources, combat, mode };
+  const result = calc(input);
+  const contributions = attributeBuild(input, undefined, calc);
   return { ...result, contributions };
 }

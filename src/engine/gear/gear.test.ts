@@ -16,8 +16,8 @@ describe('gear hierarchy — Primary from curated data', () => {
     expect(weapon.totalBaseDamage).toBe(273);
     const dmg = weapon.baseDamage();
     expect(dmg.impact).toBeCloseTo(245.7, 4);
-    expect(dmg.puncture).toBeCloseTo(27.3, 4);
-    expect(dmg.slash).toBeUndefined();
+    expect(dmg.slash).toBeCloseTo(27.3, 4); // authoritative @wfcd damage object
+    expect(dmg.puncture).toBeUndefined();
 
     // Capability interfaces are implemented by Gun/Primary.
     expect(hasCrit(weapon)).toBe(true);

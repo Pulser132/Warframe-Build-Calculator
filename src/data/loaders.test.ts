@@ -5,10 +5,11 @@ describe('data transform — curated weapon', () => {
   it('normalizes Vulkar Wraith to the curated schema with correct IPS', async () => {
     const w = await loadWeapon('vulkar-wraith');
     expect(w).toBeDefined();
-    // IPS comes from damagePerShot order; only nonzero types are kept (no Slash).
+    // IPS from the authoritative `@wfcd` damage object (explicit keys): the 27.3
+    // is Slash, not Puncture — Stage 1's damagePerShot order had S/P swapped.
     expect(w!.damage.impact).toBeCloseTo(245.7, 4);
-    expect(w!.damage.puncture).toBeCloseTo(27.3, 4);
-    expect(w!.damage.slash).toBeUndefined();
+    expect(w!.damage.slash).toBeCloseTo(27.3, 4);
+    expect(w!.damage.puncture).toBeUndefined();
     expect(w!.totalBaseDamage).toBe(273);
     expect(w!.criticalChance).toBeCloseTo(0.2, 5);
     expect(w!.criticalMultiplier).toBe(2);
@@ -17,7 +18,8 @@ describe('data transform — curated weapon', () => {
     expect(w!.magazine).toBe(8);
     expect(w!.reload).toBeCloseTo(3, 4);
     expect(w!.multishot).toBe(1);
-    expect(w!.weaponClass).toBe('rifle');
+    expect(w!.weaponClass).toBe('sniper'); // Vulkar Wraith is a sniper
+    expect(w!.category).toBe('Primary');
     expect(w!.exilusPolarity).toBe('madurai');
   });
 });
@@ -61,7 +63,7 @@ describe('mod mapping — curated stats + authored descriptors', () => {
 
   it('loads every slice mod with an authored descriptor', async () => {
     const mods = await loadMods();
-    expect(mods).toHaveLength(11);
+    expect(mods).toHaveLength(25); // rifle (11) + secondary (8) + shotgun (6)
     for (const m of mods) {
       expect(m.slot).toBeDefined();
       expect(Array.isArray(m.effects)).toBe(true);
@@ -85,8 +87,13 @@ describe('arcane mapping', () => {
 describe('loadDataset', () => {
   it('returns all categories', async () => {
     const ds = await loadDataset();
-    expect(ds.weapons).toHaveLength(1);
-    expect(ds.mods).toHaveLength(11);
+    // Stage 2 broadened weapons to every Primary + Secondary gun.
+    expect(ds.weapons.length).toBeGreaterThan(100);
+    expect(ds.weapons[0].name).toBe('Vulkar Wraith'); // stable default
+    for (const name of ['Lex Prime', 'Vaykor Hek', 'Tonkor', 'Glaxion Vandal']) {
+      expect(ds.weapons.some((w) => w.name === name)).toBe(true);
+    }
+    expect(ds.mods).toHaveLength(25);
     expect(ds.arcanes).toHaveLength(2);
   });
 });

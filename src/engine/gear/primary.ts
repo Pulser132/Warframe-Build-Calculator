@@ -1,9 +1,9 @@
 import type { ModSlotKind, WeaponData } from '../model/types';
-import { Gun, PRIMARY_SLOT_LAYOUT } from './weapon';
-import type { HasCrit, HasStatus } from './interfaces';
+import { Gun, GUN_SLOT_LAYOUT } from './weapon';
+import type { HasCrit, HasStatus, MultiMode } from './interfaces';
 
-/** A primary weapon. The only concrete gear class in Stage 1. */
-export class Primary extends Gun implements HasCrit, HasStatus {
+/** A primary weapon. */
+export class Primary extends Gun implements HasCrit, HasStatus, MultiMode {
   constructor(data: WeaponData) {
     super(data);
   }
@@ -17,6 +17,6 @@ export class Primary extends Gun implements HasCrit, HasStatus {
   }
 
   get slotLayout(): readonly ModSlotKind[] {
-    return PRIMARY_SLOT_LAYOUT;
+    return GUN_SLOT_LAYOUT;
   }
 }

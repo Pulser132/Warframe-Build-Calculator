@@ -1,90 +1,171 @@
 /**
  * `calculateBuild` — assemble the ordered stages into a full `DamageResult`.
  *
- * Pure: consumes a `Gun` (gear instance) + resolved sources + combat state and
- * returns numbers + the labeled chain. The store resolves a `Build` into these
- * inputs; the engine never touches the data loaders or the store.
+ * Pure: consumes a `Gun` (+ an optional fire mode) + resolved sources + combat
+ * state and returns numbers + the labeled chain. The store resolves a `Build`
+ * into these inputs; the engine never touches the data loaders or the store.
+ *
+ * Stage 2: the calculator runs on an explicit `FireMode`. Crit/status/fire-rate
+ * are mode-level; base damage + quantization run **per simultaneous component**
+ * (AoE weapons have a direct + a radial component), then the components combine
+ * into the headline numbers. Trigger type converts the modified fire rate into an
+ * effective rate (`triggers.ts`). Beams, shotguns, and AoE add extra report
+ * fields without changing the Stage 1 chain — so the Vulkar Wraith slice is
+ * byte-identical.
  */
 import type { CombatState } from '../model/build';
-import type { DamageMap, DamageResult } from '../model/result';
+import type {
+  DamageMap,
+  DamageResult,
+  ComponentResult,
+  PipelineStage,
+} from '../model/result';
 import type { DamageType } from '../model/types';
+import type { FireMode, DamageComponent } from '../model/firemode';
 import type { Gun } from '../gear/weapon';
-import { gatherBuckets, type ResolvedSource } from './gather';
+import { gatherBuckets, type ResolvedSource, type BucketSums } from './gather';
 import {
   baseElementalStage,
   quantizeStage,
   multishotStage,
   critStage,
   statusStage,
-  fireRateStage,
   conditionalMultiplierStage,
   sumDamage,
 } from './stages';
+import { effectiveFireRateStage } from './triggers';
+import { probAtLeastOneProc, procTypeWeights, rimFactor } from './mechanics';
 
 export interface CalcInput {
   weapon: Gun;
   /** Equipped mods + arcanes + active external buffs, in load order. */
   sources: readonly ResolvedSource[];
   combat: CombatState;
+  /** Which fire mode to compute (defaults to the weapon's primary mode). */
+  mode?: FireMode;
+}
+
+/** Run base+elemental then quantization for a single component. */
+function computeComponent(
+  component: DamageComponent,
+  sums: BucketSums,
+): { quantized: DamageMap; subtotal: DamageMap } {
+  const { perType: subtotal } = baseElementalStage(component.damage, component.totalBaseDamage, sums);
+  const quantum = (component.totalBaseDamage / 32) * (1 + sums.baseDamage);
+  const { perType: quantized } = quantizeStage(subtotal, quantum);
+  return { quantized, subtotal };
+}
+
+/** Scale a per-type map by a scalar. */
+function scaleMap(map: DamageMap, factor: number): DamageMap {
+  const out: DamageMap = {};
+  for (const type of Object.keys(map) as DamageType[]) out[type] = (map[type] ?? 0) * factor;
+  return out;
+}
+
+/** Add `src` into `acc` (mutating `acc`). */
+function addInto(acc: DamageMap, src: DamageMap): void {
+  for (const type of Object.keys(src) as DamageType[]) acc[type] = (acc[type] ?? 0) + (src[type] ?? 0);
 }
 
 export function calculateBuild(input: CalcInput): DamageResult {
   const { weapon, sources, combat } = input;
+  const mode = input.mode ?? weapon.primaryFireMode;
   const sums = gatherBuckets(sources, combat);
 
-  // Stage 1 — base + elemental subtotal (pre-crit, pre-conditional).
-  const { perType: subtotalPerType, stage: baseStage } = baseElementalStage(
-    weapon.baseDamage(),
-    weapon.totalBaseDamage,
-    sums,
-  );
-
-  // Stage 1b — quantization. Round each type to base/32 (scaled by the base-damage
-  // multiply already folded into the subtotal) before any further multipliers.
-  const quantum = (weapon.totalBaseDamage / 32) * (1 + sums.baseDamage);
-  const { perType: quantizedPerType, stage: quantStage } = quantizeStage(subtotalPerType, quantum);
-
-  // Stage 2 — multishot.
-  const { multishot, stage: msStage } = multishotStage(weapon.baseMultishot, sums);
-
-  // Stage 3 — critical (average).
+  // ── Mode-level stages ──────────────────────────────────────────────────────
+  const { multishot, stage: msStage } = multishotStage(mode.baseMultishot, sums);
   const { critChance, critMultiplier, avgCritMultiplier, stage: critS } = critStage(
-    weapon.baseCritChance,
-    weapon.baseCritMultiplier,
+    mode.criticalChance,
+    mode.criticalMultiplier,
     sums,
   );
-
-  // Stage 4 — status.
   const { statusChancePerPellet, avgProcsPerShot, stage: statusS } = statusStage(
-    weapon.baseStatusChance,
+    mode.statusChance,
     multishot,
     sums,
   );
 
-  // Stage 5 — fire rate.
-  const { fireRate, stage: frStage } = fireRateStage(weapon.fireRate, sums);
+  const modifiedFireRate = mode.fireRate * (1 + sums.fireRate);
+  const { fireRate, stage: frStage } = effectiveFireRateStage({
+    trigger: mode.trigger,
+    modifiedFireRate,
+    fireRateBonus: sums.fireRate,
+    baseFireRate: mode.fireRate,
+    burst: mode.burst,
+    chargeTime: mode.chargeTime,
+    bow: mode.bow,
+  });
 
-  // Stage 6 — conditional multipliers.
   const { factionMultiplier, directMultiplier, stage: condStage } =
     conditionalMultiplierStage(sums);
-
-  // Assemble final per-type average (crit-weighted + conditional multipliers).
   const finalMult = avgCritMultiplier * factionMultiplier * directMultiplier;
-  const perType: DamageMap = {};
-  for (const type of Object.keys(quantizedPerType) as DamageType[]) {
-    perType[type] = (quantizedPerType[type] ?? 0) * finalMult;
+
+  // ── Per-component base + quantization ──────────────────────────────────────
+  const combinedSubtotal: DamageMap = {};
+  const combinedQuantized: DamageMap = {};
+  const combinedPerType: DamageMap = {};
+  const components: ComponentResult[] = [];
+
+  for (const component of mode.components) {
+    const { quantized, subtotal } = computeComponent(component, sums);
+    addInto(combinedSubtotal, subtotal);
+    addInto(combinedQuantized, quantized);
+
+    const perType = scaleMap(quantized, finalMult);
+    addInto(combinedPerType, perType);
+    const perPelletAverage = sumDamage(perType);
+
+    const result: ComponentResult = {
+      name: component.name,
+      role: component.role,
+      delivery: component.delivery,
+      perType,
+      perPelletAverage,
+      falloff: component.falloff,
+    };
+    if (component.falloff) {
+      result.rimPerPelletAverage = perPelletAverage * rimFactor(component.falloff);
+    }
+    components.push(result);
   }
 
+  // Chain stages for base + quantize use the **combined** snapshot (identical to
+  // the single component for non-AoE weapons → Stage 1 byte-compatible).
+  const baseStage: PipelineStage = {
+    id: 'base',
+    label: 'Base + Elemental',
+    detail: `× (1 + ${sums.baseDamage.toFixed(2)}) base damage; elements combined`,
+    perType: { ...combinedSubtotal },
+    value: sumDamage(combinedSubtotal),
+  };
+  const quantStage: PipelineStage = {
+    id: 'quantize',
+    label: 'Quantization',
+    detail: `each type rounded to nearest base/32 × base-dmg mult`,
+    perType: { ...combinedQuantized },
+    value: sumDamage(combinedQuantized),
+  };
+
+  // ── Headline numbers (combined across components) ──────────────────────────
+  const perType = combinedPerType;
   const perPelletAverage = sumDamage(perType);
   const avgHitPerShot = perPelletAverage * multishot;
   const burstDps = avgHitPerShot * fireRate;
 
-  // Sustained DPS folds in reload: burst × (magTime / (magTime + reload)).
-  const magTime = fireRate > 0 ? weapon.magazine / fireRate : 0;
+  // Sustained DPS folds in reload. Beams consume 0.5 ammo per tick, so a magazine
+  // lasts twice as many ticks.
+  const ammoPerShot = mode.beam?.ammoPerTick ?? 1;
+  const shotsPerMag = ammoPerShot > 0 ? weapon.magazine / ammoPerShot : weapon.magazine;
+  const magTime = fireRate > 0 ? shotsPerMag / fireRate : 0;
   const cycle = magTime + weapon.reload;
   const sustainedDps = cycle > 0 ? burstDps * (magTime / cycle) : burstDps;
 
-  return {
+  // ── Stage 2 extras ─────────────────────────────────────────────────────────
+  const statusProcChance = probAtLeastOneProc(statusChancePerPellet, multishot);
+  const weights = procTypeWeights(perType);
+
+  const result: DamageResult = {
     perType,
     perPelletAverage,
     multishot,
@@ -97,6 +178,13 @@ export function calculateBuild(input: CalcInput): DamageResult {
     avgHitPerShot,
     burstDps,
     sustainedDps,
+    modeName: mode.name,
+    trigger: mode.trigger,
+    delivery: mode.components[0].delivery,
+    ammoPerShot,
+    components,
+    statusProcChance,
+    procTypeWeights: weights,
     chain: [
       baseStage,
       quantStage,
@@ -113,4 +201,31 @@ export function calculateBuild(input: CalcInput): DamageResult {
       },
     ],
   };
+
+  // Beam reporting.
+  if (mode.beam) {
+    result.beam = {
+      tickRate: fireRate,
+      perTickDamage: avgHitPerShot,
+      procsPerSecond: avgProcsPerShot * fireRate,
+      rampStartPct: mode.beam.rampStartPct,
+      rampSeconds: mode.beam.rampSeconds,
+    };
+  }
+
+  // AoE reporting (first radial component).
+  const radial = components.find((c) => c.role === 'radial' && c.falloff);
+  if (radial && radial.falloff) {
+    const factor = rimFactor(radial.falloff);
+    result.aoe = {
+      falloffStart: radial.falloff.start,
+      radius: radial.falloff.end,
+      centerAverage: radial.perPelletAverage,
+      rimAverage: radial.perPelletAverage * factor,
+      centerPerType: radial.perType,
+      rimPerType: scaleMap(radial.perType, factor),
+    };
+  }
+
+  return result;
 }

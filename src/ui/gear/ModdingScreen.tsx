@@ -1,16 +1,30 @@
 import { useState } from 'react';
 import type { Polarity } from '@engine/model/types';
-import { useBuildStore, useCapacity } from '@state';
+import { useBuildStore, useCapacity, weaponModGroup } from '@state';
 import { ModSlot, ModPicker, CapacityBar } from '../components';
 import styles from './ModdingScreen.module.css';
 
+const CLASS_LABEL: Record<string, string> = {
+  rifle: 'Rifle',
+  shotgun: 'Shotgun',
+  pistol: 'Pistol',
+  sniper: 'Sniper',
+  bow: 'Bow',
+  launcher: 'Launcher',
+  beam: 'Beam',
+};
+
 /**
- * In-game-style rifle modding screen: aura + exilus up top, 8 mod slots in a
- * grid below, 2 arcane slots on the right (matching Goal.md's arrangement).
+ * In-game-style modding screen: a weapon picker + (for multi-mode weapons) a
+ * fire-mode switcher, then aura + exilus, 8 mod slots, and 2 arcane slots —
+ * generalized across every primary and secondary gun.
  */
 export function ModdingScreen() {
   const dataset = useBuildStore((s) => s.dataset);
   const build = useBuildStore((s) => s.build);
+  const activeMode = useBuildStore((s) => s.activeMode);
+  const selectWeapon = useBuildStore((s) => s.selectWeapon);
+  const setMode = useBuildStore((s) => s.setMode);
   const assignMod = useBuildStore((s) => s.assignMod);
   const clearSlot = useBuildStore((s) => s.clearSlot);
   const setRank = useBuildStore((s) => s.setRank);
@@ -26,6 +40,12 @@ export function ModdingScreen() {
 
   if (!dataset) return null;
   const weapon = dataset.weapons.find((w) => w.id === build.weaponId);
+  const modGroup = weapon ? weaponModGroup(weapon) : 'rifle';
+  const modes = weapon?.fireModes ?? [];
+  const currentMode = activeMode ?? modes[0]?.name ?? null;
+  const subLabel = weapon
+    ? `${weapon.category} · ${CLASS_LABEL[weapon.weaponClass] ?? weapon.weaponClass}`
+    : 'Weapon';
 
   const nameFor = (itemId: string | null, isArcane: boolean): string | undefined => {
     if (!itemId) return undefined;
@@ -65,8 +85,19 @@ export function ModdingScreen() {
     <section className={styles.screen} aria-label="modding screen">
       <header className={styles.bar}>
         <div className={styles.title}>
-          <h2>{weapon?.name ?? 'Weapon'}</h2>
-          <span className={styles.sub}>Primary · Rifle</span>
+          <select
+            className={styles.weaponSelect}
+            value={build.weaponId}
+            onChange={(e) => selectWeapon(e.target.value)}
+            aria-label="select weapon"
+          >
+            {dataset.weapons.map((w) => (
+              <option key={w.id} value={w.id}>
+                {w.name}
+              </option>
+            ))}
+          </select>
+          <span className={styles.sub}>{subLabel}</span>
         </div>
         <div className={styles.controls}>
           {capacity && <CapacityBar used={capacity.used} total={capacity.total} over={capacity.over} />}
@@ -89,6 +120,23 @@ export function ModdingScreen() {
         </div>
       </header>
 
+      {modes.length > 1 && (
+        <div className={styles.modes} role="tablist" aria-label="fire modes">
+          {modes.map((m) => (
+            <button
+              key={m.name}
+              type="button"
+              role="tab"
+              aria-selected={m.name === currentMode}
+              className={`${styles.modeTab} ${m.name === currentMode ? styles.modeTabActive : ''}`}
+              onClick={() => setMode(m.name)}
+            >
+              {m.name}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className={styles.layout}>
         <div className={styles.main}>
           <div className={styles.topRow}>
@@ -110,6 +158,7 @@ export function ModdingScreen() {
           slotKind={build.slots[pickerSlot].kind}
           mods={dataset.mods}
           arcanes={dataset.arcanes}
+          modGroup={modGroup}
           onAssign={assignMod}
           onClose={() => setPickerSlot(null)}
         />

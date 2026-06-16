@@ -53,6 +53,44 @@ describe('DamageSummary', () => {
     expect(screen.getByText('128.6')).toBeInTheDocument();
     expect(screen.getByText('565.7')).toBeInTheDocument();
   });
+
+  it('renders the beam panel for a continuous weapon', () => {
+    const beam: DamageResult = {
+      ...RESULT,
+      multishot: 1,
+      ammoPerShot: 0.5,
+      beam: { tickRate: 12, perTickDamage: 33.06, procsPerSecond: 4.56, rampStartPct: 0.2, rampSeconds: 0.6 },
+    };
+    render(<DamageSummary result={beam} />);
+    expect(screen.getByLabelText('beam stats')).toBeInTheDocument();
+    expect(screen.getByText('Per-tick Dmg')).toBeInTheDocument();
+    expect(screen.getByText('Tick Rate')).toBeInTheDocument(); // fire-rate relabeled
+    expect(screen.getByText(/ramps from 20% to 100%/i)).toBeInTheDocument();
+  });
+
+  it('renders the AoE panel with center/rim for a radial weapon', () => {
+    const aoe: DamageResult = {
+      ...RESULT,
+      multishot: 1,
+      components: [
+        { name: 'Direct', role: 'direct', delivery: 'projectile', perType: { puncture: 103 }, perPelletAverage: 103 },
+        { name: 'Radial', role: 'radial', delivery: 'aoe', perType: { blast: 894 }, perPelletAverage: 894 },
+      ],
+      aoe: {
+        falloffStart: 0,
+        radius: 7,
+        centerAverage: 893.75,
+        rimAverage: 625.6,
+        centerPerType: { blast: 893.75 },
+        rimPerType: { blast: 625.6 },
+      },
+    };
+    render(<DamageSummary result={aoe} />);
+    expect(screen.getByLabelText('aoe stats')).toBeInTheDocument();
+    expect(screen.getByText('Center')).toBeInTheDocument();
+    expect(screen.getByText('Edge (rim)')).toBeInTheDocument();
+    expect(screen.getByText('Direct hit')).toBeInTheDocument();
+  });
 });
 
 describe('ContributionList', () => {

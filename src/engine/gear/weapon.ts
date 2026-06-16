@@ -7,9 +7,13 @@
  */
 import type { DamageType, ModSlotKind, WeaponData } from '../model/types';
 import type { DamageMap } from '../model/result';
+import type { FireMode } from '../model/firemode';
+import { synthesizeFireMode } from '../model/firemode';
 
-/** The 12-slot in-game layout: aura, exilus, 8× normal, 2× arcane. */
-export const PRIMARY_SLOT_LAYOUT: readonly ModSlotKind[] = [
+/** The 12-slot in-game layout: aura, exilus, 8× normal, 2× arcane. Shared by all
+ * guns (Stage 1 applied this Warframe-style layout to the rifle; secondaries
+ * reuse it — only mod *compatibility* differs, not the slot count). */
+export const GUN_SLOT_LAYOUT: readonly ModSlotKind[] = [
   'aura',
   'exilus',
   'normal',
@@ -23,6 +27,9 @@ export const PRIMARY_SLOT_LAYOUT: readonly ModSlotKind[] = [
   'arcane',
   'arcane',
 ];
+
+/** @deprecated Stage 1 name; kept as an alias of {@link GUN_SLOT_LAYOUT}. */
+export const PRIMARY_SLOT_LAYOUT = GUN_SLOT_LAYOUT;
 
 export abstract class Weapon {
   protected constructor(readonly data: WeaponData) {}
@@ -48,8 +55,16 @@ export abstract class Weapon {
   abstract get kind(): string;
 }
 
-/** A gun: hitscan/projectile with fire rate, magazine, reload, crit & status. */
+/**
+ * A gun: hitscan/projectile/AoE with fire rate, magazine, reload, crit & status.
+ *
+ * Shared firearm behavior lives here (ammo/reload/magazine, fire-mode access,
+ * crit/status capability). `Primary` and `Secondary` are thin subclasses that
+ * differ only in slot/mod-compatibility metadata (`kind`, `slotLayout`).
+ */
 export abstract class Gun extends Weapon {
+  private _fireModes?: readonly FireMode[];
+
   get baseCritChance(): number {
     return this.data.criticalChance;
   }
@@ -71,6 +86,42 @@ export abstract class Gun extends Weapon {
   get baseMultishot(): number {
     return this.data.multishot;
   }
+
+  /**
+   * The weapon's fire modes (Stage 2). Uses curated `data.fireModes` when present
+   * and otherwise synthesizes a single mode from the top-level stats (Stage 1
+   * back-compat). Memoized.
+   */
+  get fireModes(): readonly FireMode[] {
+    if (!this._fireModes) {
+      this._fireModes =
+        this.data.fireModes && this.data.fireModes.length > 0
+          ? this.data.fireModes
+          : [synthesizeFireMode(this.data)];
+    }
+    return this._fireModes;
+  }
+
+  /** The default (first) fire mode. */
+  get primaryFireMode(): FireMode {
+    return this.fireModes[0];
+  }
+
+  /** Names of every fire mode, in declaration order. */
+  get modeNames(): string[] {
+    return this.fireModes.map((m) => m.name);
+  }
+
+  /** Whether this weapon exposes more than one selectable fire mode. */
+  get isMultiMode(): boolean {
+    return this.fireModes.length > 1;
+  }
+
+  /** Look up a fire mode by name (falls back to the primary mode). */
+  fireMode(name: string): FireMode {
+    return this.fireModes.find((m) => m.name === name) ?? this.primaryFireMode;
+  }
+
   /** Whether a damage type is one this gun deals at base (helper for UI). */
   dealsBaseType(type: DamageType): boolean {
     return (this.data.damage[type] ?? 0) > 0;

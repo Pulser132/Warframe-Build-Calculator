@@ -15,12 +15,12 @@ import type { AttributionStrategy, AttributionInput, CalcFn } from './strategy';
 export const leaveOneOut: AttributionStrategy = {
   id: 'leave-one-out',
   attribute(input: AttributionInput, calc: CalcFn): Contribution[] {
-    const { weapon, sources, combat } = input;
-    const total = calc({ weapon, sources, combat }).burstDps;
+    const { weapon, sources, combat, mode } = input;
+    const total = calc({ weapon, sources, combat, mode }).burstDps;
 
     const contributions = sources.map((source): Contribution => {
       const without = sources.filter((s) => s !== source);
-      const withoutDps = calc({ weapon, sources: without, combat }).burstDps;
+      const withoutDps = calc({ weapon, sources: without, combat, mode }).burstDps;
       const dpsDelta = total - withoutDps;
       return {
         sourceId: source.id,

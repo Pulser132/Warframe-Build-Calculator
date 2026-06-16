@@ -6,6 +6,10 @@
  * the data layer, so the dependency direction stays `data -> engine`.
  */
 
+// Type-only import for `WeaponData.fireModes`; the `types ↔ firemode` cycle is
+// erased at compile time and therefore safe.
+import type { FireMode } from './firemode';
+
 /** In-game mod/slot polarities. `none` = unpolarized slot. */
 export type Polarity =
   | 'madurai'
@@ -87,15 +91,24 @@ export interface EffectDescriptor {
   maxStacks?: number;
 }
 
+/** Weapon category — drives the gear class chosen by `createWeapon`. */
+export type WeaponCategory = 'Primary' | 'Secondary';
+/** Coarse weapon class used for mod-compatibility filtering in the UI. */
+export type WeaponClass = 'rifle' | 'shotgun' | 'pistol' | 'sniper' | 'bow' | 'launcher' | 'beam';
+
 /** Curated weapon stats (normalized from `@wfcd/items` by `build-data.mjs`). */
 export interface WeaponData {
   id: string;
   uniqueName: string;
   name: string;
-  category: 'Primary';
-  weaponClass: 'rifle';
+  category: WeaponCategory;
+  weaponClass: WeaponClass;
+  /** Raw `@wfcd` trigger string (normalized per fire mode in `fireModes`). */
   trigger: string;
-  /** Base per-shot damage by type (only nonzero types present). */
+  /**
+   * Headline fire mode's per-type base damage. Mirrors `fireModes[0]`'s primary
+   * component; kept top-level for back-compat with Stage 1 callers.
+   */
   damage: Partial<Record<DamageType, number>>;
   totalBaseDamage: number;
   criticalChance: number;
@@ -110,6 +123,12 @@ export interface WeaponData {
   exilusPolarity: Polarity | null;
   /** Innate slot polarities on the normal slots (Vulkar Wraith ships one Madurai). */
   polarities: Polarity[];
+  /**
+   * The weapon's fire modes (Stage 2). Single-mode weapons have exactly one.
+   * Optional for back-compat: when absent, the gear class synthesizes one mode
+   * from the top-level stats (`synthesizeFireMode`).
+   */
+  fireModes?: FireMode[];
 }
 
 /** Curated mod stats + authored effect descriptors. */
