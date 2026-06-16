@@ -1,0 +1,10 @@
+{
+  "name": "warframe-build-calculator",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A website where users can create and share Warframe builds and see each mod's damage contribution.",
+  "type": "module",
+  "dependencies": {
+    "@wfcd/items": "^1.1274.56"
+  }
+}
