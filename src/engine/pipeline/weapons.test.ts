@@ -66,8 +66,8 @@ describe('Phase 5 — shotgun (Vaykor Hek)', () => {
     expect(r.statusChancePerPellet).toBeCloseTo(0.107, 3);
     expect(r.avgProcsPerShot).toBeCloseTo(7 * 0.107, 3);
     expect(r.statusProcChance).toBeCloseTo(1 - Math.pow(1 - 0.107, 7), 4); // P(≥1)
-    // Per-shot average = 75 base × avgCrit 1.25 = 93.75.
-    expect(r.avgHitPerShot).toBeCloseTo(93.75, 1);
+    // Per-pellet 75 base × avgCrit 1.25 = 93.75; × 7 pellets = 656.25 per shot.
+    expect(r.avgHitPerShot).toBeCloseTo(656.25, 1);
     // Slash dominates the proc-type weighting (~48.75 / 75, post-quantization).
     expect(r.procTypeWeights?.slash).toBeCloseTo(0.65, 1);
   });

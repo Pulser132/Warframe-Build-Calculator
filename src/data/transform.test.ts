@@ -56,12 +56,14 @@ describe('fire-mode mapping (generic, from @wfcd attacks[])', () => {
 });
 
 describe('shotgun per-pellet damage', () => {
-  it('divides the displayed total by the base pellet count (Vaykor Hek)', async () => {
+  it('keeps the @wfcd per-pellet damage as-is (Vaykor Hek)', async () => {
+    // @wfcd damage is already per-pellet; the pipeline multiplies by multishot to
+    // get the per-shot total (75 × 7 = 525, matching the Arsenal). Do NOT divide.
     const hek = await loadWeapon('vaykor-hek');
     expect(hek!.multishot).toBe(7);
     const pellet = hek!.fireModes![0].components[0];
-    expect(pellet.totalBaseDamage).toBeCloseTo(75 / 7, 4); // 10.714 per pellet
-    expect(pellet.damage.slash).toBeCloseTo(48.75 / 7, 4); // slash-heavy, per pellet
+    expect(pellet.totalBaseDamage).toBeCloseTo(75, 4); // per pellet (was wrongly /7)
+    expect(pellet.damage.slash).toBeCloseTo(48.75, 4); // slash-heavy, per pellet
   });
 });
 

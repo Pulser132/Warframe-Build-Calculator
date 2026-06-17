@@ -184,19 +184,12 @@ function convertFalloff(f) {
   };
 }
 
-/** Per-pellet damage: the displayed `@wfcd` damage is the total across all base
- * pellets, so divide by the pellet count (no-op for single-pellet weapons). The
- * pipeline multiplies per-pellet damage back up by the multishot/pellet count. */
-function perPellet(damage, pellets) {
-  if (!pellets || pellets <= 1) return { ...damage };
-  const out = {};
-  for (const [type, value] of Object.entries(damage)) out[type] = value / pellets;
-  return out;
-}
-
-function componentFrom(attack, role, fallbackDamage, pellets) {
-  const raw = Object.keys(attack.damage ?? {}).length ? cleanDamage(attack.damage) : (fallbackDamage ?? {});
-  const dmg = perPellet(raw, pellets);
+function componentFrom(attack, role, fallbackDamage) {
+  // `@wfcd` damage (the `damage` object, `damagePerShot[]`, and `attacks[].damage`)
+  // is already **per-pellet** — the in-game per-shot total is this × multishot, which
+  // the pipeline applies. Do NOT divide by the pellet count here (verified: Vaykor Hek
+  // 75/pellet × 7 = 525, Phantasma 15/pellet × 6 = 90, matching the Arsenal).
+  const dmg = Object.keys(attack.damage ?? {}).length ? cleanDamage(attack.damage) : { ...(fallbackDamage ?? {}) };
   const component = {
     name: role === 'radial' ? 'Radial' : role === 'direct' ? 'Direct' : 'Normal',
     role,
@@ -253,14 +246,13 @@ function modeFrom(w, lead, components, name, fireRate) {
  * which for burst weapons is the in-burst rate); alt modes use the attack speed.
  */
 function buildFireModes(w) {
-  const pellets = w.multishot ?? 1;
   let attacks = (w.attacks ?? []).filter((a) => !/incarnon/i.test(a.name ?? ''));
 
   // No usable attacks → synthesize one mode from top-level stats.
   if (attacks.length === 0) {
     const dmg = cleanDamage(w.damage) ?? {};
     const total = Object.keys(dmg).length ? dmg : damageFromPerShot(w.damagePerShot);
-    const damage = perPellet(total, pellets);
+    const damage = { ...total };
     return [
       modeFrom(
         w,
@@ -296,8 +288,8 @@ function buildFireModes(w) {
     }
     return groups.map((g, i) => {
       const components = [];
-      if (g.direct) components.push(componentFrom(g.direct, 'direct', fallback, pellets));
-      if (g.radial) components.push(componentFrom(g.radial, 'radial', fallback, pellets));
+      if (g.direct) components.push(componentFrom(g.direct, 'direct', fallback));
+      if (g.radial) components.push(componentFrom(g.radial, 'radial', fallback));
       const lead = { ...g.lead };
       if (groups.length > 1) {
         if (/semi/i.test(g.lead.name ?? '')) lead.__trigger = 'Semi';
@@ -314,7 +306,7 @@ function buildFireModes(w) {
   // Charge weapon with multiple charge tiers → collapse to the full charge.
   if (normalizeTrigger(w.trigger) === 'charge' && attacks.length > 1) {
     const full = attacks.reduce((a, b) => ((b.charge_time ?? 0) > (a.charge_time ?? 0) ? b : a));
-    return [modeFrom(w, full, [componentFrom(full, 'normal', fallback, pellets)], 'Normal Attack')];
+    return [modeFrom(w, full, [componentFrom(full, 'normal', fallback)], 'Normal Attack')];
   }
 
   // Single-attack weapon → one mode built from the authoritative top-level
@@ -323,7 +315,7 @@ function buildFireModes(w) {
   if (attacks.length === 1) {
     const a = attacks[0];
     const total = Object.keys(fallback).length ? fallback : cleanDamage(a.damage);
-    const damage = perPellet(total, pellets);
+    const damage = { ...total };
     const component = {
       name: 'Normal',
       role: 'normal',
@@ -346,7 +338,7 @@ function buildFireModes(w) {
     const name = a.name ?? `Mode ${i + 1}`;
     // Primary mode uses the weapon-level fire rate (Arsenal value / in-burst rate).
     const fr = i === 0 ? (w.fireRate || a.speed) : (a.speed ?? w.fireRate);
-    return modeFrom(w, lead, [componentFrom(a, 'normal', fallback, pellets)], name, fr);
+    return modeFrom(w, lead, [componentFrom(a, 'normal', fallback)], name, fr);
   });
 }
 
