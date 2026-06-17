@@ -63,7 +63,7 @@ describe('shotgun per-pellet damage', () => {
     expect(hek!.multishot).toBe(7);
     const pellet = hek!.fireModes![0].components[0];
     expect(pellet.totalBaseDamage).toBeCloseTo(75, 4); // per pellet (was wrongly /7)
-    expect(pellet.damage.slash).toBeCloseTo(48.75, 4); // slash-heavy, per pellet
+    expect(pellet.damage.puncture).toBeCloseTo(48.75, 4); // puncture-heavy, per pellet (wiki)
   });
 });
 

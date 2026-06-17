@@ -5,11 +5,12 @@ describe('data transform — curated weapon', () => {
   it('normalizes Vulkar Wraith to the curated schema with correct IPS', async () => {
     const w = await loadWeapon('vulkar-wraith');
     expect(w).toBeDefined();
-    // IPS from the authoritative `@wfcd` damage object (explicit keys): the 27.3
-    // is Slash, not Puncture — Stage 1's damagePerShot order had S/P swapped.
+    // IPS from the authoritative per-attack `attacks[].damage` map (matches the
+    // wiki: Impact 245.7, Puncture 27.3, Slash 0). The top-level `damage` object
+    // transposes Slash↔Puncture, so it is un-swapped in build-data.
     expect(w!.damage.impact).toBeCloseTo(245.7, 4);
-    expect(w!.damage.slash).toBeCloseTo(27.3, 4);
-    expect(w!.damage.puncture).toBeUndefined();
+    expect(w!.damage.puncture).toBeCloseTo(27.3, 4);
+    expect(w!.damage.slash).toBeUndefined();
     expect(w!.totalBaseDamage).toBe(273);
     expect(w!.criticalChance).toBeCloseTo(0.2, 5);
     expect(w!.criticalMultiplier).toBe(2);

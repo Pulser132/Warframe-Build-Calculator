@@ -8,7 +8,7 @@
     "trigger": "Semi",
     "damage": {
       "impact": 245.7,
-      "slash": 27.300001
+      "puncture": 27.3
     },
     "totalBaseDamage": 273,
     "criticalChance": 0.2,
@@ -40,7 +40,7 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 245.7,
-              "slash": 27.300001
+              "puncture": 27.3
             },
             "totalBaseDamage": 273
           }
@@ -473,8 +473,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 3,
-      "puncture": 2.9999995,
-      "slash": 14
+      "slash": 3,
+      "puncture": 14
     },
     "totalBaseDamage": 20,
     "criticalChance": 0.05,
@@ -506,8 +506,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 3,
-              "puncture": 2.9999995,
-              "slash": 14
+              "slash": 3,
+              "puncture": 14
             },
             "totalBaseDamage": 20
           }
@@ -523,9 +523,9 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 3.9000001,
-      "puncture": 3.8999994,
-      "slash": 18.199999
+      "impact": 3.9,
+      "slash": 3.9,
+      "puncture": 18.2
     },
     "totalBaseDamage": 26,
     "criticalChance": 0.16,
@@ -558,9 +558,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 3.9000001,
-              "puncture": 3.8999994,
-              "slash": 18.199999
+              "impact": 3.9,
+              "slash": 3.9,
+              "puncture": 18.2
             },
             "totalBaseDamage": 26
           }
@@ -709,8 +709,8 @@
     "weaponClass": "pistol",
     "trigger": "Semi",
     "damage": {
-      "impact": 6.4000001,
-      "slash": 57.599998
+      "impact": 6.4,
+      "puncture": 57.6
     },
     "totalBaseDamage": 64,
     "criticalChance": 0.16,
@@ -741,8 +741,8 @@
             "role": "normal",
             "delivery": "projectile",
             "damage": {
-              "impact": 6.4000001,
-              "slash": 57.599998
+              "impact": 6.4,
+              "puncture": 57.6
             },
             "totalBaseDamage": 64
           }
@@ -758,9 +758,9 @@
     "weaponClass": "pistol",
     "trigger": "Semi",
     "damage": {
-      "impact": 4.4000001,
-      "puncture": 1.7599983,
-      "slash": 37.84
+      "impact": 4.4,
+      "slash": 1.76,
+      "puncture": 37.84
     },
     "totalBaseDamage": 44,
     "criticalChance": 0.36,
@@ -794,9 +794,9 @@
             "role": "normal",
             "delivery": "projectile",
             "damage": {
-              "impact": 4.4000001,
-              "puncture": 1.7599983,
-              "slash": 37.84
+              "impact": 4.4,
+              "slash": 1.76,
+              "puncture": 37.84
             },
             "totalBaseDamage": 44
           }
@@ -812,9 +812,9 @@
     "weaponClass": "pistol",
     "trigger": "Semi",
     "damage": {
-      "impact": 33.600002,
-      "puncture": 4.1999984,
-      "slash": 4.2000003
+      "impact": 33.6,
+      "slash": 4.2,
+      "puncture": 4.2
     },
     "totalBaseDamage": 42,
     "criticalChance": 0.06,
@@ -845,9 +845,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 33.600002,
-              "puncture": 4.1999984,
-              "slash": 4.2000003
+              "impact": 33.6,
+              "slash": 4.2,
+              "puncture": 4.2
             },
             "totalBaseDamage": 42
           }
@@ -864,8 +864,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 40,
-      "puncture": 4.9999981,
-      "slash": 5
+      "slash": 5,
+      "puncture": 5
     },
     "totalBaseDamage": 50,
     "criticalChance": 0.06,
@@ -898,8 +898,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 40,
-              "puncture": 4.9999981,
-              "slash": 5
+              "slash": 5,
+              "puncture": 5
             },
             "totalBaseDamage": 50
           }
@@ -915,9 +915,9 @@
     "weaponClass": "pistol",
     "trigger": "Burst",
     "damage": {
-      "impact": 5.4000001,
-      "puncture": 25.199999,
-      "slash": 5.4000001
+      "impact": 5.4,
+      "slash": 25.2,
+      "puncture": 5.4
     },
     "totalBaseDamage": 36,
     "criticalChance": 0.06,
@@ -948,9 +948,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 5.4000001,
-              "puncture": 25.199999,
-              "slash": 5.4000001
+              "impact": 5.4,
+              "slash": 25.2,
+              "puncture": 5.4
             },
             "totalBaseDamage": 36
           }
@@ -971,8 +971,8 @@
     "trigger": "Burst",
     "damage": {
       "impact": 3.8,
-      "puncture": 30.4,
-      "slash": 3.8
+      "slash": 30.4,
+      "puncture": 3.8
     },
     "totalBaseDamage": 38,
     "criticalChance": 0.18,
@@ -1005,8 +1005,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 3.8,
-              "puncture": 30.4,
-              "slash": 3.8
+              "slash": 30.4,
+              "puncture": 3.8
             },
             "totalBaseDamage": 38
           }
@@ -1027,8 +1027,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 6,
-      "puncture": 24,
-      "slash": 10
+      "slash": 24,
+      "puncture": 10
     },
     "totalBaseDamage": 40,
     "criticalChance": 0.1,
@@ -1058,8 +1058,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 6,
-              "puncture": 24,
-              "slash": 10
+              "slash": 24,
+              "puncture": 10
             },
             "totalBaseDamage": 40
           }
@@ -1076,8 +1076,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 13,
-      "puncture": 12.999995,
-      "slash": 104
+      "slash": 13,
+      "puncture": 104
     },
     "totalBaseDamage": 130,
     "criticalChance": 0.2,
@@ -1107,8 +1107,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 13,
-              "puncture": 12.999995,
-              "slash": 104
+              "slash": 13,
+              "puncture": 104
             },
             "totalBaseDamage": 130
           }
@@ -1125,8 +1125,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 15,
-      "puncture": 14.999994,
-      "slash": 120
+      "slash": 15,
+      "puncture": 120
     },
     "totalBaseDamage": 150,
     "criticalChance": 0.25,
@@ -1156,10 +1156,10 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 15,
-              "puncture": 14.999994,
-              "slash": 120
+              "slash": 15,
+              "puncture": 120
             },
-            "totalBaseDamage": 149.99999
+            "totalBaseDamage": 150
           }
         ]
       }
@@ -1173,9 +1173,9 @@
     "weaponClass": "pistol",
     "trigger": "Semi",
     "damage": {
-      "impact": 44.099998,
-      "puncture": 26.949997,
-      "slash": 26.950001
+      "impact": 44.1,
+      "slash": 26.95,
+      "puncture": 26.95
     },
     "totalBaseDamage": 98,
     "criticalChance": 0.22,
@@ -1204,9 +1204,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 44.099998,
-              "puncture": 26.949997,
-              "slash": 26.950001
+              "impact": 44.1,
+              "slash": 26.95,
+              "puncture": 26.95
             },
             "totalBaseDamage": 98
           }
@@ -1222,9 +1222,9 @@
     "weaponClass": "pistol",
     "trigger": "Semi",
     "damage": {
-      "impact": 44.099998,
-      "puncture": 26.949997,
-      "slash": 26.950001
+      "impact": 44.1,
+      "slash": 26.95,
+      "puncture": 26.95
     },
     "totalBaseDamage": 98,
     "criticalChance": 0.28,
@@ -1256,9 +1256,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 44.099998,
-              "puncture": 26.949997,
-              "slash": 26.950001
+              "impact": 44.1,
+              "slash": 26.95,
+              "puncture": 26.95
             },
             "totalBaseDamage": 98
           }
@@ -1274,9 +1274,9 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 1.8000001,
-      "puncture": 9,
-      "slash": 7.2000003
+      "impact": 1.8,
+      "slash": 9,
+      "puncture": 7.2
     },
     "totalBaseDamage": 18,
     "criticalChance": 0.24,
@@ -1307,9 +1307,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 1.8000001,
-              "puncture": 9,
-              "slash": 7.2000003
+              "impact": 1.8,
+              "slash": 9,
+              "puncture": 7.2
             },
             "totalBaseDamage": 18
           }
@@ -1326,8 +1326,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 2,
-      "puncture": 10,
-      "slash": 8
+      "slash": 10,
+      "puncture": 8
     },
     "totalBaseDamage": 20,
     "criticalChance": 0.24,
@@ -1361,8 +1361,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 2,
-              "puncture": 10,
-              "slash": 8
+              "slash": 10,
+              "puncture": 8
             },
             "totalBaseDamage": 20
           }
@@ -1378,9 +1378,9 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 16.800001,
-      "puncture": 8.3999987,
-      "slash": 2.8
+      "impact": 16.8,
+      "slash": 8.4,
+      "puncture": 2.8
     },
     "totalBaseDamage": 28,
     "criticalChance": 0.18,
@@ -1411,9 +1411,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 16.800001,
-              "puncture": 8.3999987,
-              "slash": 2.8
+              "impact": 16.8,
+              "slash": 8.4,
+              "puncture": 2.8
             },
             "totalBaseDamage": 28
           }
@@ -1430,8 +1430,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 21.6,
-      "puncture": 10.799998,
-      "slash": 3.6000001
+      "slash": 10.8,
+      "puncture": 3.6
     },
     "totalBaseDamage": 36,
     "criticalChance": 0.15,
@@ -1464,8 +1464,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 21.6,
-              "puncture": 10.799998,
-              "slash": 3.6000001
+              "slash": 10.8,
+              "puncture": 3.6
             },
             "totalBaseDamage": 36
           }
@@ -1482,8 +1482,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 22.5,
-      "puncture": 45,
-      "slash": 22.5
+      "slash": 45,
+      "puncture": 22.5
     },
     "totalBaseDamage": 90,
     "criticalChance": 0.16,
@@ -1513,8 +1513,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 22.5,
-              "puncture": 45,
-              "slash": 22.5
+              "slash": 45,
+              "puncture": 22.5
             },
             "totalBaseDamage": 90
           }
@@ -1531,8 +1531,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 16.5,
-      "puncture": 77,
-      "slash": 16.5
+      "slash": 77,
+      "puncture": 16.5
     },
     "totalBaseDamage": 110,
     "criticalChance": 0.22,
@@ -1565,8 +1565,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 16.5,
-              "puncture": 77,
-              "slash": 16.5
+              "slash": 77,
+              "puncture": 16.5
             },
             "totalBaseDamage": 110
           }
@@ -1582,9 +1582,9 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 1.8000001,
-      "puncture": 1.7999997,
-      "slash": 8.3999996
+      "impact": 1.8,
+      "slash": 1.8,
+      "puncture": 8.4
     },
     "totalBaseDamage": 12,
     "criticalChance": 0.14,
@@ -1615,9 +1615,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 1.8000001,
-              "puncture": 1.7999997,
-              "slash": 8.3999996
+              "impact": 1.8,
+              "slash": 1.8,
+              "puncture": 8.4
             },
             "totalBaseDamage": 12
           }
@@ -2081,8 +2081,8 @@
     "weaponClass": "pistol",
     "trigger": "Semi",
     "damage": {
-      "puncture": 23.999998,
-      "slash": 36
+      "slash": 24,
+      "puncture": 36
     },
     "totalBaseDamage": 60,
     "criticalChance": 0.18,
@@ -2114,8 +2114,8 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "puncture": 23.999998,
-              "slash": 36
+              "slash": 24,
+              "puncture": 36
             },
             "totalBaseDamage": 60
           }
@@ -2454,8 +2454,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 4,
-      "puncture": 15.999999,
-      "slash": 60
+      "slash": 16,
+      "puncture": 60
     },
     "totalBaseDamage": 80,
     "criticalChance": 0.25,
@@ -2487,8 +2487,8 @@
             "delivery": "projectile",
             "damage": {
               "impact": 4,
-              "puncture": 15.999999,
-              "slash": 60
+              "slash": 16,
+              "puncture": 60
             },
             "totalBaseDamage": 80
           }
@@ -2504,7 +2504,7 @@
     "weaponClass": "rifle",
     "trigger": "Auto",
     "damage": {
-      "slash": 40
+      "puncture": 40
     },
     "totalBaseDamage": 40,
     "criticalChance": 0.26,
@@ -2536,7 +2536,7 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "slash": 40
+              "puncture": 40
             },
             "totalBaseDamage": 40
           }
@@ -2902,9 +2902,9 @@
     "weaponClass": "rifle",
     "trigger": "Auto",
     "damage": {
-      "impact": 5.7600002,
-      "puncture": 3.5200005,
-      "slash": 6.7199998
+      "impact": 5.76,
+      "slash": 3.52,
+      "puncture": 6.72
     },
     "totalBaseDamage": 16,
     "criticalChance": 0.26,
@@ -2935,9 +2935,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 5.7600002,
-              "puncture": 3.5200005,
-              "slash": 6.7199998
+              "impact": 5.76,
+              "slash": 3.52,
+              "puncture": 6.72
             },
             "totalBaseDamage": 16
           }
@@ -2953,9 +2953,9 @@
     "weaponClass": "rifle",
     "trigger": "Auto",
     "damage": {
-      "impact": 5.7600002,
-      "puncture": 3.5200005,
-      "slash": 6.7199998
+      "impact": 5.76,
+      "slash": 3.52,
+      "puncture": 6.72
     },
     "totalBaseDamage": 16,
     "criticalChance": 0.28,
@@ -2987,9 +2987,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 5.7600002,
-              "puncture": 3.5200005,
-              "slash": 6.7199998
+              "impact": 5.76,
+              "slash": 3.52,
+              "puncture": 6.72
             },
             "totalBaseDamage": 16
           }
@@ -3006,8 +3006,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 12.1,
-      "puncture": 6.599999,
-      "slash": 3.3000002
+      "slash": 6.6,
+      "puncture": 3.3
     },
     "totalBaseDamage": 22,
     "criticalChance": 0.1,
@@ -3037,8 +3037,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 12.1,
-              "puncture": 6.599999,
-              "slash": 3.3000002
+              "slash": 6.6,
+              "puncture": 3.3
             },
             "totalBaseDamage": 22
           }
@@ -3055,8 +3055,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 26,
-      "puncture": 8.0000019,
-      "slash": 6
+      "slash": 8,
+      "puncture": 6
     },
     "totalBaseDamage": 40,
     "criticalChance": 0.15,
@@ -3086,8 +3086,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 26,
-              "puncture": 8.0000019,
-              "slash": 6
+              "slash": 8,
+              "puncture": 6
             },
             "totalBaseDamage": 40
           }
@@ -3103,8 +3103,8 @@
     "weaponClass": "pistol",
     "trigger": "Semi",
     "damage": {
-      "impact": 6.4000001,
-      "slash": 57.599998
+      "impact": 6.4,
+      "puncture": 57.6
     },
     "totalBaseDamage": 64,
     "criticalChance": 0.16,
@@ -3135,8 +3135,8 @@
             "role": "normal",
             "delivery": "projectile",
             "damage": {
-              "impact": 6.4000001,
-              "slash": 57.599998
+              "impact": 6.4,
+              "puncture": 57.6
             },
             "totalBaseDamage": 64
           }
@@ -3153,8 +3153,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 2.5,
-      "puncture": 2.499999,
-      "slash": 20
+      "slash": 2.5,
+      "puncture": 20
     },
     "totalBaseDamage": 25,
     "criticalChance": 0.1,
@@ -3186,8 +3186,8 @@
             "delivery": "projectile",
             "damage": {
               "impact": 2.5,
-              "puncture": 2.499999,
-              "slash": 20
+              "slash": 2.5,
+              "puncture": 20
             },
             "totalBaseDamage": 25
           }
@@ -3203,8 +3203,8 @@
     "weaponClass": "rifle",
     "trigger": "Auto",
     "damage": {
-      "impact": 4.5999999,
-      "slash": 41.399998
+      "impact": 4.6,
+      "puncture": 41.4
     },
     "totalBaseDamage": 46,
     "criticalChance": 0.12,
@@ -3236,8 +3236,8 @@
             "role": "normal",
             "delivery": "projectile",
             "damage": {
-              "impact": 4.5999999,
-              "slash": 41.399998
+              "impact": 4.6,
+              "puncture": 41.4
             },
             "totalBaseDamage": 46
           }
@@ -3254,8 +3254,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 9,
-      "puncture": 6,
-      "slash": 5
+      "slash": 6,
+      "puncture": 5
     },
     "totalBaseDamage": 20,
     "criticalChance": 0.17,
@@ -3288,8 +3288,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 9,
-              "puncture": 6,
-              "slash": 5
+              "slash": 6,
+              "puncture": 5
             },
             "totalBaseDamage": 20
           }
@@ -3305,9 +3305,9 @@
     "weaponClass": "rifle",
     "trigger": "Auto",
     "damage": {
-      "impact": 7.9200001,
-      "puncture": 8.1599998,
-      "slash": 7.9200001
+      "impact": 7.92,
+      "slash": 8.16,
+      "puncture": 7.92
     },
     "totalBaseDamage": 24,
     "criticalChance": 0.12,
@@ -3336,9 +3336,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 7.9200001,
-              "puncture": 8.1599998,
-              "slash": 7.9200001
+              "impact": 7.92,
+              "slash": 8.16,
+              "puncture": 7.92
             },
             "totalBaseDamage": 24
           }
@@ -3355,8 +3355,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 1.75,
-      "puncture": 21,
-      "slash": 12.25
+      "slash": 21,
+      "puncture": 12.25
     },
     "totalBaseDamage": 35,
     "criticalChance": 0.12,
@@ -3386,8 +3386,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 1.75,
-              "puncture": 21,
-              "slash": 12.25
+              "slash": 21,
+              "puncture": 12.25
             },
             "totalBaseDamage": 35
           }
@@ -3404,8 +3404,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 12.25,
-      "puncture": 21,
-      "slash": 1.75
+      "slash": 21,
+      "puncture": 1.75
     },
     "totalBaseDamage": 35,
     "criticalChance": 0.16,
@@ -3437,8 +3437,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 12.25,
-              "puncture": 21,
-              "slash": 1.75
+              "slash": 21,
+              "puncture": 1.75
             },
             "totalBaseDamage": 35
           }
@@ -3454,9 +3454,9 @@
     "weaponClass": "pistol",
     "trigger": "Semi",
     "damage": {
-      "impact": 33.600002,
-      "puncture": 4.1999984,
-      "slash": 4.2000003
+      "impact": 33.6,
+      "slash": 4.2,
+      "puncture": 4.2
     },
     "totalBaseDamage": 42,
     "criticalChance": 0.06,
@@ -3485,9 +3485,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 33.600002,
-              "puncture": 4.1999984,
-              "slash": 4.2000003
+              "impact": 33.6,
+              "slash": 4.2,
+              "puncture": 4.2
             },
             "totalBaseDamage": 42
           }
@@ -3504,8 +3504,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 40,
-      "puncture": 4.9999981,
-      "slash": 5
+      "slash": 5,
+      "puncture": 5
     },
     "totalBaseDamage": 50,
     "criticalChance": 0.06,
@@ -3535,8 +3535,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 40,
-              "puncture": 4.9999981,
-              "slash": 5
+              "slash": 5,
+              "puncture": 5
             },
             "totalBaseDamage": 50
           }
@@ -3643,9 +3643,9 @@
     "weaponClass": "rifle",
     "trigger": "Burst",
     "damage": {
-      "impact": 9.9999895,
-      "puncture": 10.000021,
-      "slash": 9.9999895
+      "impact": 10,
+      "slash": 10,
+      "puncture": 10
     },
     "totalBaseDamage": 30,
     "criticalChance": 0.06,
@@ -3676,9 +3676,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 9.9999895,
-              "puncture": 10.000021,
-              "slash": 9.9999895
+              "impact": 10,
+              "slash": 10,
+              "puncture": 10
             },
             "totalBaseDamage": 30
           }
@@ -3699,8 +3699,8 @@
     "trigger": "Burst",
     "damage": {
       "impact": 13.8,
-      "puncture": 18.4,
-      "slash": 13.8
+      "slash": 18.4,
+      "puncture": 13.8
     },
     "totalBaseDamage": 46,
     "criticalChance": 0.18,
@@ -3732,8 +3732,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 13.8,
-              "puncture": 18.4,
-              "slash": 13.8
+              "slash": 18.4,
+              "puncture": 13.8
             },
             "totalBaseDamage": 46
           }
@@ -3822,8 +3822,8 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "puncture": 63,
-      "slash": 27.000002
+      "slash": 63,
+      "puncture": 27
     },
     "totalBaseDamage": 90,
     "criticalChance": 0.18,
@@ -3855,8 +3855,8 @@
             "role": "normal",
             "delivery": "projectile",
             "damage": {
-              "puncture": 63,
-              "slash": 27.000002
+              "slash": 63,
+              "puncture": 27
             },
             "totalBaseDamage": 90
           }
@@ -4395,8 +4395,8 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 5.2000003,
-      "slash": 20.800001
+      "impact": 5.2,
+      "puncture": 20.8
     },
     "totalBaseDamage": 26,
     "criticalChance": 0.06,
@@ -4425,8 +4425,8 @@
             "role": "normal",
             "delivery": "projectile",
             "damage": {
-              "impact": 5.2000003,
-              "slash": 20.800001
+              "impact": 5.2,
+              "puncture": 20.8
             },
             "totalBaseDamage": 26
           }
@@ -5437,8 +5437,8 @@
     "weaponClass": "pistol",
     "trigger": "Held",
     "damage": {
-      "puncture": 5,
-      "slash": 8,
+      "slash": 5,
+      "puncture": 8,
       "radiation": 10
     },
     "totalBaseDamage": 23,
@@ -5471,8 +5471,8 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "puncture": 5,
-              "slash": 8,
+              "slash": 5,
+              "puncture": 8,
               "radiation": 10
             },
             "totalBaseDamage": 23
@@ -5494,9 +5494,9 @@
     "weaponClass": "bow",
     "trigger": "Charge",
     "damage": {
-      "impact": 210.00002,
-      "puncture": 209.99997,
-      "slash": 280
+      "impact": 210,
+      "slash": 210,
+      "puncture": 280
     },
     "totalBaseDamage": 700,
     "criticalChance": 0.34,
@@ -5527,11 +5527,11 @@
             "role": "normal",
             "delivery": "projectile",
             "damage": {
-              "impact": 210.00002,
-              "puncture": 209.99997,
-              "slash": 280
+              "impact": 210,
+              "slash": 210,
+              "puncture": 280
             },
-            "totalBaseDamage": 699.99999
+            "totalBaseDamage": 700
           }
         ],
         "chargeTime": 1,
@@ -5602,8 +5602,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 6,
-      "puncture": 1.5000004,
-      "slash": 22.5
+      "slash": 1.5,
+      "puncture": 22.5
     },
     "totalBaseDamage": 30,
     "criticalChance": 0.08,
@@ -5633,8 +5633,8 @@
             "delivery": "projectile",
             "damage": {
               "impact": 6,
-              "puncture": 1.5000004,
-              "slash": 22.5
+              "slash": 1.5,
+              "puncture": 22.5
             },
             "totalBaseDamage": 30
           }
@@ -5650,9 +5650,9 @@
     "weaponClass": "rifle",
     "trigger": "Auto",
     "damage": {
-      "impact": 6.4000001,
-      "puncture": 1.6000004,
-      "slash": 24
+      "impact": 6.4,
+      "slash": 1.6,
+      "puncture": 24
     },
     "totalBaseDamage": 32,
     "criticalChance": 0.08,
@@ -5681,9 +5681,9 @@
             "role": "normal",
             "delivery": "projectile",
             "damage": {
-              "impact": 6.4000001,
-              "puncture": 1.6000004,
-              "slash": 24
+              "impact": 6.4,
+              "slash": 1.6,
+              "puncture": 24
             },
             "totalBaseDamage": 32
           }
@@ -5699,9 +5699,9 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 2.9000001,
-      "puncture": 8.6999989,
-      "slash": 46.400002
+      "impact": 2.9,
+      "slash": 8.7,
+      "puncture": 46.4
     },
     "totalBaseDamage": 58,
     "criticalChance": 0.16,
@@ -5733,9 +5733,9 @@
             "role": "normal",
             "delivery": "projectile",
             "damage": {
-              "impact": 2.9000001,
-              "puncture": 8.6999989,
-              "slash": 46.400002
+              "impact": 2.9,
+              "slash": 8.7,
+              "puncture": 46.4
             },
             "totalBaseDamage": 58
           }
@@ -5796,9 +5796,9 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 2.4000001,
-      "puncture": 2.3999996,
-      "slash": 11.2
+      "impact": 2.4,
+      "slash": 2.4,
+      "puncture": 11.2
     },
     "totalBaseDamage": 16,
     "criticalChance": 0.14,
@@ -5829,9 +5829,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 2.4000001,
-              "puncture": 2.3999996,
-              "slash": 11.2
+              "impact": 2.4,
+              "slash": 2.4,
+              "puncture": 11.2
             },
             "totalBaseDamage": 16
           }
@@ -5848,8 +5848,8 @@
     "trigger": "Burst",
     "damage": {
       "impact": 22.5,
-      "puncture": 33.75,
-      "slash": 18.75
+      "slash": 33.75,
+      "puncture": 18.75
     },
     "totalBaseDamage": 75,
     "criticalChance": 0.35,
@@ -5879,8 +5879,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 22.5,
-              "puncture": 33.75,
-              "slash": 18.75
+              "slash": 33.75,
+              "puncture": 18.75
             },
             "totalBaseDamage": 75
           }
@@ -6005,8 +6005,8 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 5.2000003,
-      "slash": 20.800001
+      "impact": 5.2,
+      "puncture": 20.8
     },
     "totalBaseDamage": 26,
     "criticalChance": 0.06,
@@ -6037,8 +6037,8 @@
             "role": "normal",
             "delivery": "projectile",
             "damage": {
-              "impact": 5.2000003,
-              "slash": 20.800001
+              "impact": 5.2,
+              "puncture": 20.8
             },
             "totalBaseDamage": 26
           }
@@ -6054,8 +6054,8 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "puncture": 32.5,
-      "slash": 17.5
+      "slash": 32.5,
+      "puncture": 17.5
     },
     "totalBaseDamage": 50,
     "criticalChance": 0.25,
@@ -6086,8 +6086,8 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "puncture": 32.5,
-              "slash": 17.5
+              "slash": 32.5,
+              "puncture": 17.5
             },
             "totalBaseDamage": 50
           }
@@ -6104,8 +6104,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 7.5,
-      "puncture": 7.4999971,
-      "slash": 60
+      "slash": 7.5,
+      "puncture": 60
     },
     "totalBaseDamage": 75,
     "criticalChance": 0.05,
@@ -6138,8 +6138,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 7.5,
-              "puncture": 7.4999971,
-              "slash": 60
+              "slash": 7.5,
+              "puncture": 60
             },
             "totalBaseDamage": 75
           }
@@ -6365,8 +6365,8 @@
     "weaponClass": "beam",
     "trigger": "Held",
     "damage": {
-      "slash": 8,
-      "corrosive": 20
+      "corrosive": 20,
+      "puncture": 8
     },
     "totalBaseDamage": 28,
     "criticalChance": 0.16,
@@ -6395,8 +6395,8 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "slash": 8,
-              "corrosive": 20
+              "corrosive": 20,
+              "puncture": 8
             },
             "totalBaseDamage": 28
           }
@@ -6729,8 +6729,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 20,
-      "puncture": 260,
-      "slash": 120,
+      "slash": 260,
+      "puncture": 120,
       "radiation": 140
     },
     "totalBaseDamage": 540,
@@ -6763,8 +6763,8 @@
             "delivery": "projectile",
             "damage": {
               "impact": 20,
-              "puncture": 260,
-              "slash": 120,
+              "slash": 260,
+              "puncture": 120,
               "radiation": 140
             },
             "totalBaseDamage": 540
@@ -6782,8 +6782,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 38,
-      "puncture": 83.599998,
-      "slash": 68.400002
+      "slash": 83.6,
+      "puncture": 68.4
     },
     "totalBaseDamage": 190,
     "criticalChance": 0.2,
@@ -6815,8 +6815,8 @@
             "delivery": "projectile",
             "damage": {
               "impact": 38,
-              "puncture": 83.599998,
-              "slash": 68.400002
+              "slash": 83.6,
+              "puncture": 68.4
             },
             "totalBaseDamage": 190
           }
@@ -6933,8 +6933,8 @@
     "weaponClass": "beam",
     "trigger": "Held",
     "damage": {
-      "puncture": 17.16,
-      "slash": 4.8400002
+      "slash": 17.16,
+      "puncture": 4.84
     },
     "totalBaseDamage": 22,
     "criticalChance": 0.1,
@@ -6963,8 +6963,8 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "puncture": 17.16,
-              "slash": 4.8400002
+              "slash": 17.16,
+              "puncture": 4.84
             },
             "totalBaseDamage": 22
           }
@@ -7124,8 +7124,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 3,
-      "puncture": 2.9999995,
-      "slash": 14
+      "slash": 3,
+      "puncture": 14
     },
     "totalBaseDamage": 20,
     "criticalChance": 0.05,
@@ -7157,8 +7157,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 3,
-              "puncture": 2.9999995,
-              "slash": 14
+              "slash": 3,
+              "puncture": 14
             },
             "totalBaseDamage": 20
           }
@@ -7397,8 +7397,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 18.75,
-      "puncture": 2.5000005,
-      "slash": 3.7500002
+      "slash": 2.5,
+      "puncture": 3.75
     },
     "totalBaseDamage": 25,
     "criticalChance": 0.17,
@@ -7428,8 +7428,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 18.75,
-              "puncture": 2.5000005,
-              "slash": 3.7500002
+              "slash": 2.5,
+              "puncture": 3.75
             },
             "totalBaseDamage": 25
           }
@@ -7445,9 +7445,9 @@
     "weaponClass": "rifle",
     "trigger": "Auto",
     "damage": {
-      "impact": 22.950001,
-      "puncture": 1.3499987,
-      "slash": 2.7
+      "impact": 22.95,
+      "slash": 1.35,
+      "puncture": 2.7
     },
     "totalBaseDamage": 27,
     "criticalChance": 0.15,
@@ -7476,9 +7476,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 22.950001,
-              "puncture": 1.3499987,
-              "slash": 2.7
+              "impact": 22.95,
+              "slash": 1.35,
+              "puncture": 2.7
             },
             "totalBaseDamage": 27
           }
@@ -7494,7 +7494,7 @@
     "weaponClass": "rifle",
     "trigger": "Auto",
     "damage": {
-      "slash": 25
+      "puncture": 25
     },
     "totalBaseDamage": 25,
     "criticalChance": 0.23,
@@ -7527,7 +7527,7 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "slash": 25
+              "puncture": 25
             },
             "totalBaseDamage": 25
           }
@@ -7543,9 +7543,9 @@
     "weaponClass": "rifle",
     "trigger": "Auto",
     "damage": {
-      "impact": 4.4000001,
-      "puncture": 2.9333372,
-      "slash": 3.6666629
+      "impact": 4.4,
+      "slash": 2.9,
+      "puncture": 3.7
     },
     "totalBaseDamage": 11,
     "criticalChance": 0.25,
@@ -7574,9 +7574,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 4.4000001,
-              "puncture": 2.9333372,
-              "slash": 3.6666629
+              "impact": 4.4,
+              "slash": 2.9,
+              "puncture": 3.7
             },
             "totalBaseDamage": 11
           }
@@ -7586,46 +7586,95 @@
   },
   {
     "id": "grimoire",
-    "uniqueName": "/Lotus/Weapons/Tenno/Grimoire/TnDoppelgangerGrimoire",
+    "uniqueName": "/Lotus/Weapons/Tenno/Grimoire/TnGrimoire",
     "name": "Grimoire",
     "category": "Secondary",
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 17.5,
-      "slash": 7.5000005
+      "electricity": 100
     },
-    "totalBaseDamage": 25,
-    "criticalChance": 0.079999998,
-    "criticalMultiplier": 1.6,
-    "statusChance": 0.10000002,
+    "totalBaseDamage": 150,
+    "criticalChance": 0.2,
+    "criticalMultiplier": 2,
+    "statusChance": 0.26,
     "fireRate": 1.5000001,
     "magazine": 0,
-    "reload": 2,
+    "reload": 0.0099999998,
     "multishot": 1,
     "masteryReq": 10,
-    "disposition": 0,
+    "disposition": 1,
     "exilusPolarity": null,
-    "polarities": [],
+    "polarities": [
+      "madurai",
+      "naramon"
+    ],
     "fireModes": [
       {
         "name": "Normal Attack",
         "trigger": "auto",
-        "criticalChance": 0.079999998,
-        "criticalMultiplier": 1.6,
-        "statusChance": 0.10000002,
+        "criticalChance": 0.2,
+        "criticalMultiplier": 2,
+        "statusChance": 0.26,
         "fireRate": 1.5000001,
         "baseMultishot": 1,
         "components": [
           {
-            "name": "Normal",
-            "role": "normal",
-            "delivery": "hitscan",
+            "name": "Direct",
+            "role": "direct",
+            "delivery": "projectile",
             "damage": {
-              "impact": 17.5,
-              "slash": 7.5000005
+              "electricity": 100
             },
-            "totalBaseDamage": 25
+            "totalBaseDamage": 100
+          },
+          {
+            "name": "Radial",
+            "role": "radial",
+            "delivery": "aoe",
+            "damage": {
+              "electricity": 50
+            },
+            "totalBaseDamage": 50,
+            "falloff": {
+              "start": 0,
+              "end": 1,
+              "maxReduction": 0.2
+            }
+          }
+        ]
+      },
+      {
+        "name": "Active Attack",
+        "trigger": "auto",
+        "criticalChance": 0.2,
+        "criticalMultiplier": 2,
+        "statusChance": 0.26,
+        "fireRate": 1,
+        "baseMultishot": 1,
+        "components": [
+          {
+            "name": "Direct",
+            "role": "direct",
+            "delivery": "projectile",
+            "damage": {
+              "electricity": 350
+            },
+            "totalBaseDamage": 350
+          },
+          {
+            "name": "Radial",
+            "role": "radial",
+            "delivery": "aoe",
+            "damage": {
+              "electricity": 250
+            },
+            "totalBaseDamage": 250,
+            "falloff": {
+              "start": 0,
+              "end": 6,
+              "maxReduction": 0.2
+            }
           }
         ]
       }
@@ -7640,8 +7689,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 93.5,
-      "puncture": 74.799995,
-      "slash": 18.700001
+      "slash": 74.8,
+      "puncture": 18.7
     },
     "totalBaseDamage": 187,
     "criticalChance": 0.15,
@@ -7673,8 +7722,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 93.5,
-              "puncture": 74.799995,
-              "slash": 18.700001
+              "slash": 74.8,
+              "puncture": 18.7
             },
             "totalBaseDamage": 187
           }
@@ -7772,8 +7821,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 11.25,
-      "puncture": 15.000004,
-      "slash": 48.75
+      "slash": 15,
+      "puncture": 48.75
     },
     "totalBaseDamage": 75,
     "criticalChance": 0.1,
@@ -7803,8 +7852,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 11.25,
-              "puncture": 15.000004,
-              "slash": 48.75
+              "slash": 15,
+              "puncture": 48.75
             },
             "totalBaseDamage": 75
           }
@@ -7942,9 +7991,9 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 2.6000001,
-      "puncture": 7.7999988,
-      "slash": 15.6
+      "impact": 2.6,
+      "slash": 7.8,
+      "puncture": 15.6
     },
     "totalBaseDamage": 26,
     "criticalChance": 0.04,
@@ -7976,9 +8025,9 @@
             "role": "normal",
             "delivery": "projectile",
             "damage": {
-              "impact": 2.6000001,
-              "puncture": 7.7999988,
-              "slash": 15.6
+              "impact": 2.6,
+              "slash": 7.8,
+              "puncture": 15.6
             },
             "totalBaseDamage": 26
           }
@@ -7994,9 +8043,9 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 3.6000001,
-      "puncture": 1.7999983,
-      "slash": 30.6
+      "impact": 3.6,
+      "slash": 1.8,
+      "puncture": 30.6
     },
     "totalBaseDamage": 36,
     "criticalChance": 0.06,
@@ -8028,9 +8077,9 @@
             "role": "normal",
             "delivery": "projectile",
             "damage": {
-              "impact": 3.6000001,
-              "puncture": 1.7999983,
-              "slash": 30.6
+              "impact": 3.6,
+              "slash": 1.8,
+              "puncture": 30.6
             },
             "totalBaseDamage": 36
           }
@@ -8560,9 +8609,9 @@
     "weaponClass": "rifle",
     "trigger": "Auto",
     "damage": {
-      "impact": 13.049999,
-      "puncture": 7.25,
-      "slash": 8.7000008
+      "impact": 13.05,
+      "slash": 7.25,
+      "puncture": 8.7
     },
     "totalBaseDamage": 29,
     "criticalChance": 0.09,
@@ -8593,9 +8642,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 13.049999,
-              "puncture": 7.25,
-              "slash": 8.7000008
+              "impact": 13.05,
+              "slash": 7.25,
+              "puncture": 8.7
             },
             "totalBaseDamage": 29
           }
@@ -8612,8 +8661,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 13.95,
-      "puncture": 7.75,
-      "slash": 9.3000002
+      "slash": 7.75,
+      "puncture": 9.3
     },
     "totalBaseDamage": 31,
     "criticalChance": 0.13,
@@ -8645,8 +8694,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 13.95,
-              "puncture": 7.75,
-              "slash": 9.3000002
+              "slash": 7.75,
+              "puncture": 9.3
             },
             "totalBaseDamage": 31
           }
@@ -8662,9 +8711,9 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 62.999996,
-      "puncture": 18,
-      "slash": 69
+      "impact": 63,
+      "slash": 18,
+      "puncture": 69
     },
     "totalBaseDamage": 150,
     "criticalChance": 0.2,
@@ -8693,9 +8742,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 62.999996,
-              "puncture": 18,
-              "slash": 69
+              "impact": 63,
+              "slash": 18,
+              "puncture": 69
             },
             "totalBaseDamage": 150
           }
@@ -8711,9 +8760,9 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 75.599998,
-      "puncture": 21.6,
-      "slash": 82.800003
+      "impact": 75.6,
+      "slash": 21.6,
+      "puncture": 82.8
     },
     "totalBaseDamage": 180,
     "criticalChance": 0.4,
@@ -8745,9 +8794,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 75.599998,
-              "puncture": 21.6,
-              "slash": 82.800003
+              "impact": 75.6,
+              "slash": 21.6,
+              "puncture": 82.8
             },
             "totalBaseDamage": 180
           }
@@ -9102,8 +9151,8 @@
     "trigger": "Burst",
     "damage": {
       "impact": 36.75,
-      "puncture": 6.125,
-      "slash": 6.125
+      "slash": 6.13,
+      "puncture": 6.13
     },
     "totalBaseDamage": 49,
     "criticalChance": 0.05,
@@ -9133,10 +9182,10 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 36.75,
-              "puncture": 6.125,
-              "slash": 6.125
+              "slash": 6.13,
+              "puncture": 6.13
             },
-            "totalBaseDamage": 49
+            "totalBaseDamage": 49.01
           }
         ],
         "burst": {
@@ -9249,9 +9298,9 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 4.5999999,
-      "puncture": 6.8999987,
-      "slash": 34.5
+      "impact": 4.6,
+      "slash": 6.9,
+      "puncture": 34.5
     },
     "totalBaseDamage": 46,
     "criticalChance": 0.08,
@@ -9283,9 +9332,9 @@
             "role": "normal",
             "delivery": "projectile",
             "damage": {
-              "impact": 4.5999999,
-              "puncture": 6.8999987,
-              "slash": 34.5
+              "impact": 4.6,
+              "slash": 6.9,
+              "puncture": 34.5
             },
             "totalBaseDamage": 46
           }
@@ -9302,8 +9351,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 6.75,
-      "puncture": 4.5,
-      "slash": 3.75
+      "slash": 4.5,
+      "puncture": 3.75
     },
     "totalBaseDamage": 15,
     "criticalChance": 0.29,
@@ -9336,8 +9385,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 6.75,
-              "puncture": 4.5,
-              "slash": 3.75
+              "slash": 4.5,
+              "puncture": 3.75
             },
             "totalBaseDamage": 15
           }
@@ -9737,9 +9786,9 @@
     "weaponClass": "rifle",
     "trigger": "Auto",
     "damage": {
-      "impact": 7.1300001,
-      "puncture": 9.6599989,
-      "slash": 6.21
+      "impact": 7.13,
+      "slash": 9.66,
+      "puncture": 6.21
     },
     "totalBaseDamage": 23,
     "criticalChance": 0.23,
@@ -9770,9 +9819,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 7.1300001,
-              "puncture": 9.6599989,
-              "slash": 6.21
+              "impact": 7.13,
+              "slash": 9.66,
+              "puncture": 6.21
             },
             "totalBaseDamage": 23
           }
@@ -10195,8 +10244,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 57.75,
-      "puncture": 9.625,
-      "slash": 9.625
+      "slash": 9.63,
+      "puncture": 9.63
     },
     "totalBaseDamage": 77,
     "criticalChance": 0.21,
@@ -10226,10 +10275,10 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 57.75,
-              "puncture": 9.625,
-              "slash": 9.625
+              "slash": 9.63,
+              "puncture": 9.63
             },
-            "totalBaseDamage": 77
+            "totalBaseDamage": 77.01
           }
         ]
       }
@@ -10304,9 +10353,9 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 11.610001,
-      "puncture": 12.69,
-      "slash": 2.7
+      "impact": 11.61,
+      "slash": 12.69,
+      "puncture": 2.7
     },
     "totalBaseDamage": 27,
     "criticalChance": 0.23,
@@ -10337,9 +10386,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 11.610001,
-              "puncture": 12.69,
-              "slash": 2.7
+              "impact": 11.61,
+              "slash": 12.69,
+              "puncture": 2.7
             },
             "totalBaseDamage": 27
           }
@@ -10585,8 +10634,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 10,
-      "puncture": 20,
-      "slash": 10
+      "slash": 20,
+      "puncture": 10
     },
     "totalBaseDamage": 40,
     "criticalChance": 0.1,
@@ -10616,8 +10665,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 10,
-              "puncture": 20,
-              "slash": 10
+              "slash": 20,
+              "puncture": 10
             },
             "totalBaseDamage": 40
           }
@@ -10634,8 +10683,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 6,
-      "puncture": 42,
-      "slash": 12
+      "slash": 42,
+      "puncture": 12
     },
     "totalBaseDamage": 60,
     "criticalChance": 0.3,
@@ -10668,8 +10717,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 6,
-              "puncture": 42,
-              "slash": 12
+              "slash": 42,
+              "puncture": 12
             },
             "totalBaseDamage": 60
           }
@@ -10685,9 +10734,9 @@
     "weaponClass": "pistol",
     "trigger": "Semi",
     "damage": {
-      "impact": 6.9000001,
-      "puncture": 27.6,
-      "slash": 11.5
+      "impact": 6.9,
+      "slash": 27.6,
+      "puncture": 11.5
     },
     "totalBaseDamage": 46,
     "criticalChance": 0.26,
@@ -10718,9 +10767,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 6.9000001,
-              "puncture": 27.6,
-              "slash": 11.5
+              "impact": 6.9,
+              "slash": 27.6,
+              "puncture": 11.5
             },
             "totalBaseDamage": 46
           }
@@ -10737,8 +10786,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 8.25,
-      "puncture": 8.249999,
-      "slash": 38.5
+      "slash": 8.25,
+      "puncture": 38.5
     },
     "totalBaseDamage": 55,
     "criticalChance": 0.12,
@@ -10770,8 +10819,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 8.25,
-              "puncture": 8.249999,
-              "slash": 38.5
+              "slash": 8.25,
+              "puncture": 38.5
             },
             "totalBaseDamage": 55
           }
@@ -10788,8 +10837,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 9,
-      "puncture": 8.9999971,
-      "slash": 72
+      "slash": 9,
+      "puncture": 72
     },
     "totalBaseDamage": 90,
     "criticalChance": 0.22,
@@ -10822,8 +10871,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 9,
-              "puncture": 8.9999971,
-              "slash": 72
+              "slash": 9,
+              "puncture": 72
             },
             "totalBaseDamage": 90
           }
@@ -10840,8 +10889,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 15.5,
-      "puncture": 3.1000009,
-      "slash": 43.399998
+      "slash": 3.1,
+      "puncture": 43.4
     },
     "totalBaseDamage": 62,
     "criticalChance": 0.26,
@@ -10873,8 +10922,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 15.5,
-              "puncture": 3.1000009,
-              "slash": 43.399998
+              "slash": 3.1,
+              "puncture": 43.4
             },
             "totalBaseDamage": 62
           }
@@ -10982,8 +11031,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 13,
-      "puncture": 12.999995,
-      "slash": 104
+      "slash": 13,
+      "puncture": 104
     },
     "totalBaseDamage": 130,
     "criticalChance": 0.2,
@@ -11015,8 +11064,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 13,
-              "puncture": 12.999995,
-              "slash": 104
+              "slash": 13,
+              "puncture": 104
             },
             "totalBaseDamage": 130
           }
@@ -11033,8 +11082,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 18,
-      "puncture": 17.999994,
-      "slash": 144
+      "slash": 18,
+      "puncture": 144
     },
     "totalBaseDamage": 180,
     "criticalChance": 0.25,
@@ -11066,10 +11115,10 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 18,
-              "puncture": 17.999994,
-              "slash": 144
+              "slash": 18,
+              "puncture": 144
             },
-            "totalBaseDamage": 179.99999
+            "totalBaseDamage": 180
           }
         ]
       }
@@ -11083,9 +11132,9 @@
     "weaponClass": "pistol",
     "trigger": "Semi",
     "damage": {
-      "impact": 44.099998,
-      "puncture": 26.949997,
-      "slash": 26.950001
+      "impact": 44.1,
+      "slash": 26.95,
+      "puncture": 26.95
     },
     "totalBaseDamage": 98,
     "criticalChance": 0.22,
@@ -11116,9 +11165,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 44.099998,
-              "puncture": 26.949997,
-              "slash": 26.950001
+              "impact": 44.1,
+              "slash": 26.95,
+              "puncture": 26.95
             },
             "totalBaseDamage": 98
           }
@@ -11134,9 +11183,9 @@
     "weaponClass": "pistol",
     "trigger": "Semi",
     "damage": {
-      "impact": 44.099998,
-      "puncture": 26.949997,
-      "slash": 26.950001
+      "impact": 44.1,
+      "slash": 26.95,
+      "puncture": 26.95
     },
     "totalBaseDamage": 98,
     "criticalChance": 0.28,
@@ -11167,9 +11216,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 44.099998,
-              "puncture": 26.949997,
-              "slash": 26.950001
+              "impact": 44.1,
+              "slash": 26.95,
+              "puncture": 26.95
             },
             "totalBaseDamage": 98
           }
@@ -11231,8 +11280,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 80,
-      "puncture": 63.999996,
-      "slash": 16
+      "slash": 64,
+      "puncture": 16
     },
     "totalBaseDamage": 160,
     "criticalChance": 0.15,
@@ -11264,8 +11313,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 80,
-              "puncture": 63.999996,
-              "slash": 16
+              "slash": 64,
+              "puncture": 16
             },
             "totalBaseDamage": 160
           }
@@ -11335,8 +11384,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 4.5,
-      "puncture": 9,
-      "slash": 4.5
+      "slash": 9,
+      "puncture": 4.5
     },
     "totalBaseDamage": 18,
     "criticalChance": 0.08,
@@ -11366,8 +11415,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 4.5,
-              "puncture": 9,
-              "slash": 4.5
+              "slash": 9,
+              "puncture": 4.5
             },
             "totalBaseDamage": 18
           }
@@ -11384,8 +11433,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 1.95,
-      "puncture": 1.9499997,
-      "slash": 9.0999994
+      "slash": 1.95,
+      "puncture": 9.1
     },
     "totalBaseDamage": 13,
     "criticalChance": 0.05,
@@ -11417,8 +11466,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 1.95,
-              "puncture": 1.9499997,
-              "slash": 9.0999994
+              "slash": 1.95,
+              "puncture": 9.1
             },
             "totalBaseDamage": 13
           }
@@ -11435,8 +11484,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 4,
-      "puncture": 5.999999,
-      "slash": 30
+      "slash": 6,
+      "puncture": 30
     },
     "totalBaseDamage": 40,
     "criticalChance": 0.05,
@@ -11469,8 +11518,8 @@
             "delivery": "projectile",
             "damage": {
               "impact": 4,
-              "puncture": 5.999999,
-              "slash": 30
+              "slash": 6,
+              "puncture": 30
             },
             "totalBaseDamage": 40
           }
@@ -11539,9 +11588,9 @@
     "weaponClass": "shotgun",
     "trigger": "Semi",
     "damage": {
-      "impact": 9.9000006,
-      "puncture": 5.3999991,
-      "slash": 2.7
+      "impact": 9.9,
+      "slash": 5.4,
+      "puncture": 2.7
     },
     "totalBaseDamage": 18,
     "criticalChance": 0.075,
@@ -11572,9 +11621,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 9.9000006,
-              "puncture": 5.3999991,
-              "slash": 2.7
+              "impact": 9.9,
+              "slash": 5.4,
+              "puncture": 2.7
             },
             "totalBaseDamage": 18
           }
@@ -12024,7 +12073,7 @@
     "weaponClass": "pistol",
     "trigger": "Held",
     "damage": {
-      "slash": 1,
+      "puncture": 1,
       "radiation": 10
     },
     "totalBaseDamage": 11,
@@ -12054,7 +12103,7 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "slash": 1,
+              "puncture": 1,
               "radiation": 10
             },
             "totalBaseDamage": 11
@@ -12137,7 +12186,7 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "slash": 220
+      "puncture": 220
     },
     "totalBaseDamage": 220,
     "criticalChance": 0.26,
@@ -12168,7 +12217,7 @@
             "role": "normal",
             "delivery": "projectile",
             "damage": {
-              "slash": 220
+              "puncture": 220
             },
             "totalBaseDamage": 220
           }
@@ -12970,9 +13019,9 @@
     "weaponClass": "sniper",
     "trigger": "Burst",
     "damage": {
-      "impact": 20.639999,
-      "puncture": 55.039997,
-      "slash": 96.32
+      "impact": 20.64,
+      "slash": 55.04,
+      "puncture": 96.32
     },
     "totalBaseDamage": 172,
     "criticalChance": 0.28,
@@ -13004,9 +13053,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 20.639999,
-              "puncture": 55.039997,
-              "slash": 96.32
+              "impact": 20.64,
+              "slash": 55.04,
+              "puncture": 96.32
             },
             "totalBaseDamage": 172
           }
@@ -13027,8 +13076,8 @@
     "trigger": "Burst",
     "damage": {
       "impact": 22.08,
-      "puncture": 58.879997,
-      "slash": 103.04
+      "slash": 58.88,
+      "puncture": 103.04
     },
     "totalBaseDamage": 184,
     "criticalChance": 0.32,
@@ -13062,8 +13111,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 22.08,
-              "puncture": 58.879997,
-              "slash": 103.04
+              "slash": 58.88,
+              "puncture": 103.04
             },
             "totalBaseDamage": 184
           }
@@ -13392,8 +13441,8 @@
     "weaponClass": "rifle",
     "trigger": "Semi",
     "damage": {
-      "puncture": 98,
-      "slash": 42
+      "slash": 98,
+      "puncture": 42
     },
     "totalBaseDamage": 140,
     "criticalChance": 0.2,
@@ -13425,8 +13474,8 @@
             "role": "normal",
             "delivery": "projectile",
             "damage": {
-              "puncture": 98,
-              "slash": 42
+              "slash": 98,
+              "puncture": 42
             },
             "totalBaseDamage": 140
           }
@@ -13442,7 +13491,7 @@
     "weaponClass": "pistol",
     "trigger": "Semi",
     "damage": {
-      "slash": 26,
+      "puncture": 26,
       "heat": 20
     },
     "totalBaseDamage": 46,
@@ -13472,7 +13521,7 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "slash": 26,
+              "puncture": 26,
               "heat": 20
             },
             "totalBaseDamage": 46
@@ -13615,8 +13664,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 17.25,
-      "puncture": 2.3000007,
-      "slash": 3.45
+      "slash": 2.3,
+      "puncture": 3.45
     },
     "totalBaseDamage": 23,
     "criticalChance": 0.3,
@@ -13646,8 +13695,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 17.25,
-              "puncture": 2.3000007,
-              "slash": 3.45
+              "slash": 2.3,
+              "puncture": 3.45
             },
             "totalBaseDamage": 23
           }
@@ -13664,8 +13713,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 6,
-      "puncture": 4.0000052,
-      "slash": 4.9999948
+      "slash": 4,
+      "puncture": 5
     },
     "totalBaseDamage": 15,
     "criticalChance": 0.25,
@@ -13695,8 +13744,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 6,
-              "puncture": 4.0000052,
-              "slash": 4.9999948
+              "slash": 4,
+              "puncture": 5
             },
             "totalBaseDamage": 15
           }
@@ -13712,9 +13761,9 @@
     "weaponClass": "rifle",
     "trigger": "Semi",
     "damage": {
-      "impact": 74.800003,
-      "puncture": 93.5,
-      "slash": 18.700001
+      "impact": 74.8,
+      "slash": 93.5,
+      "puncture": 18.7
     },
     "totalBaseDamage": 187,
     "criticalChance": 0.21,
@@ -13745,9 +13794,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 74.800003,
-              "puncture": 93.5,
-              "slash": 18.700001
+              "impact": 74.8,
+              "slash": 93.5,
+              "puncture": 18.7
             },
             "totalBaseDamage": 187
           }
@@ -13855,8 +13904,8 @@
     "weaponClass": "rifle",
     "trigger": "Auto",
     "damage": {
-      "impact": 7.5999999,
-      "slash": 30.4
+      "impact": 7.6,
+      "puncture": 30.4
     },
     "totalBaseDamage": 38,
     "criticalChance": 0.1,
@@ -13885,8 +13934,8 @@
             "role": "normal",
             "delivery": "projectile",
             "damage": {
-              "impact": 7.5999999,
-              "slash": 30.4
+              "impact": 7.6,
+              "puncture": 30.4
             },
             "totalBaseDamage": 38
           }
@@ -13903,8 +13952,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 2.97,
-      "puncture": 11.34,
-      "slash": 12.69
+      "slash": 11.34,
+      "puncture": 12.69
     },
     "totalBaseDamage": 27,
     "criticalChance": 0.23,
@@ -13936,8 +13985,8 @@
             "delivery": "projectile",
             "damage": {
               "impact": 2.97,
-              "puncture": 11.34,
-              "slash": 12.69
+              "slash": 11.34,
+              "puncture": 12.69
             },
             "totalBaseDamage": 27
           }
@@ -14049,8 +14098,8 @@
     "weaponClass": "rifle",
     "trigger": "Semi",
     "damage": {
-      "impact": 351.44998,
-      "slash": 429.55002
+      "impact": 351.45,
+      "puncture": 429.55
     },
     "totalBaseDamage": 781,
     "criticalChance": 0.31,
@@ -14079,8 +14128,8 @@
             "role": "normal",
             "delivery": "projectile",
             "damage": {
-              "impact": 351.44998,
-              "slash": 429.55002
+              "impact": 351.45,
+              "puncture": 429.55
             },
             "totalBaseDamage": 781
           }
@@ -14097,8 +14146,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 2.2,
-      "puncture": 17.6,
-      "slash": 2.2
+      "slash": 17.6,
+      "puncture": 2.2
     },
     "totalBaseDamage": 22,
     "criticalChance": 0.2,
@@ -14128,8 +14177,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 2.2,
-              "puncture": 17.6,
-              "slash": 2.2
+              "slash": 17.6,
+              "puncture": 2.2
             },
             "totalBaseDamage": 22
           }
@@ -14146,8 +14195,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 1.92,
-      "puncture": 20.16,
-      "slash": 1.92
+      "slash": 20.16,
+      "puncture": 1.92
     },
     "totalBaseDamage": 24,
     "criticalChance": 0.24,
@@ -14180,8 +14229,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 1.92,
-              "puncture": 20.16,
-              "slash": 1.92
+              "slash": 20.16,
+              "puncture": 1.92
             },
             "totalBaseDamage": 24
           }
@@ -14429,9 +14478,9 @@
     "weaponClass": "rifle",
     "trigger": "Burst",
     "damage": {
-      "impact": 18.130001,
-      "puncture": 16.660002,
-      "slash": 14.21
+      "impact": 18.13,
+      "slash": 16.66,
+      "puncture": 14.21
     },
     "totalBaseDamage": 49,
     "criticalChance": 0.19,
@@ -14463,9 +14512,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 18.130001,
-              "puncture": 16.660002,
-              "slash": 14.21
+              "impact": 18.13,
+              "slash": 16.66,
+              "puncture": 14.21
             },
             "totalBaseDamage": 49
           }
@@ -14748,8 +14797,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 26,
-      "puncture": 78,
-      "slash": 26
+      "slash": 78,
+      "puncture": 26
     },
     "totalBaseDamage": 130,
     "criticalChance": 0.06,
@@ -14781,8 +14830,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 26,
-              "puncture": 78,
-              "slash": 26
+              "slash": 78,
+              "puncture": 26
             },
             "totalBaseDamage": 130
           }
@@ -14799,7 +14848,7 @@
     "trigger": "Auto",
     "damage": {
       "impact": 16,
-      "slash": 24
+      "puncture": 24
     },
     "totalBaseDamage": 40,
     "criticalChance": 0.28,
@@ -14832,7 +14881,7 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 16,
-              "slash": 24
+              "puncture": 24
             },
             "totalBaseDamage": 40
           }
@@ -14910,8 +14959,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 144,
-      "puncture": 8.9999914,
-      "slash": 27.000002
+      "slash": 9,
+      "puncture": 27
     },
     "totalBaseDamage": 179.99998,
     "criticalChance": 0.3,
@@ -14941,10 +14990,10 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 144,
-              "puncture": 8.9999914,
-              "slash": 27.000002
+              "slash": 9,
+              "puncture": 27
             },
-            "totalBaseDamage": 179.99999
+            "totalBaseDamage": 180
           }
         ]
       }
@@ -14958,9 +15007,9 @@
     "weaponClass": "sniper",
     "trigger": "Semi",
     "damage": {
-      "impact": 149.60001,
-      "puncture": 9.3499908,
-      "slash": 28.050001
+      "impact": 149.6,
+      "slash": 9.3,
+      "puncture": 28.1
     },
     "totalBaseDamage": 187,
     "criticalChance": 0.38,
@@ -14992,9 +15041,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 149.60001,
-              "puncture": 9.3499908,
-              "slash": 28.050001
+              "impact": 149.6,
+              "slash": 9.3,
+              "puncture": 28.1
             },
             "totalBaseDamage": 187
           }
@@ -15010,9 +15059,9 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 6.1119404,
-      "puncture": 11.641791,
-      "slash": 8.2462692
+      "impact": 6.11,
+      "slash": 11.64,
+      "puncture": 8.25
     },
     "totalBaseDamage": 26,
     "criticalChance": 0.3,
@@ -15044,9 +15093,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 6.1119404,
-              "puncture": 11.641791,
-              "slash": 8.2462692
+              "impact": 6.11,
+              "slash": 11.64,
+              "puncture": 8.25
             },
             "totalBaseDamage": 26
           }
@@ -15126,8 +15175,8 @@
     "trigger": "Duplex",
     "damage": {
       "impact": 21,
-      "puncture": 168,
-      "slash": 21
+      "slash": 168,
+      "puncture": 21
     },
     "totalBaseDamage": 210,
     "criticalChance": 0.15,
@@ -15161,8 +15210,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 21,
-              "puncture": 168,
-              "slash": 21
+              "slash": 168,
+              "puncture": 21
             },
             "totalBaseDamage": 210
           }
@@ -15434,8 +15483,8 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 5.5999999,
-      "slash": 22.4
+      "impact": 5.6,
+      "puncture": 22.4
     },
     "totalBaseDamage": 28,
     "criticalChance": 0.16,
@@ -15467,8 +15516,8 @@
             "role": "normal",
             "delivery": "projectile",
             "damage": {
-              "impact": 5.5999999,
-              "slash": 22.4
+              "impact": 5.6,
+              "puncture": 22.4
             },
             "totalBaseDamage": 28
           }
@@ -15547,9 +15596,9 @@
     "weaponClass": "pistol",
     "trigger": "Semi",
     "damage": {
-      "impact": 33.666668,
-      "puncture": 33.666664,
-      "slash": 33.666668
+      "impact": 33.67,
+      "slash": 33.67,
+      "puncture": 33.67
     },
     "totalBaseDamage": 101,
     "criticalChance": 0.05,
@@ -15578,11 +15627,11 @@
             "role": "normal",
             "delivery": "projectile",
             "damage": {
-              "impact": 33.666668,
-              "puncture": 33.666664,
-              "slash": 33.666668
+              "impact": 33.67,
+              "slash": 33.67,
+              "puncture": 33.67
             },
-            "totalBaseDamage": 101
+            "totalBaseDamage": 101.01
           }
         ]
       }
@@ -15766,8 +15815,8 @@
     "trigger": "Burst",
     "damage": {
       "impact": 21,
-      "puncture": 4.499999,
-      "slash": 4.5
+      "slash": 4.5,
+      "puncture": 4.5
     },
     "totalBaseDamage": 30,
     "criticalChance": 0.16,
@@ -15799,8 +15848,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 21,
-              "puncture": 4.499999,
-              "slash": 4.5
+              "slash": 4.5,
+              "puncture": 4.5
             },
             "totalBaseDamage": 30
           }
@@ -15821,8 +15870,8 @@
     "trigger": "Burst",
     "damage": {
       "impact": 20,
-      "puncture": 14.999998,
-      "slash": 15.000001
+      "slash": 15,
+      "puncture": 15
     },
     "totalBaseDamage": 50,
     "criticalChance": 0.25,
@@ -15854,8 +15903,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 20,
-              "puncture": 14.999998,
-              "slash": 15.000001
+              "slash": 15,
+              "puncture": 15
             },
             "totalBaseDamage": 50
           }
@@ -16025,8 +16074,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 18,
-      "puncture": 17.999994,
-      "slash": 144
+      "slash": 18,
+      "puncture": 144
     },
     "totalBaseDamage": 180,
     "criticalChance": 0.3,
@@ -16058,10 +16107,10 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 18,
-              "puncture": 17.999994,
-              "slash": 144
+              "slash": 18,
+              "puncture": 144
             },
-            "totalBaseDamage": 179.99999
+            "totalBaseDamage": 180
           }
         ]
       }
@@ -16076,8 +16125,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 10,
-      "puncture": 10.000002,
-      "slash": 180
+      "slash": 10,
+      "puncture": 180
     },
     "totalBaseDamage": 200,
     "criticalChance": 0.28,
@@ -16109,8 +16158,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 10,
-              "puncture": 10.000002,
-              "slash": 180
+              "slash": 10,
+              "puncture": 180
             },
             "totalBaseDamage": 200
           }
@@ -16127,8 +16176,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 52.5,
-      "puncture": 8.75,
-      "slash": 8.75
+      "slash": 8.75,
+      "puncture": 8.75
     },
     "totalBaseDamage": 70,
     "criticalChance": 0.11,
@@ -16158,8 +16207,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 52.5,
-              "puncture": 8.75,
-              "slash": 8.75
+              "slash": 8.75,
+              "puncture": 8.75
             },
             "totalBaseDamage": 70
           }
@@ -16176,8 +16225,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 1.2,
-      "puncture": 6,
-      "slash": 4.8000002
+      "slash": 6,
+      "puncture": 4.8
     },
     "totalBaseDamage": 12,
     "criticalChance": 0.3,
@@ -16210,8 +16259,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 1.2,
-              "puncture": 6,
-              "slash": 4.8000002
+              "slash": 6,
+              "puncture": 4.8
             },
             "totalBaseDamage": 12
           }
@@ -16228,8 +16277,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 1.2,
-      "puncture": 6,
-      "slash": 4.8000002
+      "slash": 6,
+      "puncture": 4.8
     },
     "totalBaseDamage": 12,
     "criticalChance": 0.3,
@@ -16262,8 +16311,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 1.2,
-              "puncture": 6,
-              "slash": 4.8000002
+              "slash": 6,
+              "puncture": 4.8
             },
             "totalBaseDamage": 12
           }
@@ -16335,8 +16384,8 @@
     "weaponClass": "pistol",
     "trigger": "Held",
     "damage": {
-      "puncture": 10.440001,
-      "slash": 7.5599999
+      "slash": 10.44,
+      "puncture": 7.56
     },
     "totalBaseDamage": 18,
     "criticalChance": 0.14,
@@ -16365,8 +16414,8 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "puncture": 10.440001,
-              "slash": 7.5599999
+              "slash": 10.44,
+              "puncture": 7.56
             },
             "totalBaseDamage": 18
           }
@@ -16387,8 +16436,8 @@
     "weaponClass": "pistol",
     "trigger": "Held",
     "damage": {
-      "puncture": 12.760001,
-      "slash": 9.2399998
+      "slash": 12.76,
+      "puncture": 9.24
     },
     "totalBaseDamage": 22,
     "criticalChance": 0.2,
@@ -16417,8 +16466,8 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "puncture": 12.760001,
-              "slash": 9.2399998
+              "slash": 12.76,
+              "puncture": 9.24
             },
             "totalBaseDamage": 22
           }
@@ -16439,9 +16488,9 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 8.1999998,
-      "puncture": 24.599997,
-      "slash": 49.200001
+      "impact": 8.2,
+      "slash": 24.6,
+      "puncture": 49.2
     },
     "totalBaseDamage": 82,
     "criticalChance": 0.3,
@@ -16473,9 +16522,9 @@
             "role": "normal",
             "delivery": "projectile",
             "damage": {
-              "impact": 8.1999998,
-              "puncture": 24.599997,
-              "slash": 49.200001
+              "impact": 8.2,
+              "slash": 24.6,
+              "puncture": 49.2
             },
             "totalBaseDamage": 82
           }
@@ -16492,8 +16541,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 6,
-      "puncture": 5.9999981,
-      "slash": 48
+      "slash": 6,
+      "puncture": 48
     },
     "totalBaseDamage": 60,
     "criticalChance": 0.3,
@@ -16526,8 +16575,8 @@
             "delivery": "projectile",
             "damage": {
               "impact": 6,
-              "puncture": 5.9999981,
-              "slash": 48
+              "slash": 6,
+              "puncture": 48
             },
             "totalBaseDamage": 60
           }
@@ -16994,8 +17043,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 13.75,
-      "puncture": 7.499999,
-      "slash": 3.7500002
+      "slash": 7.5,
+      "puncture": 3.75
     },
     "totalBaseDamage": 25,
     "criticalChance": 0.075,
@@ -17027,8 +17076,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 13.75,
-              "puncture": 7.499999,
-              "slash": 3.7500002
+              "slash": 7.5,
+              "puncture": 3.75
             },
             "totalBaseDamage": 25
           }
@@ -17044,9 +17093,9 @@
     "weaponClass": "shotgun",
     "trigger": "Semi",
     "damage": {
-      "impact": 24.299999,
-      "puncture": 21.599998,
-      "slash": 8.1000004
+      "impact": 24.3,
+      "slash": 21.6,
+      "puncture": 8.1
     },
     "totalBaseDamage": 54,
     "criticalChance": 0.24,
@@ -17079,9 +17128,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 24.299999,
-              "puncture": 21.599998,
-              "slash": 8.1000004
+              "impact": 24.3,
+              "slash": 21.6,
+              "puncture": 8.1
             },
             "totalBaseDamage": 54
           }
@@ -17098,8 +17147,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 26,
-      "puncture": 8.0000019,
-      "slash": 6
+      "slash": 8,
+      "puncture": 6
     },
     "totalBaseDamage": 40,
     "criticalChance": 0.18,
@@ -17131,8 +17180,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 26,
-              "puncture": 8.0000019,
-              "slash": 6
+              "slash": 8,
+              "puncture": 6
             },
             "totalBaseDamage": 40
           }
@@ -17148,9 +17197,9 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 14.190001,
-      "puncture": 15.509999,
-      "slash": 3.3
+      "impact": 14.19,
+      "slash": 15.51,
+      "puncture": 3.3
     },
     "totalBaseDamage": 33,
     "criticalChance": 0.23,
@@ -17179,9 +17228,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 14.190001,
-              "puncture": 15.509999,
-              "slash": 3.3
+              "impact": 14.19,
+              "slash": 15.51,
+              "puncture": 3.3
             },
             "totalBaseDamage": 33
           }
@@ -17275,8 +17324,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 4,
-      "puncture": 5.999999,
-      "slash": 30
+      "slash": 6,
+      "puncture": 30
     },
     "totalBaseDamage": 40,
     "criticalChance": 0.12,
@@ -17306,8 +17355,8 @@
             "delivery": "projectile",
             "damage": {
               "impact": 4,
-              "puncture": 5.999999,
-              "slash": 30
+              "slash": 6,
+              "puncture": 30
             },
             "totalBaseDamage": 40
           }
@@ -17324,8 +17373,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 4,
-      "puncture": 5.999999,
-      "slash": 30
+      "slash": 6,
+      "puncture": 30
     },
     "totalBaseDamage": 40,
     "criticalChance": 0.16,
@@ -17358,8 +17407,8 @@
             "delivery": "projectile",
             "damage": {
               "impact": 4,
-              "puncture": 5.999999,
-              "slash": 30
+              "slash": 6,
+              "puncture": 30
             },
             "totalBaseDamage": 40
           }
@@ -17375,9 +17424,9 @@
     "weaponClass": "rifle",
     "trigger": "Burst",
     "damage": {
-      "impact": 26.400002,
-      "puncture": 27.199997,
-      "slash": 26.400002
+      "impact": 26.4,
+      "slash": 27.2,
+      "puncture": 26.4
     },
     "totalBaseDamage": 80,
     "criticalChance": 0.25,
@@ -17406,9 +17455,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 26.400002,
-              "puncture": 27.199997,
-              "slash": 26.400002
+              "impact": 26.4,
+              "slash": 27.2,
+              "puncture": 26.4
             },
             "totalBaseDamage": 80
           }
@@ -17428,9 +17477,9 @@
     "weaponClass": "rifle",
     "trigger": "Burst",
     "damage": {
-      "impact": 29.040001,
-      "puncture": 29.919998,
-      "slash": 29.040001
+      "impact": 29.04,
+      "slash": 29.92,
+      "puncture": 29.04
     },
     "totalBaseDamage": 88,
     "criticalChance": 0.3,
@@ -17463,9 +17512,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 29.040001,
-              "puncture": 29.919998,
-              "slash": 29.040001
+              "impact": 29.04,
+              "slash": 29.92,
+              "puncture": 29.04
             },
             "totalBaseDamage": 88
           }
@@ -17775,7 +17824,7 @@
     "trigger": "Semi",
     "damage": {
       "impact": 7,
-      "slash": 63
+      "puncture": 63
     },
     "totalBaseDamage": 70,
     "criticalChance": 0.13,
@@ -17808,7 +17857,7 @@
             "delivery": "projectile",
             "damage": {
               "impact": 7,
-              "slash": 63
+              "puncture": 63
             },
             "totalBaseDamage": 70
           }
@@ -17825,7 +17874,7 @@
     "trigger": "Auto",
     "damage": {
       "impact": 3,
-      "slash": 27
+      "puncture": 27
     },
     "totalBaseDamage": 30,
     "criticalChance": 0.3,
@@ -17858,7 +17907,7 @@
             "delivery": "projectile",
             "damage": {
               "impact": 3,
-              "slash": 27
+              "puncture": 27
             },
             "totalBaseDamage": 30
           }
@@ -18280,8 +18329,8 @@
     "weaponClass": "rifle",
     "trigger": "Auto",
     "damage": {
-      "puncture": 17.16,
-      "slash": 4.8400002
+      "slash": 17.16,
+      "puncture": 4.84
     },
     "totalBaseDamage": 22,
     "criticalChance": 0.2,
@@ -18310,8 +18359,8 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "puncture": 17.16,
-              "slash": 4.8400002
+              "slash": 17.16,
+              "puncture": 4.84
             },
             "totalBaseDamage": 22
           }
@@ -18877,8 +18926,8 @@
     "weaponClass": "rifle",
     "trigger": "Auto",
     "damage": {
-      "impact": 6.4000001,
-      "slash": 25.6
+      "impact": 6.4,
+      "puncture": 25.6
     },
     "totalBaseDamage": 32,
     "criticalChance": 0.04,
@@ -18907,8 +18956,8 @@
             "role": "normal",
             "delivery": "projectile",
             "damage": {
-              "impact": 6.4000001,
-              "slash": 25.6
+              "impact": 6.4,
+              "puncture": 25.6
             },
             "totalBaseDamage": 32
           }
@@ -18924,9 +18973,9 @@
     "weaponClass": "rifle",
     "trigger": "Burst",
     "damage": {
-      "impact": 9.3323994,
-      "puncture": 9.3352003,
-      "slash": 9.3323994
+      "impact": 9.33,
+      "slash": 9.34,
+      "puncture": 9.33
     },
     "totalBaseDamage": 28,
     "criticalChance": 0.06,
@@ -18957,9 +19006,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 9.3323994,
-              "puncture": 9.3352003,
-              "slash": 9.3323994
+              "impact": 9.33,
+              "slash": 9.34,
+              "puncture": 9.33
             },
             "totalBaseDamage": 28
           }
@@ -18980,8 +19029,8 @@
     "trigger": "Burst",
     "damage": {
       "impact": 11,
-      "puncture": 11,
-      "slash": 22
+      "slash": 11,
+      "puncture": 22
     },
     "totalBaseDamage": 44,
     "criticalChance": 0.26,
@@ -19013,8 +19062,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 11,
-              "puncture": 11,
-              "slash": 22
+              "slash": 11,
+              "puncture": 22
             },
             "totalBaseDamage": 44
           }
@@ -19136,8 +19185,8 @@
     "trigger": "Duplex",
     "damage": {
       "impact": 21,
-      "puncture": 168,
-      "slash": 21
+      "slash": 168,
+      "puncture": 21
     },
     "totalBaseDamage": 210,
     "criticalChance": 0.1,
@@ -19167,8 +19216,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 21,
-              "puncture": 168,
-              "slash": 21
+              "slash": 168,
+              "puncture": 21
             },
             "totalBaseDamage": 210
           }
@@ -19185,8 +19234,8 @@
     "trigger": "Duplex",
     "damage": {
       "impact": 19.5,
-      "puncture": 156,
-      "slash": 19.5
+      "slash": 156,
+      "puncture": 19.5
     },
     "totalBaseDamage": 195,
     "criticalChance": 0.1,
@@ -19219,8 +19268,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 19.5,
-              "puncture": 156,
-              "slash": 19.5
+              "slash": 156,
+              "puncture": 19.5
             },
             "totalBaseDamage": 195
           }
@@ -19548,8 +19597,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 4,
-      "puncture": 2.6666701,
-      "slash": 3.3333299
+      "slash": 2.67,
+      "puncture": 3.33
     },
     "totalBaseDamage": 10,
     "criticalChance": 0.25,
@@ -19581,8 +19630,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 4,
-              "puncture": 2.6666701,
-              "slash": 3.3333299
+              "slash": 2.67,
+              "puncture": 3.33
             },
             "totalBaseDamage": 10
           }
@@ -19598,9 +19647,9 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 12.333334,
-      "puncture": 12.333333,
-      "slash": 12.333334
+      "impact": 12.33,
+      "slash": 12.33,
+      "puncture": 12.33
     },
     "totalBaseDamage": 37,
     "criticalChance": 0.15,
@@ -19631,11 +19680,11 @@
             "role": "normal",
             "delivery": "projectile",
             "damage": {
-              "impact": 12.333334,
-              "puncture": 12.333333,
-              "slash": 12.333334
+              "impact": 12.33,
+              "slash": 12.33,
+              "puncture": 12.33
             },
-            "totalBaseDamage": 37
+            "totalBaseDamage": 36.99
           }
         ]
       }
@@ -19722,9 +19771,9 @@
     "weaponClass": "pistol",
     "trigger": "Semi",
     "damage": {
-      "impact": 18.800001,
-      "puncture": 4.7000012,
-      "slash": 23.5
+      "impact": 18.8,
+      "slash": 4.7,
+      "puncture": 23.5
     },
     "totalBaseDamage": 47,
     "criticalChance": 0.1,
@@ -19756,9 +19805,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 18.800001,
-              "puncture": 4.7000012,
-              "slash": 23.5
+              "impact": 18.8,
+              "slash": 4.7,
+              "puncture": 23.5
             },
             "totalBaseDamage": 47
           }
@@ -19774,9 +19823,9 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 10.200001,
-      "puncture": 5.0999994,
-      "slash": 1.7
+      "impact": 10.2,
+      "slash": 5.1,
+      "puncture": 1.7
     },
     "totalBaseDamage": 17,
     "criticalChance": 0.15,
@@ -19807,9 +19856,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 10.200001,
-              "puncture": 5.0999994,
-              "slash": 1.7
+              "impact": 10.2,
+              "slash": 5.1,
+              "puncture": 1.7
             },
             "totalBaseDamage": 17
           }
@@ -19825,9 +19874,9 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 14.400001,
-      "puncture": 1.7999994,
-      "slash": 1.8000001
+      "impact": 14.4,
+      "slash": 1.8,
+      "puncture": 1.8
     },
     "totalBaseDamage": 18,
     "criticalChance": 0.19,
@@ -19858,9 +19907,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 14.400001,
-              "puncture": 1.7999994,
-              "slash": 1.8000001
+              "impact": 14.4,
+              "slash": 1.8,
+              "puncture": 1.8
             },
             "totalBaseDamage": 18
           }
@@ -19996,8 +20045,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 22.5,
-      "puncture": 45,
-      "slash": 22.5
+      "slash": 45,
+      "puncture": 22.5
     },
     "totalBaseDamage": 90,
     "criticalChance": 0.2,
@@ -20029,8 +20078,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 22.5,
-              "puncture": 45,
-              "slash": 22.5
+              "slash": 45,
+              "puncture": 22.5
             },
             "totalBaseDamage": 90
           }
@@ -20047,8 +20096,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 16.5,
-      "puncture": 77,
-      "slash": 16.5
+      "slash": 77,
+      "puncture": 16.5
     },
     "totalBaseDamage": 110,
     "criticalChance": 0.22,
@@ -20081,8 +20130,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 16.5,
-              "puncture": 77,
-              "slash": 16.5
+              "slash": 77,
+              "puncture": 16.5
             },
             "totalBaseDamage": 110
           }
@@ -20099,8 +20148,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 11.25,
-      "puncture": 15.000004,
-      "slash": 48.75
+      "slash": 15,
+      "puncture": 48.75
     },
     "totalBaseDamage": 75,
     "criticalChance": 0.25,
@@ -20133,8 +20182,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 11.25,
-              "puncture": 15.000004,
-              "slash": 48.75
+              "slash": 15,
+              "puncture": 48.75
             },
             "totalBaseDamage": 75
           }
@@ -20151,8 +20200,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 96,
-      "puncture": 47.999992,
-      "slash": 16
+      "slash": 48,
+      "puncture": 16
     },
     "totalBaseDamage": 160,
     "criticalChance": 0.2,
@@ -20185,10 +20234,10 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 96,
-              "puncture": 47.999992,
-              "slash": 16
+              "slash": 48,
+              "puncture": 16
             },
-            "totalBaseDamage": 159.99999
+            "totalBaseDamage": 160
           }
         ]
       }
@@ -20203,8 +20252,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 90,
-      "puncture": 56.25,
-      "slash": 78.75
+      "slash": 56.25,
+      "puncture": 78.75
     },
     "totalBaseDamage": 225,
     "criticalChance": 0.25,
@@ -20236,8 +20285,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 90,
-              "puncture": 56.25,
-              "slash": 78.75
+              "slash": 56.25,
+              "puncture": 78.75
             },
             "totalBaseDamage": 225
           }
@@ -20254,8 +20303,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 140,
-      "puncture": 52.499992,
-      "slash": 157.5
+      "slash": 52.5,
+      "puncture": 157.5
     },
     "totalBaseDamage": 350,
     "criticalChance": 0.3,
@@ -20288,10 +20337,10 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 140,
-              "puncture": 52.499992,
-              "slash": 157.5
+              "slash": 52.5,
+              "puncture": 157.5
             },
-            "totalBaseDamage": 349.99999
+            "totalBaseDamage": 350
           }
         ]
       }
@@ -20306,8 +20355,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 23.4,
-      "puncture": 43.200001,
-      "slash": 23.4
+      "slash": 43.2,
+      "puncture": 23.4
     },
     "totalBaseDamage": 90,
     "criticalChance": 0.22,
@@ -20339,8 +20388,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 23.4,
-              "puncture": 43.200001,
-              "slash": 23.4
+              "slash": 43.2,
+              "puncture": 23.4
             },
             "totalBaseDamage": 90
           }
@@ -20356,9 +20405,9 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 4.3200002,
-      "puncture": 11.52,
-      "slash": 8.1599998
+      "impact": 4.32,
+      "slash": 11.52,
+      "puncture": 8.16
     },
     "totalBaseDamage": 24,
     "criticalChance": 0.14,
@@ -20390,9 +20439,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 4.3200002,
-              "puncture": 11.52,
-              "slash": 8.1599998
+              "impact": 4.32,
+              "slash": 11.52,
+              "puncture": 8.16
             },
             "totalBaseDamage": 24
           }
@@ -20409,8 +20458,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 6.48,
-      "puncture": 12.960001,
-      "slash": 7.5599999
+      "slash": 12.96,
+      "puncture": 7.56
     },
     "totalBaseDamage": 27,
     "criticalChance": 0.14,
@@ -20444,8 +20493,8 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 6.48,
-              "puncture": 12.960001,
-              "slash": 7.5599999
+              "slash": 12.96,
+              "puncture": 7.56
             },
             "totalBaseDamage": 27
           }
@@ -20462,7 +20511,7 @@
     "trigger": "Semi",
     "damage": {
       "impact": 72,
-      "slash": 108.00001
+      "puncture": 108
     },
     "totalBaseDamage": 180,
     "criticalChance": 0.24,
@@ -20495,9 +20544,9 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 72,
-              "slash": 108.00001
+              "puncture": 108
             },
-            "totalBaseDamage": 180.00001
+            "totalBaseDamage": 180
           }
         ]
       }
@@ -20511,8 +20560,8 @@
     "weaponClass": "rifle",
     "trigger": "Semi",
     "damage": {
-      "puncture": 120.00001,
-      "slash": 280
+      "slash": 120,
+      "puncture": 280
     },
     "totalBaseDamage": 400,
     "criticalChance": 0.4,
@@ -20544,10 +20593,10 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "puncture": 120.00001,
-              "slash": 280
+              "slash": 120,
+              "puncture": 280
             },
-            "totalBaseDamage": 400.00001
+            "totalBaseDamage": 400
           }
         ]
       }
@@ -20561,9 +20610,9 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 10.200001,
-      "puncture": 5.0999994,
-      "slash": 1.7
+      "impact": 10.2,
+      "slash": 5.1,
+      "puncture": 1.7
     },
     "totalBaseDamage": 17,
     "criticalChance": 0.15,
@@ -20594,9 +20643,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 10.200001,
-              "puncture": 5.0999994,
-              "slash": 1.7
+              "impact": 10.2,
+              "slash": 5.1,
+              "puncture": 1.7
             },
             "totalBaseDamage": 17
           }
@@ -20612,9 +20661,9 @@
     "weaponClass": "pistol",
     "trigger": "Auto",
     "damage": {
-      "impact": 14.400001,
-      "puncture": 1.7999994,
-      "slash": 1.8000001
+      "impact": 14.4,
+      "slash": 1.8,
+      "puncture": 1.8
     },
     "totalBaseDamage": 18,
     "criticalChance": 0.19,
@@ -20645,9 +20694,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 14.400001,
-              "puncture": 1.7999994,
-              "slash": 1.8000001
+              "impact": 14.4,
+              "slash": 1.8,
+              "puncture": 1.8
             },
             "totalBaseDamage": 18
           }
@@ -20664,8 +20713,8 @@
     "trigger": "Semi",
     "damage": {
       "impact": 180,
-      "puncture": 11.24999,
-      "slash": 33.75
+      "slash": 11.2,
+      "puncture": 33.8
     },
     "totalBaseDamage": 224.99998,
     "criticalChance": 0.2,
@@ -20695,10 +20744,10 @@
             "delivery": "hitscan",
             "damage": {
               "impact": 180,
-              "puncture": 11.24999,
-              "slash": 33.75
+              "slash": 11.2,
+              "puncture": 33.8
             },
-            "totalBaseDamage": 224.99999
+            "totalBaseDamage": 225
           }
         ]
       }
@@ -21039,8 +21088,8 @@
     "trigger": "Auto",
     "damage": {
       "impact": 5,
-      "puncture": 19.999998,
-      "slash": 75
+      "slash": 20,
+      "puncture": 75
     },
     "totalBaseDamage": 100,
     "criticalChance": 0.2,
@@ -21072,8 +21121,8 @@
             "delivery": "projectile",
             "damage": {
               "impact": 5,
-              "puncture": 19.999998,
-              "slash": 75
+              "slash": 20,
+              "puncture": 75
             },
             "totalBaseDamage": 100
           }
@@ -21158,9 +21207,9 @@
     "weaponClass": "pistol",
     "trigger": "Duplex",
     "damage": {
-      "impact": 44.799999,
-      "puncture": 78.400002,
-      "slash": 16.799999
+      "impact": 44.8,
+      "slash": 78.4,
+      "puncture": 16.8
     },
     "totalBaseDamage": 140,
     "criticalChance": 0.08,
@@ -21189,9 +21238,9 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 44.799999,
-              "puncture": 78.400002,
-              "slash": 16.799999
+              "impact": 44.8,
+              "slash": 78.4,
+              "puncture": 16.8
             },
             "totalBaseDamage": 140
           }
@@ -21207,9 +21256,9 @@
     "weaponClass": "pistol",
     "trigger": "Duplex",
     "damage": {
-      "impact": 63.000004,
-      "puncture": 126.00001,
-      "slash": 21
+      "impact": 63,
+      "slash": 126,
+      "puncture": 21
     },
     "totalBaseDamage": 210,
     "criticalChance": 0.12,
@@ -21241,11 +21290,11 @@
             "role": "normal",
             "delivery": "hitscan",
             "damage": {
-              "impact": 63.000004,
-              "puncture": 126.00001,
-              "slash": 21
+              "impact": 63,
+              "slash": 126,
+              "puncture": 21
             },
-            "totalBaseDamage": 210.00001
+            "totalBaseDamage": 210
           }
         ]
       }

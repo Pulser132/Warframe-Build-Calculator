@@ -33,13 +33,16 @@ const DATA_DIR = join(__dirname, '..', 'node_modules', '@wfcd', 'items', 'data',
 const OUT_DIR = join(__dirname, '..', 'src', 'data', 'generated');
 
 /**
- * `@wfcd damagePerShot` array order is **Impact, Slash, Puncture**, then the
- * elements (verified against the explicit `damage` object: Vaykor Hek index1 =
- * 48.75 = Slash). Only used as a fallback — the explicit `damage` object (whose
- * keys are unambiguous) is preferred everywhere it exists.
+ * `@wfcd damagePerShot` array order is **Impact, Puncture, Slash**, then the
+ * elements. The authoritative per-attack `attacks[].damage` map and the wiki
+ * agree on this order (Vaykor Hek index1 = 48.75 = **Puncture**, Soma Prime
+ * index2 = 6 = **Slash**, Ax-52 index1 = 40 = **Puncture**). NOTE: the top-level
+ * `damage` OBJECT and this array both transpose Slash↔Puncture relative to
+ * `attacks[].damage` — see `swapSlashPuncture`. Only used as a fallback; the
+ * per-attack `damage` map is preferred everywhere it exists.
  */
 const DAMAGE_ORDER = [
-  'impact', 'slash', 'puncture', 'heat', 'cold', 'electricity', 'toxin',
+  'impact', 'puncture', 'slash', 'heat', 'cold', 'electricity', 'toxin',
   'blast', 'radiation', 'gas', 'magnetic', 'viral', 'corrosive', 'void',
 ];
 /** Damage types the engine carries (others, e.g. tau/drain, are dropped). */
@@ -168,6 +171,26 @@ function damageFromPerShot(arr) {
   return out;
 }
 
+/**
+ * Transpose Slash↔Puncture in a cleaned damage map. The `@wfcd` top-level
+ * `damage` OBJECT swaps these two relative to the authoritative
+ * `attacks[].damage` map and the wiki (verified: Ax-52 object slash:40 → really
+ * Puncture; Vaykor Hek object slash:48.75 → really Puncture; Soma Prime object
+ * puncture:6 → really Slash; Enkaus object slash:8 → really Puncture). Apply
+ * ONLY to the top-level object, never to `attacks[].damage` (already correct).
+ */
+function swapSlashPuncture(map) {
+  const { slash, puncture, ...rest } = map;
+  if (slash !== undefined) rest.puncture = slash;
+  if (puncture !== undefined) rest.slash = puncture;
+  return rest;
+}
+
+/** Authoritative top-level damage: cleaned `w.damage`, slash/puncture un-swapped. */
+function topLevelDamage(w) {
+  return swapSlashPuncture(cleanDamage(w.damage));
+}
+
 function sumValues(map) {
   let t = 0;
   for (const v of Object.values(map)) t += v;
@@ -250,7 +273,7 @@ function buildFireModes(w) {
 
   // No usable attacks → synthesize one mode from top-level stats.
   if (attacks.length === 0) {
-    const dmg = cleanDamage(w.damage) ?? {};
+    const dmg = topLevelDamage(w);
     const total = Object.keys(dmg).length ? dmg : damageFromPerShot(w.damagePerShot);
     const damage = { ...total };
     return [
@@ -265,7 +288,7 @@ function buildFireModes(w) {
   }
 
   const fallback = Object.keys(cleanDamage(w.damage)).length
-    ? cleanDamage(w.damage)
+    ? topLevelDamage(w)
     : damageFromPerShot(w.damagePerShot);
 
   // AoE present → group attacks into fire modes. Each direct (non-AoE) attack
@@ -309,21 +332,14 @@ function buildFireModes(w) {
     return [modeFrom(w, full, [componentFrom(full, 'normal', fallback)], 'Normal Attack')];
   }
 
-  // Single-attack weapon → one mode built from the authoritative top-level
-  // `damage` (the `attacks[].damage` object has slash/puncture swapped for some
-  // weapons, e.g. Vaykor Hek, Soma Prime; the top-level object matches the wiki).
+  // Single-attack weapon → one mode built from the authoritative per-attack
+  // `attacks[].damage` map (which matches the wiki for slash/puncture; the
+  // top-level `damage` object transposes them — see `swapSlashPuncture`).
+  // `componentFrom` already prefers `attack.damage` and only uses `fallback`
+  // (the un-swapped top-level damage) when the attack carries no damage map.
   if (attacks.length === 1) {
     const a = attacks[0];
-    const total = Object.keys(fallback).length ? fallback : cleanDamage(a.damage);
-    const damage = { ...total };
-    const component = {
-      name: 'Normal',
-      role: 'normal',
-      delivery: mapDelivery(a.shot_type),
-      damage,
-      totalBaseDamage: sumValues(damage),
-    };
-    return [modeFrom(w, a, [component], 'Normal Attack', w.fireRate || a.speed)];
+    return [modeFrom(w, a, [componentFrom(a, 'normal', fallback)], 'Normal Attack', w.fireRate || a.speed)];
   }
 
   // Genuine multi-mode: each attack → one selectable mode (per-mode damage only
@@ -409,6 +425,22 @@ function isUsableGun(w) {
   return hasAttacks || hasPerShot || hasDamageMap;
 }
 
+/**
+ * Rank for picking among multiple records sharing a name/slug. Some weapons have
+ * an enemy/clone variant alongside the real player weapon (e.g. the Doppelganger
+ * Grimoire — physical-damage placeholder, no `attacks[]`, not wiki-listed —
+ * shares the "Grimoire" name with the real pure-Electricity player weapon). The
+ * real weapon carries the per-attack damage maps the pipeline maps from and is
+ * flagged `wikiAvailable`; prefer it generically rather than special-casing the
+ * name. Higher score wins; `totalDamage` breaks ties.
+ */
+function gunQuality(w) {
+  let score = 0;
+  if (Array.isArray(w.attacks) && w.attacks.length > 0) score += 4;
+  if (w.wikiAvailable === true) score += 2;
+  return score;
+}
+
 function main() {
   const primary = loadCategory('Primary');
   const secondary = loadCategory('Secondary');
@@ -416,16 +448,26 @@ function main() {
   const arcanes = loadCategory('Arcanes');
 
   // ── Weapons: every usable Primary + Secondary gun, mapped generically. ──
-  const seen = new Set();
-  const weaponsOut = [];
-  let skipped = 0;
+  // Pick the best record per slug FIRST (a name can map to both the real player
+  // weapon and an enemy/clone variant — see `gunQuality`), then normalize.
+  const best = new Map();
   for (const w of [...primary, ...secondary]) {
     if (!isUsableGun(w)) continue;
     const id = slugify(w.name);
-    if (seen.has(id)) continue;
+    const prev = best.get(id);
+    if (
+      !prev ||
+      gunQuality(w) > gunQuality(prev) ||
+      (gunQuality(w) === gunQuality(prev) && (w.totalDamage ?? 0) > (prev.totalDamage ?? 0))
+    ) {
+      best.set(id, w);
+    }
+  }
+  const weaponsOut = [];
+  let skipped = 0;
+  for (const w of best.values()) {
     try {
       weaponsOut.push(normalizeWeapon(w));
-      seen.add(id);
     } catch (e) {
       skipped++;
       console.warn(`build-data: skipped ${w.name}: ${e.message}`);
