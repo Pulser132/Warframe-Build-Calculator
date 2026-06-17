@@ -28,11 +28,16 @@ export interface BuildStore {
   past: Snapshot[];
   future: Snapshot[];
 
+  /** Active stance Combo String name (melee Normal mode; `null` = none). */
+  activeComboString: string | null;
+
   initFromDataset: (dataset: Dataset) => void;
   /** Switch the equipped weapon, rebuilding the slots for its layout. */
   selectWeapon: (weaponId: string) => void;
   /** Switch the active fire mode (multi-mode weapons). */
   setMode: (modeName: string | null) => void;
+  /** Select a stance Combo String (melee Normal mode). */
+  setComboString: (name: string | null) => void;
 
   assignMod: (slotIndex: number, itemId: string) => void;
   clearSlot: (slotIndex: number) => void;
@@ -43,6 +48,8 @@ export interface BuildStore {
   toggleCondition: (key: string, on?: boolean) => void;
   setStacks: (key: string, n: number) => void;
   setBuff: (id: string, strength: number | null) => void;
+  /** Set the melee Follow-Through target count (1 = single-target). */
+  setTargetCount: (n: number) => void;
 
   undo: () => void;
   redo: () => void;
@@ -90,6 +97,7 @@ export const useBuildStore = create<BuildStore>((set, get) => {
     build: EMPTY_BUILD,
     combat: EMPTY_COMBAT_STATE,
     activeMode: null,
+    activeComboString: null,
     past: [],
     future: [],
 
@@ -100,6 +108,7 @@ export const useBuildStore = create<BuildStore>((set, get) => {
         build: weapon ? makeInitialBuild(weapon) : EMPTY_BUILD,
         combat: EMPTY_COMBAT_STATE,
         activeMode: null,
+        activeComboString: null,
         past: [],
         future: [],
       });
@@ -110,12 +119,14 @@ export const useBuildStore = create<BuildStore>((set, get) => {
       if (!dataset || weaponId === build.weaponId) return;
       const weapon = dataset.weapons.find((w) => w.id === weaponId);
       if (!weapon) return;
-      // A weapon swap discards the old loadout; the activeMode resets to primary.
+      // A weapon swap discards the old loadout; mode/combo reset.
       commit({ build: makeInitialBuild(weapon) });
-      set({ activeMode: null });
+      set({ activeMode: null, activeComboString: null });
     },
 
     setMode: (modeName) => set({ activeMode: modeName }),
+
+    setComboString: (name) => set({ activeComboString: name }),
 
     assignMod: (slotIndex, itemId) => {
       const { build, dataset } = get();
@@ -127,7 +138,7 @@ export const useBuildStore = create<BuildStore>((set, get) => {
       // Class-compatibility guard (e.g. a Pistol mod cannot go on a rifle).
       const mod = dataset.mods.find((m) => m.id === itemId);
       const weapon = dataset.weapons.find((w) => w.id === build.weaponId);
-      if (mod && weapon && !modMatchesGroup(mod, weaponModGroup(weapon))) return;
+      if (mod && weapon && !modMatchesGroup(mod, weaponModGroup(weapon), weapon.weaponClass)) return;
       updateSlot(slotIndex, { itemId, rank: defaultRankFor(itemId, slot.kind, dataset) });
     },
 
@@ -158,6 +169,11 @@ export const useBuildStore = create<BuildStore>((set, get) => {
       const buffs = combat.buffs.filter((b) => b.id !== id);
       if (strength !== null) buffs.push({ id, strength });
       commit({ combat: { ...combat, buffs } });
+    },
+
+    setTargetCount: (n) => {
+      const { combat } = get();
+      commit({ combat: { ...combat, targetCount: Math.max(1, Math.floor(n)) } });
     },
 
     undo: () => {

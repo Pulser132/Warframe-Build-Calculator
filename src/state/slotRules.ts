@@ -11,6 +11,8 @@ export function slotAccepts(slotKind: ModSlotKind, itemKind: ModSlotKind): boole
   switch (slotKind) {
     case 'aura':
       return itemKind === 'aura';
+    case 'stance':
+      return itemKind === 'stance';
     case 'exilus':
       return itemKind === 'exilus';
     case 'arcane':

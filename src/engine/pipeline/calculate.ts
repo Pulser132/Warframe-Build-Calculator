@@ -22,7 +22,6 @@ import type {
 } from '../model/result';
 import type { DamageType } from '../model/types';
 import type { FireMode, DamageComponent } from '../model/firemode';
-import type { Gun } from '../gear/weapon';
 import { gatherBuckets, type ResolvedSource, type BucketSums } from './gather';
 import {
   baseElementalStage,
@@ -35,14 +34,37 @@ import {
 } from './stages';
 import { effectiveFireRateStage } from './triggers';
 import { probAtLeastOneProc, procTypeWeights, rimFactor } from './mechanics';
+import { comboCount, comboMultiplier } from './combo';
+import { followThroughTotal, comboStringBreakdown } from './melee';
+// Side-effect import: registers the Stage 3 custom effects (Blood Rush, Weeping
+// Wounds, Condition Overload) into the global registry that `gather` consults.
+import './customEffects';
+
+/**
+ * The minimal weapon shape the calculator needs (Stage 3 generalization).
+ * Guns supply `magazine`/`reload`; melee omits them (→ sustained DPS = burst DPS).
+ * Melee additionally supplies Follow-Through / Reach metadata for the extras.
+ */
+export interface CalcWeapon {
+  readonly id: string;
+  readonly primaryFireMode: FireMode;
+  readonly magazine?: number;
+  readonly reload?: number;
+  /** Follow-Through factor (melee). */
+  readonly followThrough?: number;
+  /** Reach / swing distance (melee). */
+  readonly range?: number;
+}
 
 export interface CalcInput {
-  weapon: Gun;
+  weapon: CalcWeapon;
   /** Equipped mods + arcanes + active external buffs, in load order. */
   sources: readonly ResolvedSource[];
   combat: CombatState;
   /** Which fire mode to compute (defaults to the weapon's primary mode). */
   mode?: FireMode;
+  /** Number of targets in a melee swing arc (Follow-Through extra). Default 1. */
+  targetCount?: number;
 }
 
 /** Run base+elemental then quantization for a single component. */
@@ -95,11 +117,17 @@ export function calculateBuild(input: CalcInput): DamageResult {
     burst: mode.burst,
     chargeTime: mode.chargeTime,
     bow: mode.bow,
+    windUp: mode.windUp,
   });
 
   const { factionMultiplier, directMultiplier, stage: condStage } =
     conditionalMultiplierStage(sums);
-  const finalMult = avgCritMultiplier * factionMultiplier * directMultiplier;
+
+  // Combo Multiplier — an intrinsic step applied to Heavy / Heavy-Slam modes only
+  // (never Normal/Slam). Reads the raw Combo Count from combat state.
+  const count = comboCount(combat);
+  const combo = mode.comboScaled ? comboMultiplier(count) : 1;
+  const finalMult = avgCritMultiplier * factionMultiplier * directMultiplier * combo;
 
   // ── Per-component base + quantization ──────────────────────────────────────
   const combinedSubtotal: DamageMap = {};
@@ -123,6 +151,7 @@ export function calculateBuild(input: CalcInput): DamageResult {
       perType,
       perPelletAverage,
       falloff: component.falloff,
+      forcedProcs: component.forcedProcs,
     };
     if (component.falloff) {
       result.rimPerPelletAverage = perPelletAverage * rimFactor(component.falloff);
@@ -154,11 +183,14 @@ export function calculateBuild(input: CalcInput): DamageResult {
   const burstDps = avgHitPerShot * fireRate;
 
   // Sustained DPS folds in reload. Beams consume 0.5 ammo per tick, so a magazine
-  // lasts twice as many ticks.
+  // lasts twice as many ticks. Melee has no magazine/reload (both 0) → sustained
+  // DPS equals burst DPS.
+  const magazine = weapon.magazine ?? 0;
+  const reload = weapon.reload ?? 0;
   const ammoPerShot = mode.beam?.ammoPerTick ?? 1;
-  const shotsPerMag = ammoPerShot > 0 ? weapon.magazine / ammoPerShot : weapon.magazine;
+  const shotsPerMag = ammoPerShot > 0 ? magazine / ammoPerShot : magazine;
   const magTime = fireRate > 0 ? shotsPerMag / fireRate : 0;
-  const cycle = magTime + weapon.reload;
+  const cycle = magTime + reload;
   const sustainedDps = cycle > 0 ? burstDps * (magTime / cycle) : burstDps;
 
   // ── Stage 2 extras ─────────────────────────────────────────────────────────
@@ -193,14 +225,51 @@ export function calculateBuild(input: CalcInput): DamageResult {
       statusS,
       frStage,
       condStage,
+      ...(mode.comboScaled
+        ? [
+            {
+              id: 'combo',
+              label: 'Combo Multiplier',
+              detail: `${count} hits → ×${combo} (Heavy attacks only)`,
+              value: combo,
+            } satisfies PipelineStage,
+          ]
+        : []),
       {
         id: 'dps',
         label: 'DPS',
-        detail: `burst ${burstDps.toFixed(0)} → sustained ${sustainedDps.toFixed(0)} (reload ${weapon.reload.toFixed(2)}s)`,
+        detail: `burst ${burstDps.toFixed(0)} → sustained ${sustainedDps.toFixed(0)} (reload ${reload.toFixed(2)}s)`,
         value: burstDps,
       },
     ],
   };
+
+  // ── Stage 3 melee extras ───────────────────────────────────────────────────
+  if (mode.comboScaled) {
+    result.comboMultiplier = combo;
+    result.comboCount = count;
+  }
+  if (weapon.range != null) result.reach = weapon.range;
+
+  // Follow-Through: a multi-target extra (single-target output is unchanged).
+  const targetCount = input.targetCount ?? combat.targetCount ?? 1;
+  if (weapon.followThrough != null && targetCount > 1) {
+    const ft = weapon.followThrough;
+    const total = followThroughTotal(avgHitPerShot, ft, targetCount);
+    const perTarget = Array.from({ length: targetCount }, (_, k) => avgHitPerShot * Math.pow(ft, k));
+    result.followThrough = {
+      factor: ft,
+      targetCount,
+      singleTarget: avgHitPerShot,
+      total,
+      perTarget,
+    };
+  }
+
+  // Combo String: a per-hit breakdown extra for the Normal mode.
+  if (mode.comboString) {
+    result.comboString = comboStringBreakdown(mode.comboString, avgHitPerShot, fireRate);
+  }
 
   // Beam reporting.
   if (mode.beam) {

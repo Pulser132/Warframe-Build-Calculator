@@ -7,21 +7,35 @@
  * memoized per module load.
  */
 import type { WeaponData, ModData, ArcaneData } from '@engine/model/types';
+import type { ComboString } from '@engine/model/firemode';
 import { MOD_DESCRIPTORS, ARCANE_DESCRIPTORS } from './mods/descriptors';
 
 /** Generated stat record (mods.json) — curated stats without effects/slot. */
 type GeneratedMod = Omit<ModData, 'slot' | 'effects'>;
 /** Generated stat record (arcanes.json) — curated stats without effects. */
 type GeneratedArcane = Omit<ArcaneData, 'effects'>;
+/** Committed combo-string dataset (scripts/scrape-combos.mjs → combos.json). */
+type CombosFile = Record<string, ComboString[]>;
 
 let weaponsPromise: Promise<WeaponData[]> | undefined;
 let modsPromise: Promise<ModData[]> | undefined;
 let arcanesPromise: Promise<ArcaneData[]> | undefined;
 
 export function loadWeapons(): Promise<WeaponData[]> {
-  weaponsPromise ??= import('./generated/weapons.json').then(
-    (m) => m.default as unknown as WeaponData[],
-  );
+  weaponsPromise ??= Promise.all([
+    import('./generated/weapons.json'),
+    import('./generated/combos.json'),
+  ]).then(([w, c]) => {
+    const weapons = w.default as unknown as WeaponData[];
+    const combos = c.default as unknown as CombosFile;
+    // Merge the committed combo strings (by weapon id) onto melee weapons. The
+    // build/app read ONLY this committed file — no build-time network (ADR 0001).
+    for (const weapon of weapons) {
+      const strings = combos[weapon.id];
+      if (strings && strings.length) weapon.comboStrings = strings;
+    }
+    return weapons;
+  });
   return weaponsPromise;
 }
 
@@ -33,7 +47,12 @@ export function loadMods(): Promise<ModData[]> {
       if (!authored) {
         throw new Error(`No authored descriptor for mod "${g.id}". Add it to mods/descriptors.ts.`);
       }
-      return { ...g, slot: authored.slot, effects: authored.effects };
+      return {
+        ...g,
+        slot: authored.slot,
+        effects: authored.effects,
+        ...(authored.customEffectId ? { customEffectId: authored.customEffectId } : {}),
+      };
     });
   });
   return modsPromise;

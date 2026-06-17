@@ -14,6 +14,8 @@ import type { EffectDescriptor, ModSlotKind } from '@engine/model/types';
 export interface AuthoredMod {
   slot: ModSlotKind;
   effects: EffectDescriptor[];
+  /** Custom-effect registry key (Stage 3): context-dependent mods route here. */
+  customEffectId?: string;
 }
 
 /** Keyed by curated mod `id` (slug of the name). */
@@ -99,6 +101,51 @@ export const MOD_DESCRIPTORS: Record<string, AuthoredMod> = {
   },
   // Status chance bucket (per pellet on shotguns).
   'shotgun-savvy': { slot: 'normal', effects: [{ bucket: 'statusChance', value: 0.9 }] },
+
+  // ── Melee mod set (Stage 3). Values are @wfcd max-rank stats, verified vs the
+  //    wiki (docs/warframe/mods/*). Melee mods are class-agnostic (`compat: Melee`)
+  //    except stances, which gate on weapon class. ──
+  // Base-damage bucket (the melee Serration).
+  'primed-pressure-point': { slot: 'normal', effects: [{ bucket: 'baseDamage', value: 1.65 }] },
+  'pressure-point': { slot: 'normal', effects: [{ bucket: 'baseDamage', value: 0.8 }] },
+  // Critical damage bucket.
+  'organ-shatter': { slot: 'normal', effects: [{ bucket: 'critDamage', value: 0.6 }] },
+  // Critical chance bucket. (The "×2 for Heavy Attacks" nuance is deferred.)
+  'true-steel': { slot: 'normal', effects: [{ bucket: 'critChance', value: 0.8 }] },
+  // Status chance bucket.
+  'melee-prowess': { slot: 'normal', effects: [{ bucket: 'statusChance', value: 0.6 }] },
+  // Elemental bucket.
+  'fever-strike': { slot: 'normal', effects: [{ bucket: 'elemental', element: 'toxin', value: 0.6 }] },
+  'molten-impact': { slot: 'normal', effects: [{ bucket: 'elemental', element: 'heat', value: 0.6 }] },
+  'north-wind': { slot: 'normal', effects: [{ bucket: 'elemental', element: 'cold', value: 0.6 }] },
+  'shocking-touch': {
+    slot: 'normal',
+    effects: [{ bucket: 'elemental', element: 'electricity', value: 0.6 }],
+  },
+  // Attack-speed (fire-rate) bucket.
+  fury: { slot: 'normal', effects: [{ bucket: 'fireRate', value: 0.2 }] },
+  // Corrupted dual-stat: +100% Melee Damage, −20% Attack Speed.
+  'spoiled-strike': {
+    slot: 'normal',
+    effects: [
+      { bucket: 'baseDamage', value: 1.0 },
+      { bucket: 'fireRate', value: -0.2 },
+    ],
+  },
+  // Reach: range is multi-target metadata (reach→enemy-count is Stage 5) — no
+  // single-target damage contribution this stage.
+  'primed-reach': { slot: 'normal', effects: [] },
+  // Combo-scaling mods routed through the custom-effect registry (ADR 0002).
+  'blood-rush': { slot: 'normal', effects: [], customEffectId: 'blood-rush' },
+  'weeping-wounds': { slot: 'normal', effects: [], customEffectId: 'weeping-wounds' },
+  'condition-overload': { slot: 'normal', effects: [], customEffectId: 'condition-overload' },
+
+  // ── Stances. They unlock Combo Strings (sourced from combos.json); no flat
+  //    stat effects modeled here. ──
+  'gemini-cross': { slot: 'stance', effects: [] },
+  'sovereign-outcast': { slot: 'stance', effects: [] },
+  'tempo-royale': { slot: 'stance', effects: [] },
+  'cleaving-whirlwind': { slot: 'stance', effects: [] },
 };
 
 /** Keyed by curated arcane `id`. */

@@ -7,6 +7,7 @@ import styles from './ModSlot.module.css';
 
 const KIND_LABEL: Record<SlotState['kind'], string> = {
   aura: 'Aura',
+  stance: 'Stance',
   exilus: 'Exilus',
   normal: 'Mod',
   arcane: 'Arcane',

@@ -31,7 +31,26 @@ export const GUN_SLOT_LAYOUT: readonly ModSlotKind[] = [
 /** @deprecated Stage 1 name; kept as an alias of {@link GUN_SLOT_LAYOUT}. */
 export const PRIMARY_SLOT_LAYOUT = GUN_SLOT_LAYOUT;
 
+/** The 12-slot melee layout: stance, exilus, 8× normal, 2× arcane. The Stance
+ * slot is the melee analogue of a gun's Aura slot (Stage 3). */
+export const MELEE_SLOT_LAYOUT: readonly ModSlotKind[] = [
+  'stance',
+  'exilus',
+  'normal',
+  'normal',
+  'normal',
+  'normal',
+  'normal',
+  'normal',
+  'normal',
+  'normal',
+  'arcane',
+  'arcane',
+];
+
 export abstract class Weapon {
+  private _fireModes?: readonly FireMode[];
+
   protected constructor(readonly data: WeaponData) {}
 
   get id(): string {
@@ -49,48 +68,11 @@ export abstract class Weapon {
     return this.data.totalBaseDamage;
   }
 
-  /** Slot layout for this weapon's modding screen. */
-  abstract get slotLayout(): readonly ModSlotKind[];
-  /** Discriminant for feature-detection / UI. */
-  abstract get kind(): string;
-}
-
-/**
- * A gun: hitscan/projectile/AoE with fire rate, magazine, reload, crit & status.
- *
- * Shared firearm behavior lives here (ammo/reload/magazine, fire-mode access,
- * crit/status capability). `Primary` and `Secondary` are thin subclasses that
- * differ only in slot/mod-compatibility metadata (`kind`, `slotLayout`).
- */
-export abstract class Gun extends Weapon {
-  private _fireModes?: readonly FireMode[];
-
-  get baseCritChance(): number {
-    return this.data.criticalChance;
-  }
-  get baseCritMultiplier(): number {
-    return this.data.criticalMultiplier;
-  }
-  get baseStatusChance(): number {
-    return this.data.statusChance;
-  }
-  get fireRate(): number {
-    return this.data.fireRate;
-  }
-  get magazine(): number {
-    return this.data.magazine;
-  }
-  get reload(): number {
-    return this.data.reload;
-  }
-  get baseMultishot(): number {
-    return this.data.multishot;
-  }
-
   /**
    * The weapon's fire modes (Stage 2). Uses curated `data.fireModes` when present
    * and otherwise synthesizes a single mode from the top-level stats (Stage 1
-   * back-compat). Memoized.
+   * back-compat). Memoized. Shared by `Gun` and `Melee` (each exposes its attacks
+   * as fire modes — guns by trigger, melee by Normal/Heavy/Slam/Heavy Slam).
    */
   get fireModes(): readonly FireMode[] {
     if (!this._fireModes) {
@@ -122,8 +104,44 @@ export abstract class Gun extends Weapon {
     return this.fireModes.find((m) => m.name === name) ?? this.primaryFireMode;
   }
 
-  /** Whether a damage type is one this gun deals at base (helper for UI). */
+  /** Whether a damage type is one this weapon deals at base (helper for UI). */
   dealsBaseType(type: DamageType): boolean {
     return (this.data.damage[type] ?? 0) > 0;
+  }
+
+  /** Slot layout for this weapon's modding screen. */
+  abstract get slotLayout(): readonly ModSlotKind[];
+  /** Discriminant for feature-detection / UI. */
+  abstract get kind(): string;
+}
+
+/**
+ * A gun: hitscan/projectile/AoE with fire rate, magazine, reload, crit & status.
+ *
+ * Shared firearm behavior lives here (ammo/reload/magazine, fire-mode access,
+ * crit/status capability). `Primary` and `Secondary` are thin subclasses that
+ * differ only in slot/mod-compatibility metadata (`kind`, `slotLayout`).
+ */
+export abstract class Gun extends Weapon {
+  get baseCritChance(): number {
+    return this.data.criticalChance;
+  }
+  get baseCritMultiplier(): number {
+    return this.data.criticalMultiplier;
+  }
+  get baseStatusChance(): number {
+    return this.data.statusChance;
+  }
+  get fireRate(): number {
+    return this.data.fireRate;
+  }
+  get magazine(): number {
+    return this.data.magazine;
+  }
+  get reload(): number {
+    return this.data.reload;
+  }
+  get baseMultishot(): number {
+    return this.data.multishot;
   }
 }

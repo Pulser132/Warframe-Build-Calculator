@@ -39,3 +39,52 @@ export function hasCrit(gear: object): gear is HasCrit {
 export function hasStatus(gear: object): gear is HasStatus {
   return 'baseStatusChance' in gear;
 }
+
+// ── Melee capability interfaces (Stage 3) ──
+
+/** A weapon with a Combo Counter (raw count → tier → multiplier). */
+export interface HasCombo {
+  /** Combo-counter duration in seconds (decay deferred to Stage 5). */
+  readonly comboDuration: number;
+}
+
+/** A weapon with a Heavy Attack mode (consumes combo; × Combo Multiplier). */
+export interface HasHeavy {
+  /** Heavy multiplier (`heavyAttackDamage / normalBaseDamage`). */
+  readonly heavyMultiplier: number;
+}
+
+/** A weapon with Slam / Heavy Slam attacks (direct + radial + forced Lifted). */
+export interface HasSlam {
+  readonly hasSlam: true;
+}
+
+/** A weapon with a Stance slot (melee). */
+export interface HasStance {
+  /** Innate Stance-slot polarity. */
+  readonly stancePolarity: import('../model/types').Polarity;
+}
+
+/** A weapon with Follow-Through + Reach metadata (melee multi-target). */
+export interface HasReach {
+  /** Reach / swing distance (m). */
+  readonly range: number;
+  /** Follow-Through factor (per-target multiplier `FT^(n-1)`). */
+  readonly followThrough: number;
+}
+
+export function hasCombo(gear: object): gear is HasCombo {
+  return 'comboDuration' in gear;
+}
+export function hasHeavy(gear: object): gear is HasHeavy {
+  return 'heavyMultiplier' in gear;
+}
+export function hasSlam(gear: object): gear is HasSlam {
+  return 'hasSlam' in gear;
+}
+export function hasStance(gear: object): gear is HasStance {
+  return 'stancePolarity' in gear;
+}
+export function hasReach(gear: object): gear is HasReach {
+  return 'range' in gear && 'followThrough' in gear;
+}

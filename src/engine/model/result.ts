@@ -87,6 +87,47 @@ export interface DamageResult {
   beam?: BeamResult;
   /** AoE (radial falloff) extras: center vs rim. */
   aoe?: AoeResult;
+
+  // ── Stage 3 melee extras (optional; absent on guns) ──
+
+  /** Combo Multiplier applied to this result (Heavy / Heavy Slam modes; else 1). */
+  comboMultiplier?: number;
+  /** Raw Combo Count the multiplier was derived from. */
+  comboCount?: number;
+  /** Follow-Through multi-target extra (present when `targetCount > 1`). */
+  followThrough?: FollowThroughResult;
+  /** Reach / swing distance (m) — display-only metadata this stage. */
+  reach?: number;
+  /** Combo String breakdown (Normal mode with a selected combo string). */
+  comboString?: ComboStringResultRef;
+}
+
+/** The combo-string result shape (computed by `pipeline/melee.comboStringBreakdown`). */
+export interface ComboStringResultRef {
+  name: string;
+  stance: string;
+  totalDamage: number;
+  hitCount: number;
+  averagePerHit: number;
+  durationSeconds: number;
+  dps: number;
+  perHit: number[];
+  forcedProcs: DamageType[];
+  lowConfidence?: boolean;
+}
+
+/** Follow-Through multi-target reporting (melee). */
+export interface FollowThroughResult {
+  /** Follow-Through factor used. */
+  factor: number;
+  /** Number of targets assumed in the swing arc. */
+  targetCount: number;
+  /** Single-target average hit (`avgHitPerShot`). */
+  singleTarget: number;
+  /** Total damage across all targets (`hit × (1 − FT^n)/(1 − FT)`). */
+  total: number;
+  /** Per-target damage, in order (`hit × FT^(k)`). */
+  perTarget: number[];
 }
 
 /** One simultaneous component's averaged result (crit-weighted, conditionals on). */
@@ -101,6 +142,8 @@ export interface ComponentResult {
   /** Radial floor (rim) average = center × (1 − maxReduction). */
   rimPerPelletAverage?: number;
   falloff?: FalloffSpec;
+  /** Forced status types this component always applies (e.g. `['lifted']`). */
+  forcedProcs?: string[];
 }
 
 /** Beam continuous-fire reporting. */

@@ -39,10 +39,14 @@ export interface BuffState {
 export interface CombatState {
   /** Conditional toggles, e.g. `faction:grineer` → true. */
   conditions: Record<string, boolean>;
-  /** Stack counts for stacking sources, e.g. `arcane:primary-merciless` → 8. */
+  /** Stack counts for stacking sources, e.g. `arcane:primary-merciless` → 8.
+   * Melee uses `stacks['combo']` (raw Combo Count) and `stacks['status:count']`
+   * (unique status types on the target, for Condition Overload). */
   stacks: Record<string, number>;
   /** Active external buffs (Roar-style), data-driven via the buff registry. */
   buffs: BuffState[];
+  /** Number of enemies in a melee swing arc (Follow-Through extra). Default 1. */
+  targetCount?: number;
 }
 
 export const EMPTY_COMBAT_STATE: CombatState = {

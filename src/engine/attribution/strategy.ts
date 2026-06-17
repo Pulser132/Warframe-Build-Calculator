@@ -4,13 +4,12 @@
  */
 import type { CombatState } from '../model/build';
 import type { Contribution, DamageResult } from '../model/result';
-import type { Gun } from '../gear/weapon';
 import type { ResolvedSource } from '../pipeline/gather';
-import type { CalcInput } from '../pipeline/calculate';
+import type { CalcInput, CalcWeapon } from '../pipeline/calculate';
 import type { FireMode } from '../model/firemode';
 
 export interface AttributionInput {
-  weapon: Gun;
+  weapon: CalcWeapon;
   sources: readonly ResolvedSource[];
   combat: CombatState;
   /** Fire mode to attribute against (defaults to the weapon's primary mode). */

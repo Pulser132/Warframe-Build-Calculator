@@ -8,7 +8,8 @@
  * order** (the order sources are listed) so combination is deterministic.
  */
 import type { DamageType, EffectDescriptor } from '../model/types';
-import type { CombatState } from '../model/build';
+import type { Build, CombatState } from '../model/build';
+import { CUSTOM_EFFECTS } from '../model/registry';
 import type { ElementContribution } from './elements';
 
 /** One equipped source of effects (a mod, an arcane, or an external buff). */
@@ -19,6 +20,12 @@ export interface ResolvedSource {
   rank: number;
   maxRank: number;
   effects: EffectDescriptor[];
+  /**
+   * Custom-effect registry key (Stage 3). When set, `gather` calls
+   * `CUSTOM_EFFECTS[id](ctx)` and folds its **final, self-scaled** descriptors
+   * into the bucket sums **without** re-applying `rankFactor`/`perStack`.
+   */
+  customEffectId?: string;
 }
 
 /** Additive sums per bucket, plus base-element contributions in load order. */
@@ -79,44 +86,67 @@ export function emptyBucketSums(): BucketSums {
   };
 }
 
-export function gatherBuckets(sources: readonly ResolvedSource[], combat: CombatState): BucketSums {
+/** Fold a single (already-scaled) bucket value into the running sums. */
+function foldEffect(sums: BucketSums, effect: EffectDescriptor, value: number): void {
+  switch (effect.bucket) {
+    case 'baseDamage':
+      sums.baseDamage += value;
+      break;
+    case 'elemental':
+      if (effect.element) sums.elements.push({ type: effect.element, amount: value });
+      break;
+    case 'physical':
+      if (effect.element)
+        sums.physical[effect.element] = (sums.physical[effect.element] ?? 0) + value;
+      break;
+    case 'multishot':
+      sums.multishot += value;
+      break;
+    case 'critChance':
+      sums.critChance += value;
+      break;
+    case 'critDamage':
+      sums.critDamage += value;
+      break;
+    case 'statusChance':
+      sums.statusChance += value;
+      break;
+    case 'fireRate':
+      sums.fireRate += value;
+      break;
+    case 'faction':
+      sums.faction += value;
+      break;
+    case 'directDamage':
+      sums.directDamage += value;
+      break;
+  }
+}
+
+export function gatherBuckets(
+  sources: readonly ResolvedSource[],
+  combat: CombatState,
+  build?: Build,
+): BucketSums {
   const sums = emptyBucketSums();
   for (const source of sources) {
+    // Static descriptors: scale by rank/stacks, drop inactive conditionals.
     for (const effect of source.effects) {
       const value = scaledValue(source, effect, combat);
       if (value === null || value === 0) continue;
-      switch (effect.bucket) {
-        case 'baseDamage':
-          sums.baseDamage += value;
-          break;
-        case 'elemental':
-          if (effect.element) sums.elements.push({ type: effect.element, amount: value });
-          break;
-        case 'physical':
-          if (effect.element)
-            sums.physical[effect.element] = (sums.physical[effect.element] ?? 0) + value;
-          break;
-        case 'multishot':
-          sums.multishot += value;
-          break;
-        case 'critChance':
-          sums.critChance += value;
-          break;
-        case 'critDamage':
-          sums.critDamage += value;
-          break;
-        case 'statusChance':
-          sums.statusChance += value;
-          break;
-        case 'fireRate':
-          sums.fireRate += value;
-          break;
-        case 'faction':
-          sums.faction += value;
-          break;
-        case 'directDamage':
-          sums.directDamage += value;
-          break;
+      foldEffect(sums, effect, value);
+    }
+
+    // Custom-effect registry: fold FINAL, self-scaled descriptors directly — no
+    // re-scaling (ADR 0002). The function owns its own rank/stack scaling.
+    if (source.customEffectId) {
+      const fn = CUSTOM_EFFECTS[source.customEffectId];
+      if (fn) {
+        const produced = fn({ rank: source.rank, maxRank: source.maxRank, combat, build });
+        for (const effect of produced) {
+          if (!effect.value) continue;
+          foldEffect(sums, effect, effect.value);
+        }
       }
     }
   }

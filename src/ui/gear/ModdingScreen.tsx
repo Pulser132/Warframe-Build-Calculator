@@ -12,6 +12,27 @@ const CLASS_LABEL: Record<string, string> = {
   bow: 'Bow',
   launcher: 'Launcher',
   beam: 'Beam',
+  // Melee classes (Stage 3).
+  sword: 'Sword',
+  'heavy-blade': 'Heavy Blade',
+  nikana: 'Nikana',
+  tonfa: 'Tonfa',
+  dagger: 'Dagger',
+  'dual-swords': 'Dual Swords',
+  polearm: 'Polearm',
+  staff: 'Staff',
+  hammer: 'Hammer',
+  scythe: 'Scythe',
+  whip: 'Whip',
+  fist: 'Fist',
+  rapier: 'Rapier',
+  glaive: 'Glaive',
+  machete: 'Machete',
+  claws: 'Claws',
+  gunblade: 'Gunblade',
+  warfan: 'War Fan',
+  nunchaku: 'Nunchaku',
+  melee: 'Melee',
 };
 
 /**
@@ -25,6 +46,8 @@ export function ModdingScreen() {
   const activeMode = useBuildStore((s) => s.activeMode);
   const selectWeapon = useBuildStore((s) => s.selectWeapon);
   const setMode = useBuildStore((s) => s.setMode);
+  const activeComboString = useBuildStore((s) => s.activeComboString);
+  const setComboString = useBuildStore((s) => s.setComboString);
   const assignMod = useBuildStore((s) => s.assignMod);
   const clearSlot = useBuildStore((s) => s.clearSlot);
   const setRank = useBuildStore((s) => s.setRank);
@@ -43,6 +66,17 @@ export function ModdingScreen() {
   const modGroup = weapon ? weaponModGroup(weapon) : 'rifle';
   const modes = weapon?.fireModes ?? [];
   const currentMode = activeMode ?? modes[0]?.name ?? null;
+  const isNormalMode = (modes.find((m) => m.name === currentMode) ?? modes[0])?.trigger === 'melee';
+  // Combo strings available for the equipped melee weapon (offered on the Normal mode).
+  const equippedStances = new Set(
+    build.slots
+      .filter((s) => s.kind === 'stance' && s.itemId)
+      .map((s) => dataset.mods.find((m) => m.id === s.itemId)?.name)
+      .filter((n): n is string => !!n),
+  );
+  const comboStrings = (weapon?.comboStrings ?? []).filter(
+    (c) => equippedStances.size === 0 || equippedStances.has(c.stance),
+  );
   const subLabel = weapon
     ? `${weapon.category} · ${CLASS_LABEL[weapon.weaponClass] ?? weapon.weaponClass}`
     : 'Weapon';
@@ -137,6 +171,28 @@ export function ModdingScreen() {
         </div>
       )}
 
+      {isNormalMode && comboStrings.length > 0 && (
+        <div className={styles.modes} aria-label="combo string">
+          <label className={styles.sub} htmlFor="combo-string-select">
+            Combo String
+          </label>
+          <select
+            id="combo-string-select"
+            className={styles.weaponSelect}
+            value={activeComboString ?? ''}
+            onChange={(e) => setComboString(e.target.value || null)}
+            aria-label="select combo string"
+          >
+            <option value="">Neutral (single swing)</option>
+            {comboStrings.map((c) => (
+              <option key={c.name} value={c.name}>
+                {c.stance} — {c.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       <div className={styles.layout}>
         <div className={styles.main}>
           <div className={styles.topRow}>
@@ -159,6 +215,7 @@ export function ModdingScreen() {
           mods={dataset.mods}
           arcanes={dataset.arcanes}
           modGroup={modGroup}
+          weaponClass={weapon?.weaponClass}
           onAssign={assignMod}
           onClose={() => setPickerSlot(null)}
         />

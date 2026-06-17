@@ -42,8 +42,9 @@ export type DamageType =
 export const PHYSICAL_TYPES: readonly DamageType[] = ['impact', 'puncture', 'slash'];
 export const BASE_ELEMENTS: readonly DamageType[] = ['heat', 'cold', 'electricity', 'toxin'];
 
-/** Which physical kind of slot a mod occupies in the modding UI. */
-export type ModSlotKind = 'normal' | 'exilus' | 'aura' | 'arcane';
+/** Which physical kind of slot a mod occupies in the modding UI. `stance` is the
+ * melee-only analogue of a gun's `aura` slot (holds a Stance mod). */
+export type ModSlotKind = 'normal' | 'exilus' | 'aura' | 'arcane' | 'stance';
 
 /**
  * Modifier buckets. Members of a bucket combine **additively**; buckets combine
@@ -92,9 +93,41 @@ export interface EffectDescriptor {
 }
 
 /** Weapon category — drives the gear class chosen by `createWeapon`. */
-export type WeaponCategory = 'Primary' | 'Secondary';
-/** Coarse weapon class used for mod-compatibility filtering in the UI. */
-export type WeaponClass = 'rifle' | 'shotgun' | 'pistol' | 'sniper' | 'bow' | 'launcher' | 'beam';
+export type WeaponCategory = 'Primary' | 'Secondary' | 'Melee';
+/**
+ * Coarse weapon class used for mod-compatibility filtering in the UI. Gun classes
+ * gate rifle/shotgun/pistol mods; melee classes gate **stance** compatibility
+ * (every other melee mod is class-agnostic `Melee`).
+ */
+export type WeaponClass =
+  | 'rifle'
+  | 'shotgun'
+  | 'pistol'
+  | 'sniper'
+  | 'bow'
+  | 'launcher'
+  | 'beam'
+  // ── Melee classes (Stage 3) ──
+  | 'sword'
+  | 'heavy-blade'
+  | 'nikana'
+  | 'tonfa'
+  | 'dagger'
+  | 'dual-swords'
+  | 'polearm'
+  | 'staff'
+  | 'hammer'
+  | 'scythe'
+  | 'whip'
+  | 'fist'
+  | 'rapier'
+  | 'glaive'
+  | 'machete'
+  | 'claws'
+  | 'gunblade'
+  | 'warfan'
+  | 'nunchaku'
+  | 'melee';
 
 /** Curated weapon stats (normalized from `@wfcd/items` by `build-data.mjs`). */
 export interface WeaponData {
@@ -129,6 +162,19 @@ export interface WeaponData {
    * from the top-level stats (`synthesizeFireMode`).
    */
   fireModes?: FireMode[];
+
+  // ── Melee-only metadata (Stage 3; absent on guns) ──
+
+  /** Reach / swing distance in metres (melee). Display-only this stage. */
+  range?: number;
+  /** Follow-Through factor (melee): per-target multiplier `FT^(n-1)`. */
+  followThrough?: number;
+  /** Combo-counter duration in seconds (melee); decay deferred to Stage 5. */
+  comboDuration?: number;
+  /** Innate Stance-slot polarity (melee). */
+  stancePolarity?: Polarity | null;
+  /** Available stance Combo Strings (merged from `combos.json` by the loader). */
+  comboStrings?: import('./firemode').ComboString[];
 }
 
 /** Curated mod stats + authored effect descriptors. */
@@ -149,6 +195,13 @@ export interface ModData {
   rawMaxStats: string[];
   /** Authored structured effects (max-rank values). */
   effects: EffectDescriptor[];
+  /**
+   * Custom-effect registry key (Stage 3). When set, the mod's context-dependent
+   * effects come from `CUSTOM_EFFECTS[customEffectId](ctx)` — which returns
+   * **final, self-scaled** descriptors — instead of (or in addition to) `effects`.
+   * Used for Condition Overload / Blood Rush / Weeping Wounds. See ADR 0002.
+   */
+  customEffectId?: string;
 }
 
 /** Curated arcane stats + authored effect descriptors. */

@@ -13,8 +13,21 @@
 import type { DamageType } from './types';
 import type { DamageMap } from './result';
 
-/** How the trigger converts fire rate into an effective rate of attacks. */
-export type TriggerType = 'auto' | 'semi' | 'burst' | 'charge' | 'held';
+/**
+ * How the trigger converts fire rate into an effective rate of attacks. The
+ * melee triggers (Stage 3): `melee` (a normal/light attack — rate = attack
+ * speed), `heavy` (rate = `1/windUp`; attack speed does **not** reduce wind-up),
+ * `slam` (a slam attack — rate = attack speed).
+ */
+export type TriggerType =
+  | 'auto'
+  | 'semi'
+  | 'burst'
+  | 'charge'
+  | 'held'
+  | 'melee'
+  | 'heavy'
+  | 'slam';
 
 /** How a shot reaches the target. Stage 2 damage is delivery-agnostic; this is
  * carried as metadata for Stage 5 (time-to-target / TTK). `aoe` additionally
@@ -71,6 +84,33 @@ export interface DamageComponent {
   totalBaseDamage: number;
   /** Radial falloff (present on `radial` components). */
   falloff?: FalloffSpec;
+  /** Status types this component always applies (e.g. `['lifted']` on a slam
+   * radial). Counts toward Condition Overload's unique-status total. */
+  forcedProcs?: string[];
+}
+
+/**
+ * One hit in a stance **Combo String** (Stage 3). The per-hit damage multiplier
+ * is relative to the weapon's Normal Attack base hit; `forcedProcs` are status
+ * types the hit always applies; `hits` repeats identical hits (default 1).
+ */
+export interface ComboHit {
+  damageMultiplier: number;
+  forcedProcs?: DamageType[];
+  hits?: number;
+}
+
+/**
+ * A named stance attack **sequence** (distinct from the Combo *Counter*). Sourced
+ * from the offline scraper into `src/data/generated/combos.json` (see ADR 0001).
+ * `lowConfidence` flags a parse that needs manual review.
+ */
+export interface ComboString {
+  name: string;
+  /** Stance mod that unlocks this combo string. */
+  stance: string;
+  hits: ComboHit[];
+  lowConfidence?: boolean;
 }
 
 /** The calculable fire mode: everything the pipeline needs for one mode. */
@@ -96,6 +136,25 @@ export interface FireMode {
   burst?: BurstSpec;
   /** Beam parameters — present for `held` trigger. */
   beam?: BeamSpec;
+
+  // ── Melee-only fields (Stage 3; absent on guns) ──
+
+  /** Heavy-attack wind-up time (s). Burst rate = `1/windUp` (attack speed does
+   * NOT reduce wind-up). Present on heavy modes. */
+  windUp?: number;
+  /** Weapon-class heavy multiplier (`heavyAttackDamage / normalBaseDamage`),
+   * carried for reference; the component damage already bakes it in. */
+  heavyMultiplier?: number;
+  /** Whether this mode is multiplied by the Combo Multiplier (Heavy / Heavy
+   * Slam modes only — never Normal/Slam). Drives the intrinsic combo step. */
+  comboScaled?: boolean;
+  /** Fraction of Combo Count a heavy attack consumes (data only; sustained heavy
+   * DPS / combo-rebuild loop deferred to Stage 5). */
+  comboCost?: number;
+  /** Heavy Attack Efficiency (0..0.9) reducing `comboCost` (data only). */
+  heavyEfficiency?: number;
+  /** The selected stance Combo String for this mode (Normal mode only). */
+  comboString?: ComboString;
 }
 
 /** The headline component of a mode (first `direct`/`radial`/`normal`). */

@@ -97,6 +97,27 @@ const MOD_UNIQUE_NAMES = [
   '/Lotus/Upgrades/Mods/Shotgun/WeaponElectricityDamageMod', // Charged Shell
   '/Lotus/Upgrades/Mods/Shotgun/WeaponToxinDamageMod', // Contagious Spread
   '/Lotus/Upgrades/Mods/Shotgun/WeaponStunChanceMod', // Shotgun Savvy
+  // ── Melee (Stage 3) ──
+  '/Lotus/Upgrades/Mods/Melee/Expert/WeaponMeleeDamageModExpert', // Primed Pressure Point
+  '/Lotus/Upgrades/Mods/Melee/Beginner/WeaponMeleeDamageModBeginner', // Pressure Point
+  '/Lotus/Upgrades/Mods/Melee/Beginner/WeaponCritDamageModBeginner', // Organ Shatter
+  '/Lotus/Upgrades/Mods/Melee/Beginner/WeaponCritChanceModBeginner', // True Steel
+  '/Lotus/Upgrades/Mods/Melee/Beginner/WeaponStunChanceModBeginner', // Melee Prowess
+  '/Lotus/Upgrades/Mods/Melee/Beginner/WeaponToxinDamageModBeginner', // Fever Strike
+  '/Lotus/Upgrades/Mods/Melee/Beginner/WeaponFireDamageModBeginner', // Molten Impact
+  '/Lotus/Upgrades/Mods/Melee/Beginner/WeaponFreezeDamageModBeginner', // North Wind
+  '/Lotus/Upgrades/Mods/Melee/Beginner/WeaponElectricityDamageModBeginner', // Shocking Touch
+  '/Lotus/Upgrades/Mods/Melee/Beginner/WeaponFireRateModBeginner', // Fury
+  '/Lotus/Upgrades/Mods/Melee/DualStat/CorruptedDamageSpeedMod', // Spoiled Strike
+  '/Lotus/Upgrades/Mods/Melee/Expert/WeaponMeleeRangeIncModExpert', // Primed Reach
+  '/Lotus/Upgrades/Mods/Melee/Event/ComboCritChanceMod', // Blood Rush
+  '/Lotus/Upgrades/Mods/Melee/Event/ComboStatusChanceMod', // Weeping Wounds
+  '/Lotus/Upgrades/Mods/Melee/WeaponDamageIfVictimProcActive', // Condition Overload
+  // ── Stances ──
+  '/Lotus/Weapons/Tenno/Melee/MeleeTrees/TonfaCmbOneMeleeTree', // Gemini Cross (Tonfas)
+  '/Lotus/Weapons/Tenno/Melee/MeleeTrees/TonfaCmbTwoMeleeTree', // Sovereign Outcast (Tonfas)
+  '/Lotus/Weapons/Tenno/Melee/MeleeTrees/AxeCmbThreeMeleeTree', // Tempo Royale (Heavy Blade)
+  '/Lotus/Weapons/Tenno/Melee/MeleeTrees/AxeCmbTwoMeleeTree', // Cleaving Whirlwind (Heavy Blade)
 ];
 
 /** Curated arcanes, by exact name. */
@@ -358,6 +379,241 @@ function buildFireModes(w) {
   });
 }
 
+// ── Melee mapping (Stage 3) ──────────────────────────────────────────────────
+
+/**
+ * `@wfcd` melee path segments don't cleanly encode the in-game weapon class
+ * (e.g. Gram Prime sits under `/Swords/` but is a Heavy Blade). Derive the class
+ * from the uniqueName path with a small override table for known quirks. The
+ * class only gates **stance** compatibility (every other melee mod is `Melee`).
+ */
+const MELEE_CLASS_OVERRIDES = {
+  'Gram Prime': 'heavy-blade',
+  Gram: 'heavy-blade',
+};
+const MELEE_PATH_CLASS = [
+  [/Tonfa/i, 'tonfa'],
+  [/Nikana/i, 'nikana'],
+  [/GreatSword|HeavyBlade|HeavySword|HeavyScythe/i, 'heavy-blade'],
+  [/Polearm/i, 'polearm'],
+  [/Staff|Tipedo/i, 'staff'],
+  [/Hammer|Fragor/i, 'hammer'],
+  [/Scythe/i, 'scythe'],
+  [/DualDagger|DualSword|DualKama|DualShortSword|DualKeen/i, 'dual-swords'],
+  [/Dagger/i, 'dagger'],
+  [/Whip/i, 'whip'],
+  [/Fist|Knuckle|Kogake|Sparring|KickAndPunch|Tekko/i, 'fist'],
+  [/Claw/i, 'claws'],
+  [/Glaive|Boomerang/i, 'glaive'],
+  [/Warfan|Warabi/i, 'warfan'],
+  [/Nunchaku|Ninkondi/i, 'nunchaku'],
+  [/Gunblade|GunBlade/i, 'gunblade'],
+  [/Machet|Cleaver/i, 'machete'],
+  [/Rapier/i, 'rapier'],
+  [/Axe/i, 'heavy-blade'],
+  [/Sword|Cronus|Dervish|Phoenix/i, 'sword'],
+];
+
+function meleeWeaponClass(w) {
+  if (MELEE_CLASS_OVERRIDES[w.name]) return MELEE_CLASS_OVERRIDES[w.name];
+  const path = w.uniqueName ?? '';
+  for (const [re, cls] of MELEE_PATH_CLASS) if (re.test(path)) return cls;
+  return 'melee';
+}
+
+/** Distribute a scalar `total` across the proportions of a `{type: value}` map. */
+function distribute(total, baseMap) {
+  const baseTotal = sumValues(baseMap);
+  if (baseTotal <= 0 || !total) return {};
+  const out = {};
+  for (const [t, v] of Object.entries(baseMap)) {
+    const d = total * (v / baseTotal);
+    if (d > 0) out[t] = Number(d.toFixed(5));
+  }
+  return out;
+}
+
+function meleeComponent(name, role, damage, opts = {}) {
+  const c = {
+    name,
+    role,
+    delivery: role === 'radial' ? 'aoe' : 'hitscan',
+    damage,
+    totalBaseDamage: sumValues(damage),
+  };
+  if (opts.falloff) c.falloff = opts.falloff;
+  if (opts.forcedProcs) c.forcedProcs = opts.forcedProcs;
+  return c;
+}
+
+/**
+ * Build a melee weapon's fire modes from `attacks[]` + the top-level slam/heavy
+ * fields. `attacks[].damage` is authoritative (no Slash↔Puncture swap). Modes:
+ *  - **Normal Attack** (`melee`): the Normal attack, attack speed = `fireRate`.
+ *  - **Heavy Attack** (`heavy`, combo-scaled): `heavyAttackDamage` IPS-distributed;
+ *    burst rate `1/windUp`; `heavyMultiplier = heavyAttackDamage / normalTotal`.
+ *  - **Slam Attack** (`slam`): direct (`slamAttack`, IPS) + radial (from the
+ *    `attacks[]` Slam entry, falloff) with a forced **Lifted** proc.
+ *  - **Heavy Slam Attack** (`slam`, combo-scaled): direct (`heavySlamAttack`, IPS)
+ *    + radial (`attacks[]` Heavy Slam entry) with forced Lifted.
+ */
+function buildMeleeFireModes(w) {
+  const attacks = (w.attacks ?? []).filter((a) => !/incarnon/i.test(a.name ?? ''));
+  const normalA = attacks.find((a) => /normal/i.test(a.name ?? '')) ?? attacks[0] ?? {};
+  const slamA = attacks.find(
+    (a) => /slam/i.test(a.name ?? '') && !/heavy/i.test(a.name ?? ''),
+  );
+  const heavySlamA = attacks.find((a) => /heavy\s*slam/i.test(a.name ?? ''));
+
+  const normalDmg = Object.keys(normalA.damage ?? {}).length
+    ? cleanDamage(normalA.damage)
+    : topLevelDamage(w);
+  const normalTotal = sumValues(normalDmg);
+  const cc = normalA.crit_chance != null ? normalA.crit_chance / 100 : (w.criticalChance ?? 0);
+  const cm = normalA.crit_mult ?? w.criticalMultiplier ?? 1;
+  const sc = normalA.status_chance != null ? normalA.status_chance / 100 : (w.procChance ?? 0);
+  const speed = w.fireRate || normalA.speed || 1;
+  const windUp = w.windUp ?? 0;
+  const heavyRate = windUp > 0 ? Number((1 / windUp).toFixed(5)) : speed;
+
+  const modes = [];
+
+  // Normal Attack.
+  modes.push({
+    name: 'Normal Attack',
+    trigger: 'melee',
+    criticalChance: cc,
+    criticalMultiplier: cm,
+    statusChance: sc,
+    fireRate: speed,
+    baseMultishot: 1,
+    components: [meleeComponent('Normal', 'normal', normalDmg)],
+  });
+
+  // Heavy Attack.
+  const heavyTotal = w.heavyAttackDamage ?? 0;
+  if (heavyTotal > 0) {
+    modes.push({
+      name: 'Heavy Attack',
+      trigger: 'heavy',
+      comboScaled: true,
+      criticalChance: cc,
+      criticalMultiplier: cm,
+      statusChance: sc,
+      fireRate: heavyRate,
+      baseMultishot: 1,
+      windUp,
+      heavyMultiplier: normalTotal > 0 ? Number((heavyTotal / normalTotal).toFixed(5)) : 1,
+      comboCost: 1,
+      heavyEfficiency: 0,
+      components: [meleeComponent('Heavy', 'normal', distribute(heavyTotal, normalDmg))],
+    });
+  }
+
+  // Slam Attack (direct + radial + forced Lifted).
+  if ((w.slamAttack ?? 0) > 0 || (w.slamRadialDamage ?? 0) > 0) {
+    const comps = [];
+    if ((w.slamAttack ?? 0) > 0)
+      comps.push(meleeComponent('Slam', 'direct', distribute(w.slamAttack, normalDmg)));
+    if ((w.slamRadialDamage ?? 0) > 0) {
+      const radialDmg =
+        slamA && Object.keys(slamA.damage ?? {}).length
+          ? cleanDamage(slamA.damage)
+          : { impact: w.slamRadialDamage };
+      const fo =
+        slamA && slamA.falloff
+          ? convertFalloff(slamA.falloff)
+          : { start: 0, end: w.slamRadius ?? 8, maxReduction: 0.5 };
+      comps.push(meleeComponent('Slam Radial', 'radial', radialDmg, { falloff: fo, forcedProcs: ['lifted'] }));
+    }
+    modes.push({
+      name: 'Slam Attack',
+      trigger: 'slam',
+      criticalChance: cc,
+      criticalMultiplier: cm,
+      statusChance: slamA?.status_chance != null ? slamA.status_chance / 100 : sc,
+      fireRate: speed,
+      baseMultishot: 1,
+      components: comps,
+    });
+  }
+
+  // Heavy Slam Attack (direct + radial + forced Lifted; combo-scaled).
+  if ((w.heavySlamAttack ?? 0) > 0 || (w.heavySlamRadialDamage ?? 0) > 0) {
+    const comps = [];
+    if ((w.heavySlamAttack ?? 0) > 0)
+      comps.push(meleeComponent('Heavy Slam', 'direct', distribute(w.heavySlamAttack, normalDmg)));
+    if ((w.heavySlamRadialDamage ?? 0) > 0) {
+      const radialDmg =
+        heavySlamA && Object.keys(heavySlamA.damage ?? {}).length
+          ? cleanDamage(heavySlamA.damage)
+          : { blast: w.heavySlamRadialDamage };
+      const fo =
+        heavySlamA && heavySlamA.falloff
+          ? convertFalloff(heavySlamA.falloff)
+          : { start: 0, end: w.heavySlamRadius ?? 9, maxReduction: 0.3 };
+      comps.push(
+        meleeComponent('Heavy Slam Radial', 'radial', radialDmg, { falloff: fo, forcedProcs: ['lifted'] }),
+      );
+    }
+    modes.push({
+      name: 'Heavy Slam Attack',
+      trigger: 'slam',
+      comboScaled: true,
+      criticalChance: cc,
+      criticalMultiplier: cm,
+      statusChance: heavySlamA?.status_chance != null ? heavySlamA.status_chance / 100 : sc,
+      fireRate: heavyRate,
+      baseMultishot: 1,
+      components: comps,
+    });
+  }
+
+  return modes;
+}
+
+function normalizeMelee(w) {
+  const fireModes = buildMeleeFireModes(w);
+  const primary = fireModes[0];
+  const head = primary.components[0];
+  return {
+    id: slugify(w.name),
+    uniqueName: w.uniqueName,
+    name: w.name,
+    category: 'Melee',
+    weaponClass: meleeWeaponClass(w),
+    trigger: 'Melee',
+    damage: head.damage,
+    totalBaseDamage: Number((w.totalDamage ?? sumValues(head.damage)).toFixed(5)),
+    criticalChance: primary.criticalChance,
+    criticalMultiplier: primary.criticalMultiplier,
+    statusChance: primary.statusChance,
+    fireRate: primary.fireRate,
+    magazine: 0,
+    reload: 0,
+    multishot: 1,
+    masteryReq: w.masteryReq ?? 0,
+    disposition: w.omegaAttenuation ?? w.disposition ?? 0,
+    exilusPolarity: w.exilusPolarity ?? null,
+    polarities: w.polarities ?? [],
+    range: w.range ?? 0,
+    followThrough: w.followThrough ?? 1,
+    comboDuration: w.comboDuration ?? 5,
+    stancePolarity: w.stancePolarity ?? null,
+    fireModes,
+  };
+}
+
+/** Whether a raw record is a real, moddable melee weapon we can map. */
+function isUsableMelee(w) {
+  if (w.category !== 'Melee') return false;
+  if ((w.productCategory ?? 'Melee') !== 'Melee') return false; // excludes arch-melee
+  if (!w.name || !w.uniqueName) return false;
+  if (/incarnon/i.test(w.name)) return false;
+  if ((w.totalDamage ?? 0) <= 0) return false;
+  return Array.isArray(w.attacks) && w.attacks.length > 0;
+}
+
 function normalizeWeapon(w) {
   const fireModes = buildFireModes(w);
   const primary = fireModes[0];
@@ -444,6 +700,7 @@ function gunQuality(w) {
 function main() {
   const primary = loadCategory('Primary');
   const secondary = loadCategory('Secondary');
+  const melee = loadCategory('Melee');
   const mods = loadCategory('Mods');
   const arcanes = loadCategory('Arcanes');
 
@@ -473,6 +730,25 @@ function main() {
       console.warn(`build-data: skipped ${w.name}: ${e.message}`);
     }
   }
+
+  // ── Melee: every usable melee weapon, mapped generically. ──
+  const meleeBest = new Map();
+  for (const w of melee) {
+    if (!isUsableMelee(w)) continue;
+    const id = slugify(w.name);
+    const prev = meleeBest.get(id);
+    if (!prev || (w.totalDamage ?? 0) > (prev.totalDamage ?? 0)) meleeBest.set(id, w);
+  }
+  let meleeCount = 0;
+  for (const w of meleeBest.values()) {
+    try {
+      weaponsOut.push(normalizeMelee(w));
+      meleeCount++;
+    } catch (e) {
+      skipped++;
+      console.warn(`build-data: skipped ${w.name}: ${e.message}`);
+    }
+  }
   // Stable order: default weapon first, then by name.
   weaponsOut.sort((a, b) => {
     if (a.name === DEFAULT_WEAPON) return -1;
@@ -496,6 +772,7 @@ function main() {
   const REFERENCES = [
     'Vulkar Wraith', 'Lex Prime', 'Soma Prime', 'Hind', 'Lanka',
     'Glaxion Vandal', 'Vaykor Hek', 'Tonkor', 'Stradavar Prime',
+    'Kronen Prime', 'Gram Prime',
   ];
   for (const name of REFERENCES) {
     if (!weaponsOut.some((w) => w.name === name)) {
@@ -512,7 +789,7 @@ function main() {
   write('arcanes.json', arcanesOut);
 
   console.log(
-    `build-data: wrote ${weaponsOut.length} weapon(s) (${skipped} skipped), ` +
+    `build-data: wrote ${weaponsOut.length} weapon(s) (${meleeCount} melee, ${skipped} skipped), ` +
       `${modsOut.length} mod(s), ${arcanesOut.length} arcane(s) to src/data/generated/`,
   );
 }

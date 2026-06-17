@@ -109,6 +109,58 @@ export function DamageSummary({ result }: Props) {
           </div>
           <p className={styles.mechNote}>
             Radial damage falls off linearly from center to edge.
+            {result.components?.some((c) => c.forcedProcs?.includes('lifted')) &&
+              ' Slam applies a forced Lifted proc.'}
+          </p>
+        </div>
+      )}
+
+      {result.comboMultiplier != null && (
+        <div className={styles.mech} aria-label="combo multiplier">
+          <div className={styles.mechTitle}>Combo Multiplier</div>
+          <div className={styles.grid}>
+            <Stat label="Combo Count" value={`${result.comboCount ?? 0}`} />
+            <Stat label="Multiplier" value={`${fmt(result.comboMultiplier, 0)}×`} accent />
+          </div>
+          <p className={styles.mechNote}>
+            Heavy attacks scale with the Combo Counter; Normal attacks do not.
+          </p>
+        </div>
+      )}
+
+      {result.followThrough && (
+        <div className={styles.mech} aria-label="follow-through">
+          <div className={styles.mechTitle}>
+            Follow-Through ({result.followThrough.targetCount} targets)
+          </div>
+          <div className={styles.grid}>
+            <Stat label="1st target" value={fmt(result.followThrough.singleTarget, 1)} />
+            <Stat label="Total (all targets)" value={fmt(result.followThrough.total, 1)} accent />
+            <Stat label="Factor" value={`${fmt(result.followThrough.factor, 2)}×`} />
+          </div>
+          <p className={styles.mechNote}>
+            The n-th enemy in the swing arc takes FT^(n−1) of the hit
+            {result.reach != null ? ` · reach ${fmt(result.reach, 1)} m` : ''}.
+          </p>
+        </div>
+      )}
+
+      {result.comboString && (
+        <div className={styles.mech} aria-label="combo string">
+          <div className={styles.mechTitle}>
+            Combo String — {result.comboString.stance}: {result.comboString.name}
+          </div>
+          <div className={styles.grid}>
+            <Stat label="Hits" value={`${result.comboString.hitCount}`} />
+            <Stat label="Combo total" value={fmt(result.comboString.totalDamage, 0)} accent />
+            <Stat label="Avg / hit" value={fmt(result.comboString.averagePerHit, 1)} />
+            <Stat label="Combo DPS" value={fmt(result.comboString.dps, 0)} />
+          </div>
+          <p className={styles.mechNote}>
+            Per-hit ×: {result.comboString.perHit.map((h) => fmt(h, 0)).join(' · ')}
+            {result.comboString.forcedProcs.length > 0 &&
+              ` · forces ${result.comboString.forcedProcs.join(', ')}`}
+            {result.comboString.lowConfidence && ' · ⚠ scraped data, review'}
           </p>
         </div>
       )}

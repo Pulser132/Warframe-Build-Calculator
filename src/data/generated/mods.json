@@ -349,5 +349,264 @@
     "rawMaxStats": [
       "+90% Status Chance"
     ]
+  },
+  {
+    "id": "primed-pressure-point",
+    "uniqueName": "/Lotus/Upgrades/Mods/Melee/Expert/WeaponMeleeDamageModExpert",
+    "name": "Primed Pressure Point",
+    "polarity": "madurai",
+    "baseDrain": 4,
+    "maxRank": 10,
+    "rarity": "Legendary",
+    "compat": "Melee",
+    "description": "",
+    "rawMaxStats": [
+      "+165% Melee Damage"
+    ]
+  },
+  {
+    "id": "pressure-point",
+    "uniqueName": "/Lotus/Upgrades/Mods/Melee/Beginner/WeaponMeleeDamageModBeginner",
+    "name": "Pressure Point",
+    "polarity": "madurai",
+    "baseDrain": 4,
+    "maxRank": 3,
+    "rarity": "Common",
+    "compat": "Melee",
+    "description": "",
+    "rawMaxStats": [
+      "+80% Melee Damage"
+    ]
+  },
+  {
+    "id": "organ-shatter",
+    "uniqueName": "/Lotus/Upgrades/Mods/Melee/Beginner/WeaponCritDamageModBeginner",
+    "name": "Organ Shatter",
+    "polarity": "madurai",
+    "baseDrain": 4,
+    "maxRank": 3,
+    "rarity": "Common",
+    "compat": "Melee",
+    "description": "",
+    "rawMaxStats": [
+      "+60% Critical Damage"
+    ]
+  },
+  {
+    "id": "true-steel",
+    "uniqueName": "/Lotus/Upgrades/Mods/Melee/Beginner/WeaponCritChanceModBeginner",
+    "name": "True Steel",
+    "polarity": "madurai",
+    "baseDrain": 4,
+    "maxRank": 3,
+    "rarity": "Common",
+    "compat": "Melee",
+    "description": "",
+    "rawMaxStats": [
+      "+80% Critical Chance (x2 for Heavy Attacks)"
+    ]
+  },
+  {
+    "id": "melee-prowess",
+    "uniqueName": "/Lotus/Upgrades/Mods/Melee/Beginner/WeaponStunChanceModBeginner",
+    "name": "Melee Prowess",
+    "polarity": "vazarin",
+    "baseDrain": 2,
+    "maxRank": 3,
+    "rarity": "Common",
+    "compat": "Melee",
+    "description": "",
+    "rawMaxStats": [
+      "+60% Status Chance"
+    ]
+  },
+  {
+    "id": "fever-strike",
+    "uniqueName": "/Lotus/Upgrades/Mods/Melee/Beginner/WeaponToxinDamageModBeginner",
+    "name": "Fever Strike",
+    "polarity": "naramon",
+    "baseDrain": 6,
+    "maxRank": 3,
+    "rarity": "Uncommon",
+    "compat": "Melee",
+    "description": "",
+    "rawMaxStats": [
+      "+60% <DT_POISON_COLOR>Toxin"
+    ]
+  },
+  {
+    "id": "molten-impact",
+    "uniqueName": "/Lotus/Upgrades/Mods/Melee/Beginner/WeaponFireDamageModBeginner",
+    "name": "Molten Impact",
+    "polarity": "naramon",
+    "baseDrain": 6,
+    "maxRank": 3,
+    "rarity": "Uncommon",
+    "compat": "Melee",
+    "description": "",
+    "rawMaxStats": [
+      "+60% <DT_FIRE_COLOR>Heat"
+    ]
+  },
+  {
+    "id": "north-wind",
+    "uniqueName": "/Lotus/Upgrades/Mods/Melee/Beginner/WeaponFreezeDamageModBeginner",
+    "name": "North Wind",
+    "polarity": "vazarin",
+    "baseDrain": 6,
+    "maxRank": 3,
+    "rarity": "Uncommon",
+    "compat": "Melee",
+    "description": "",
+    "rawMaxStats": [
+      "+60% <DT_FREEZE_COLOR>Cold"
+    ]
+  },
+  {
+    "id": "shocking-touch",
+    "uniqueName": "/Lotus/Upgrades/Mods/Melee/Beginner/WeaponElectricityDamageModBeginner",
+    "name": "Shocking Touch",
+    "polarity": "naramon",
+    "baseDrain": 6,
+    "maxRank": 3,
+    "rarity": "Uncommon",
+    "compat": "Melee",
+    "description": "",
+    "rawMaxStats": [
+      "+60% <DT_ELECTRICITY_COLOR>Electricity"
+    ]
+  },
+  {
+    "id": "fury",
+    "uniqueName": "/Lotus/Upgrades/Mods/Melee/Beginner/WeaponFireRateModBeginner",
+    "name": "Fury",
+    "polarity": "madurai",
+    "baseDrain": 4,
+    "maxRank": 3,
+    "rarity": "Uncommon",
+    "compat": "Melee",
+    "description": "",
+    "rawMaxStats": [
+      "+20% Attack Speed"
+    ]
+  },
+  {
+    "id": "spoiled-strike",
+    "uniqueName": "/Lotus/Upgrades/Mods/Melee/DualStat/CorruptedDamageSpeedMod",
+    "name": "Spoiled Strike",
+    "polarity": "madurai",
+    "baseDrain": 4,
+    "maxRank": 3,
+    "rarity": "Rare",
+    "compat": "Melee",
+    "description": "",
+    "rawMaxStats": [
+      "+100% Melee Damage",
+      "-20% Attack Speed"
+    ]
+  },
+  {
+    "id": "primed-reach",
+    "uniqueName": "/Lotus/Upgrades/Mods/Melee/Expert/WeaponMeleeRangeIncModExpert",
+    "name": "Primed Reach",
+    "polarity": "madurai",
+    "baseDrain": 4,
+    "maxRank": 10,
+    "rarity": "Legendary",
+    "compat": "Melee",
+    "description": "",
+    "rawMaxStats": [
+      "+3 Range"
+    ]
+  },
+  {
+    "id": "blood-rush",
+    "uniqueName": "/Lotus/Upgrades/Mods/Melee/Event/ComboCritChanceMod",
+    "name": "Blood Rush",
+    "polarity": "madurai",
+    "baseDrain": 4,
+    "maxRank": 10,
+    "rarity": "Uncommon",
+    "compat": "Melee",
+    "description": "",
+    "rawMaxStats": [
+      "+40% Critical Chance stacks with Combo Multiplier"
+    ]
+  },
+  {
+    "id": "weeping-wounds",
+    "uniqueName": "/Lotus/Upgrades/Mods/Melee/Event/ComboStatusChanceMod",
+    "name": "Weeping Wounds",
+    "polarity": "madurai",
+    "baseDrain": 4,
+    "maxRank": 5,
+    "rarity": "Uncommon",
+    "compat": "Melee",
+    "description": "",
+    "rawMaxStats": [
+      "+40% Status Chance per Combo Multiplier"
+    ]
+  },
+  {
+    "id": "condition-overload",
+    "uniqueName": "/Lotus/Upgrades/Mods/Melee/WeaponDamageIfVictimProcActive",
+    "name": "Condition Overload",
+    "polarity": "madurai",
+    "baseDrain": 10,
+    "maxRank": 5,
+    "rarity": "Rare",
+    "compat": "Melee",
+    "description": "",
+    "rawMaxStats": [
+      "+80% Melee Damage per Status Type affecting the target"
+    ]
+  },
+  {
+    "id": "gemini-cross",
+    "uniqueName": "/Lotus/Weapons/Tenno/Melee/MeleeTrees/TonfaCmbOneMeleeTree",
+    "name": "Gemini Cross",
+    "polarity": "madurai",
+    "baseDrain": -2,
+    "maxRank": 3,
+    "rarity": "Uncommon",
+    "compat": "Tonfas",
+    "description": "A style exhibiting sweeping slash attacks and swift jabs.",
+    "rawMaxStats": []
+  },
+  {
+    "id": "sovereign-outcast",
+    "uniqueName": "/Lotus/Weapons/Tenno/Melee/MeleeTrees/TonfaCmbTwoMeleeTree",
+    "name": "Sovereign Outcast",
+    "polarity": "naramon",
+    "baseDrain": -2,
+    "maxRank": 3,
+    "rarity": "Rare",
+    "compat": "Tonfas",
+    "description": "An outlandish style with sweeping attacks.",
+    "rawMaxStats": []
+  },
+  {
+    "id": "tempo-royale",
+    "uniqueName": "/Lotus/Weapons/Tenno/Melee/MeleeTrees/AxeCmbThreeMeleeTree",
+    "name": "Tempo Royale",
+    "polarity": "vazarin",
+    "baseDrain": -2,
+    "maxRank": 3,
+    "rarity": "Rare",
+    "compat": "Heavy Blade",
+    "description": "Sweeping strikes and twisting slashes.",
+    "rawMaxStats": []
+  },
+  {
+    "id": "cleaving-whirlwind",
+    "uniqueName": "/Lotus/Weapons/Tenno/Melee/MeleeTrees/AxeCmbTwoMeleeTree",
+    "name": "Cleaving Whirlwind",
+    "polarity": "vazarin",
+    "baseDrain": -2,
+    "maxRank": 3,
+    "rarity": "Rare",
+    "compat": "Heavy Blade",
+    "description": "Arcing cuts with spinning finish.",
+    "rawMaxStats": []
   }
 ]

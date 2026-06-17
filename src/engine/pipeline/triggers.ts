@@ -29,6 +29,8 @@ export interface TriggerInput {
   chargeTime?: number;
   /** Bows use `1/chargeTime`; other charge weapons add a `1/fireRate` recovery. */
   bow?: boolean;
+  /** Heavy-attack wind-up time (s) — for the melee `heavy` trigger. */
+  windUp?: number;
 }
 
 /**
@@ -41,12 +43,25 @@ export interface TriggerInput {
  *   bows → `1/modChargeTime`, others → `1/(modChargeTime + 1/modFR)`.
  */
 export function effectiveFireRate(input: TriggerInput): number {
-  const { trigger, modifiedFireRate, fireRateBonus, baseFireRate, burst, chargeTime, bow } = input;
+  const { trigger, modifiedFireRate, fireRateBonus, baseFireRate, burst, chargeTime, bow, windUp } =
+    input;
 
   switch (trigger) {
+    // `melee` / `slam` (melee Normal / Slam): attack speed (× fire-rate mods) is
+    // the rate — same as `auto` / `held`.
     case 'auto':
     case 'held':
+    case 'melee':
+    case 'slam':
       return Math.max(modifiedFireRate, FIRE_RATE_FLOOR);
+
+    // Heavy attacks: burst rate = 1/windUp. Attack speed does NOT reduce wind-up
+    // (docs/warframe/mechanics/heavy-attacks.md); the combo-rebuild/cadence loop
+    // that would use attack speed is deferred to Stage 5.
+    case 'heavy': {
+      const wu = windUp && windUp > 0 ? windUp : baseFireRate > 0 ? 1 / baseFireRate : 1;
+      return Math.max(1 / wu, FIRE_RATE_FLOOR);
+    }
 
     case 'semi':
       return Math.min(Math.max(modifiedFireRate, FIRE_RATE_FLOOR), SEMI_AUTO_CAP);
@@ -104,6 +119,11 @@ function describeTrigger(input: TriggerInput, eff: number): string {
       return `${eff.toFixed(2)} ticks/s (continuous)`;
     case 'semi':
       return `${input.modifiedFireRate.toFixed(2)}/s${eff < input.modifiedFireRate ? ` (capped ${SEMI_AUTO_CAP})` : ''}`;
+    case 'heavy':
+      return `wind-up ${(input.windUp ?? 0).toFixed(2)}s → ${eff.toFixed(2)} heavy/s (attack speed does not reduce wind-up)`;
+    case 'melee':
+    case 'slam':
+      return `${eff.toFixed(2)} attacks/s`;
     default:
       return `${eff.toFixed(2)}/s`;
   }

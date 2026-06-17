@@ -18,9 +18,13 @@ export function useDamageResult(): DamageResult | null {
   const combat = useBuildStore((s) => s.combat);
   const dataset = useBuildStore((s) => s.dataset);
   const activeMode = useBuildStore((s) => s.activeMode);
+  const activeComboString = useBuildStore((s) => s.activeComboString);
   return useMemo(
-    () => (dataset ? computeResult(build, combat, dataset, activeMode, sharedCalc) : null),
-    [build, combat, dataset, activeMode],
+    () =>
+      dataset
+        ? computeResult(build, combat, dataset, activeMode, sharedCalc, activeComboString)
+        : null,
+    [build, combat, dataset, activeMode, activeComboString],
   );
 }
 

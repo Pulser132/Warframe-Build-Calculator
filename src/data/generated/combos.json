@@ -1,0 +1,94 @@
+{
+  "gram-prime": [
+    {
+      "name": "August Mesto",
+      "stance": "Tempo Royale",
+      "hits": [
+        { "damageMultiplier": 3.0 },
+        { "damageMultiplier": 2.0 },
+        { "damageMultiplier": 1.0 },
+        { "damageMultiplier": 3.0 },
+        { "damageMultiplier": 4.0 },
+        { "damageMultiplier": 2.0, "forcedProcs": ["impact"] },
+        { "damageMultiplier": 4.0 }
+      ]
+    },
+    {
+      "name": "Majestic Abandon",
+      "stance": "Tempo Royale",
+      "hits": [
+        { "damageMultiplier": 1.0, "hits": 2 },
+        { "damageMultiplier": 2.0 },
+        { "damageMultiplier": 1.0 },
+        { "damageMultiplier": 2.0 },
+        { "damageMultiplier": 1.0 }
+      ]
+    },
+    {
+      "name": "Crowd Fall",
+      "stance": "Cleaving Whirlwind",
+      "hits": [
+        { "damageMultiplier": 3.0 },
+        { "damageMultiplier": 4.0 },
+        { "damageMultiplier": 5.0 },
+        { "damageMultiplier": 1.0 }
+      ]
+    },
+    {
+      "name": "Sundered Tusk",
+      "stance": "Cleaving Whirlwind",
+      "hits": [
+        { "damageMultiplier": 5.0, "forcedProcs": ["impact"] },
+        { "damageMultiplier": 3.0 },
+        { "damageMultiplier": 2.0 },
+        { "damageMultiplier": 4.0, "forcedProcs": ["impact"] }
+      ]
+    }
+  ],
+  "kronen-prime": [
+    {
+      "name": "Vagrant Blight",
+      "stance": "Gemini Cross",
+      "hits": [
+        { "damageMultiplier": 2.0, "hits": 2 },
+        { "damageMultiplier": 0.5, "hits": 2 },
+        { "damageMultiplier": 1.0, "forcedProcs": ["slash"] },
+        { "damageMultiplier": 0.5, "hits": 2 },
+        { "damageMultiplier": 1.0, "hits": 2 },
+        { "damageMultiplier": 3.0, "forcedProcs": ["impact"] },
+        { "damageMultiplier": 2.0, "forcedProcs": ["slash"] }
+      ]
+    },
+    {
+      "name": "Cold Vendetta",
+      "stance": "Gemini Cross",
+      "hits": [
+        { "damageMultiplier": 1.0 },
+        { "damageMultiplier": 1.0 },
+        { "damageMultiplier": 2.0 }
+      ]
+    },
+    {
+      "name": "Rogue Edict",
+      "stance": "Sovereign Outcast",
+      "hits": [
+        { "damageMultiplier": 2.0 },
+        { "damageMultiplier": 0.5, "hits": 5 },
+        { "damageMultiplier": 2.0 },
+        { "damageMultiplier": 0.5 },
+        { "damageMultiplier": 3.0, "forcedProcs": ["impact"] },
+        { "damageMultiplier": 2.0, "hits": 4, "forcedProcs": ["slash"] },
+        { "damageMultiplier": 2.0, "hits": 2 }
+      ]
+    },
+    {
+      "name": "Scout Command",
+      "stance": "Sovereign Outcast",
+      "hits": [
+        { "damageMultiplier": 4.0, "forcedProcs": ["impact"] },
+        { "damageMultiplier": 2.0 },
+        { "damageMultiplier": 3.0 }
+      ]
+    }
+  ]
+}

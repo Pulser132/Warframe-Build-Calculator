@@ -19,6 +19,17 @@ export function ConfigMenu() {
   const toggleCondition = useBuildStore((s) => s.toggleCondition);
   const setStacks = useBuildStore((s) => s.setStacks);
   const setBuff = useBuildStore((s) => s.setBuff);
+  const setTargetCount = useBuildStore((s) => s.setTargetCount);
+
+  const weapon = dataset?.weapons.find((w) => w.id === build.weaponId);
+  const isMelee = weapon?.category === 'Melee';
+
+  // The "status types on target" input only feeds Condition Overload — show it
+  // only when a mod that consumes it is equipped.
+  const usesStatusCount = build.slots.some((slot) => {
+    if (!slot.itemId) return false;
+    return dataset?.mods.find((m) => m.id === slot.itemId)?.customEffectId === 'condition-overload';
+  });
 
   // Discover stackable sources from equipped arcanes.
   const stackSources = useMemo(() => {
@@ -40,6 +51,60 @@ export function ConfigMenu() {
   return (
     <section className={styles.panel} aria-label="combat configuration">
       <h3 className={styles.heading}>Combat State</h3>
+
+      {isMelee && (
+        <div className={styles.group}>
+          <span className={styles.groupLabel}>
+            Melee state <span className={styles.hint}>(Stage-5 seam)</span>
+          </span>
+          <div className={styles.slider}>
+            <span className={styles.sliderLabel}>
+              Combo Count <span className={styles.value}>{combat.stacks['combo'] ?? 0}</span>
+            </span>
+            <input
+              type="range"
+              min={0}
+              max={220}
+              step={20}
+              value={combat.stacks['combo'] ?? 0}
+              aria-label="combo count"
+              onChange={(e) => setStacks('combo', Number(e.target.value))}
+            />
+          </div>
+          {usesStatusCount && (
+            <div className={styles.slider}>
+              <span className={styles.sliderLabel}>
+                Status types on target{' '}
+                <span className={styles.value}>{combat.stacks['status:count'] ?? 0}</span>
+                <span className={styles.hint}> (Condition Overload)</span>
+              </span>
+              <input
+                type="range"
+                min={0}
+                max={16}
+                step={1}
+                value={combat.stacks['status:count'] ?? 0}
+                aria-label="status types on target"
+                onChange={(e) => setStacks('status:count', Number(e.target.value))}
+              />
+            </div>
+          )}
+          <div className={styles.slider}>
+            <span className={styles.sliderLabel}>
+              Targets in swing <span className={styles.value}>{combat.targetCount ?? 1}</span>
+            </span>
+            <input
+              type="range"
+              min={1}
+              max={10}
+              step={1}
+              value={combat.targetCount ?? 1}
+              aria-label="targets in swing"
+              onChange={(e) => setTargetCount(Number(e.target.value))}
+            />
+          </div>
+        </div>
+      )}
 
       <div className={styles.group}>
         <span className={styles.groupLabel}>Conditionals</span>

@@ -64,7 +64,7 @@ describe('mod mapping — curated stats + authored descriptors', () => {
 
   it('loads every slice mod with an authored descriptor', async () => {
     const mods = await loadMods();
-    expect(mods).toHaveLength(25); // rifle (11) + secondary (8) + shotgun (6)
+    expect(mods).toHaveLength(44); // rifle (11) + secondary (8) + shotgun (6) + melee (15) + stances (4)
     for (const m of mods) {
       expect(m.slot).toBeDefined();
       expect(Array.isArray(m.effects)).toBe(true);
@@ -94,7 +94,7 @@ describe('loadDataset', () => {
     for (const name of ['Lex Prime', 'Vaykor Hek', 'Tonkor', 'Glaxion Vandal']) {
       expect(ds.weapons.some((w) => w.name === name)).toBe(true);
     }
-    expect(ds.mods).toHaveLength(25);
+    expect(ds.mods).toHaveLength(44);
     expect(ds.arcanes).toHaveLength(2);
   });
 });

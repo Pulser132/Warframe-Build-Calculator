@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { ModData, ArcaneData, ModSlotKind, Polarity } from '@engine/model/types';
+import type { ModData, ArcaneData, ModSlotKind, Polarity, WeaponClass } from '@engine/model/types';
 import { slotAccepts, modMatchesGroup, type ModGroup } from '@state';
 import { ModCard } from './ModCard';
 import { cleanStat } from '../util';
@@ -10,8 +10,10 @@ interface Props {
   slotKind: ModSlotKind;
   mods: ModData[];
   arcanes: ArcaneData[];
-  /** Weapon's mod group — filters class-specific mods (rifle/shotgun/pistol). */
+  /** Weapon's mod group — filters class-specific mods (rifle/shotgun/pistol/melee). */
   modGroup: ModGroup;
+  /** Weapon's melee class — gates stance compatibility (melee only). */
+  weaponClass?: WeaponClass;
   onAssign: (slotIndex: number, itemId: string) => void;
   onClose: () => void;
 }
@@ -26,7 +28,7 @@ interface Candidate {
 }
 
 /** Searchable, slot-aware picker overlay. Click an item to assign it. */
-export function ModPicker({ slotIndex, slotKind, mods, arcanes, modGroup, onAssign, onClose }: Props) {
+export function ModPicker({ slotIndex, slotKind, mods, arcanes, modGroup, weaponClass, onAssign, onClose }: Props) {
   const [query, setQuery] = useState('');
 
   // Close on Escape for keyboard accessibility.
@@ -47,7 +49,7 @@ export function ModPicker({ slotIndex, slotKind, mods, arcanes, modGroup, onAssi
     }
     return mods
       .filter((m) => slotAccepts(slotKind, m.slot))
-      .filter((m) => modMatchesGroup(m, modGroup))
+      .filter((m) => modMatchesGroup(m, modGroup, weaponClass))
       .filter((m) => m.name.toLowerCase().includes(q))
       .map((m) => ({
         id: m.id,
@@ -57,7 +59,7 @@ export function ModPicker({ slotIndex, slotKind, mods, arcanes, modGroup, onAssi
         rarity: m.rarity,
         stats: m.rawMaxStats.map(cleanStat),
       }));
-  }, [query, slotKind, mods, arcanes, modGroup]);
+  }, [query, slotKind, mods, arcanes, modGroup, weaponClass]);
 
   return (
     <div className={styles.backdrop} onClick={onClose} role="presentation">

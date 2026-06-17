@@ -24,9 +24,12 @@
   background: linear-gradient(160deg, var(--c-surface-3), var(--c-surface-2));
 }
 
-/* Aura/exilus read as special slots. */
+/* Aura/stance/exilus read as special slots. */
 .aura {
   box-shadow: inset 0 0 0 1px rgba(216, 177, 90, 0.15);
+}
+.stance {
+  box-shadow: inset 0 0 0 1px rgba(120, 200, 140, 0.18);
 }
 .exilus {
   box-shadow: inset 0 0 0 1px rgba(54, 197, 214, 0.12);

@@ -27,7 +27,10 @@ function signature(input: CalcInput): string {
     .join(',');
   // Fire mode is part of the key: the same loadout yields different results per mode.
   const mode = input.mode?.name ?? input.weapon.primaryFireMode.name;
-  return `${input.weapon.id}|${mode}|${sources}|${conditions}|${stacks}|${buffs}`;
+  // Melee extras (combo string + target count) change the result for one loadout.
+  const combo = input.mode?.comboString?.name ?? '';
+  const targets = input.targetCount ?? input.combat.targetCount ?? 1;
+  return `${input.weapon.id}|${mode}|${combo}|t${targets}|${sources}|${conditions}|${stacks}|${buffs}`;
 }
 
 /** Create a calc function backed by an LRU-ish bounded cache. */

@@ -16,3 +16,27 @@ export {
 } from './triggers';
 export type { TriggerInput } from './triggers';
 export { probAtLeastOneProc, procTypeWeights, falloffFactor, rimFactor } from './mechanics';
+export {
+  comboTier,
+  comboMultiplier,
+  comboCount,
+  comboTierFromState,
+  comboMultiplierFromState,
+  COMBO_STACK_KEY,
+  HITS_PER_TIER,
+  MAX_COMBO_MULTIPLIER,
+  MAX_COMBO_TIER,
+} from './combo';
+export {
+  bloodRush,
+  weepingWounds,
+  conditionOverload,
+  MELEE_CUSTOM_EFFECTS,
+  STATUS_COUNT_KEY,
+  BLOOD_RUSH_PER_TIER,
+  WEEPING_WOUNDS_PER_TIER,
+  CONDITION_OVERLOAD_PER_STATUS,
+  CONDITION_OVERLOAD_MAX_STATUS,
+} from './customEffects';
+export { followThroughTotal, comboStringBreakdown } from './melee';
+export type { ComboStringResult } from './melee';
