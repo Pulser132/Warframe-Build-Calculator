@@ -75,5 +75,50 @@ enemies in its arc (`damage × FT^(n-1)` for the n-th target). A multi-target
 concern, distinct from single-target damage-per-hit.
 
 **Stance**:
-A melee-only mod slot (analogue of a gun's Aura slot) that holds a Stance mod and
-unlocks Combo Strings.
+A melee-only mod slot (the melee analogue of a Warframe's Aura slot) that holds a
+Stance mod and unlocks Combo Strings.
+
+### Warframe & abilities
+
+**Warframe** (Frame):
+The player's character gear — it carries base stats (health, shield, armor,
+energy, sprint speed) and abilities, and is modded on its own screen (**Aura +
+Exilus + 8 normal + 2 arcanes**). The source of the ability buffs that modify
+weapon damage. _Avoid_: "char", "suit" as engine terms.
+
+**Aura**:
+A **Warframe-only** mod slot at the top of the frame screen. Provides *extra* mod
+capacity (doubled when the equipped Aura's polarity matches the slot). Weapons
+have **no** Aura slot — the melee **Stance** slot is the melee analogue.
+
+**Ability**:
+A Warframe's active power. Its numbers scale with the frame's ability attributes.
+Some abilities emit buffs (see **Emitted Buff**); others deal damage or grant
+survivability (those are modeled in a later stage).
+
+**Ability Strength / Duration / Range / Efficiency**:
+The four ability attributes, each modified **additively** by mods. **Strength**
+governs buff magnitude (and ability damage); **Efficiency** reduces energy cost
+and is **capped**; **Duration** and **Range** govern how long / how far. _Avoid_:
+mixing "power strength" with "ability power".
+
+**Emitted Buff** (Ability Buff):
+A buff an ability produces whose **magnitude is derived from the casting frame's
+Ability Strength** (e.g. Roar). Distinct from a manually-entered buff: whether it
+is *active* is a combat-state toggle, but its *magnitude* comes from the equipped
+frame (with a manual-override fallback when no equipped frame provides it).
+_Avoid_: using "buff" bare when the source (frame-derived vs manual) matters.
+
+**Roar**:
+Rhino's Emitted Buff — a damage bonus (base **+50% × Ability Strength**) that
+shares the **faction** bucket (adds with Bane, then multiplies). The canonical
+cross-gear link: a frame ability modifying weapon damage.
+
+**Set Bonus**:
+An extra effect a mod grants that scales with **how many mods of the same set are
+equipped** (e.g. the **Umbral** set). Distinct from the mod's own base stat.
+
+**Effective Health (EHP)**:
+A Warframe's survivability expressed as a single number combining health, shield,
+and armor (armor gives health a damage-reduction multiplier; shields are largely
+unaffected). At this stage it is **generic** — no specific incoming damage type.

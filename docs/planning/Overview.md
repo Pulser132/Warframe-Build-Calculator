@@ -28,6 +28,8 @@ contribution** made visible, and a modding UI that mirrors the in-game screens.
 | Mod attribution | **Leave-one-out (marginal)** as the primary metric, behind a pluggable attribution interface (Shapley / ordered / multiplier-chain can be added later). |
 | Data pipeline | **Build-time transform** of `@wfcd/items` into a curated, normalized internal dataset + an authored mod → effect-descriptor map; delivered code-split / lazy-loaded. |
 | Plan depth | Stage 1 fully task-detailed; Stages 2–8 actionable outlines, each expanded to full task granularity immediately before it is implemented. |
+| Build model | A `Build` is a container of generic **gear compartments** (`GearBuild` = item + slots + capacity), one per gear type (weapon, warframe, later companion/operator); `CombatState` is shared at the top. Mod compatibility is **gear-type aware**. See ADR 0003. |
+| Frame stats | Warframe stats use a **separate resolver** (`resolveWarframe → WarframeStats`) that reuses the bucket primitive but is **not** the weapon damage pipeline. |
 
 ---
 
@@ -38,8 +40,8 @@ contribution** made visible, and a modding UI that mirrors the in-game screens.
 | 1 | `initial-layout/` | Foundation & vertical slice | Scaffold + engine core + data pipeline + **one primary rifle end-to-end** (math, modding UI, per-mod contribution, minimal state). Proves the architecture. |
 | 2 | `weapons-coverage/` | All gun types | Generalize to Primary/Secondary via inheritance/interfaces; trigger types, projectile/hitscan, AoE/falloff, multi-mode weapons. |
 | 3 | `melee/` | Melee | Combo counter, heavy attacks, stance/follow-through, melee mod set. |
-| 4 | `warframes/` | Warframe modding | Aura/exilus/8/arcanes, ability stats, ability-strength → buff outputs (e.g. Roar). |
-| 5 | `buffs-state/` | Combat State & Target | Expandable buff/state config **and** the configurable enemy model (armor/health/level/faction → effective damage & time-to-kill). |
+| 4 | `warframes/` | Warframe modding | Build becomes gear **compartments** (frame + weapon); aura/exilus/8/arcanes, the four ability attributes, EHP, Umbral set bonus; **frame-derived Roar magnitude + a combat-state activation toggle wired into the weapon calc** (e.g. Roar). |
+| 5 | `buffs-state/` | Combat State & Target | Expandable buff/state config **and** the configurable enemy model (armor/health/level/faction → effective damage & time-to-kill). Also: **enemy-facing** ability application (damage abilities), damage-type-specific EHP / shield-gating. (The basic frame→weapon buff *magnitude* wiring moved to Stage 4.) |
 | 6 | `incarnon-specials/` | Incarnon & special cases | Per-weapon special-case hooks (calc + UI); incarnon evolution selection. |
 | 7 | `companions-operator/` | Companions & Operator | Sentinels/pets, operator/amp, their mods and contributions. |
 | 8 | `share-persist/` | Sharing & persistence | Save/load, named builds, shareable URL build codes, import/export, migration. |
@@ -55,16 +57,19 @@ engine). Each stage must be tested and correct before the next begins
 ```
 scripts/
   warframe-lookup.mjs      # existing — ad-hoc data lookups (used by warframe-info skill)
-  build-data.mjs           # NEW — build-time transform: @wfcd/items -> curated dataset
+  build-data.mjs           # build-time transform: @wfcd/items -> curated dataset (weapons + warframes)
+  scrape-combos.mjs        # offline scraper (manual run) -> combos.json (ADR 0001)
+  scrape-abilities.mjs     # NEW — offline scraper (manual run) -> abilities.json (ADR 0001)
 src/
   engine/                  # PURE TypeScript, no React imports
     model/                 # types: buckets, EffectDescriptor, Build, DamageResult, ...
-    gear/                  # class hierarchy + interfaces: Weapon -> Gun -> Primary/Secondary, Melee
+    gear/                  # class hierarchy + interfaces: Weapon -> Gun -> Primary/Secondary, Melee; Warframe
+    warframe/              # frame-stat resolver (resolveWarframe -> WarframeStats); NOT the damage pipeline
     pipeline/              # ordered damage-calculation stages
     attribution/           # pluggable strategies; leave-one-out is the default
     index.ts               # calculateBuild(build, combatState) -> DamageResult
   data/
-    generated/             # curated JSON emitted by build-data.mjs (git-tracked)
+    generated/             # curated JSON, git-tracked: weapons.json + warframes.json (build-data.mjs); combos.json + abilities.json (offline scrapers)
     mods/                  # authored effect-descriptor maps & special-case overrides
     loaders.ts             # lazy, code-split dataset loaders
   state/                   # Zustand store, serialization, URL-sync, undo/redo
