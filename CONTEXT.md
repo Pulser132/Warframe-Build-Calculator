@@ -121,4 +121,61 @@ equipped** (e.g. the **Umbral** set). Distinct from the mod's own base stat.
 **Effective Health (EHP)**:
 A Warframe's survivability expressed as a single number combining health, shield,
 and armor (armor gives health a damage-reduction multiplier; shields are largely
-unaffected). At this stage it is **generic** — no specific incoming damage type.
+unaffected). Frame EHP stays a **generic** survivability number; the **Target**
+model (below) introduces damage-type-specific effective HP for *enemies*.
+
+### Combat state
+
+**Combat State**:
+The configurable, build-independent state the damage calc runs *in* — active
+toggles, stack counts, and buffs. The cross-gear surface where a frame's ability
+buff meets the weapon calc. _Avoid_: "player state", "loadout state".
+
+**Toggle / Stack / Buff** (the three combat-state kinds):
+A **Toggle** is an on/off condition (e.g. enemy faction, gating Bane). A **Stack**
+is a count (e.g. Galvanized stacks, Combo Count). A **Buff** is an active
+magnitude-bearing effect (e.g. Roar, Eclipse) — generalizing **Emitted Buff** to
+non-frame sources. _Avoid_: using "buff" bare for all three.
+
+**Intrinsic Damage**:
+A weapon's damage **before** any enemy is considered — the Stages 1–4 view, the
+baseline the Target layer multiplies against. _Avoid_: "raw damage" (reserve that
+for the un-modded weapon base).
+
+### Target & enemy
+
+**Target** (Enemy):
+The configurable enemy a build is evaluated against — its faction, health layers,
+level, and strip state. Turns Intrinsic Damage into Effective Damage. _Avoid_:
+"mob", "enemy state".
+
+**Health Layer**:
+One of an enemy's four defensive pools — **Health**, **Shield**, **Armor**,
+**Overguard**. Damage routes Overguard → Shield → Health; **Armor** is a
+mitigation on Health, not a pool that depletes. _Avoid_: "health type" (the legacy
+13-type model is not used).
+
+**Faction Modifier**:
+A damage-type multiplier an enemy's **faction** applies (e.g. Grineer ×1.5 to
+Corrosive). The modern (Damage 3.0) model: modifiers are faction-based, not
+health-type-based. _Avoid_: "health-type modifier", "damage-type table".
+
+**Armor Strip**:
+A fractional reduction of a Target's Armor (Corrosive, abilities, …), expressed
+0–100%; net armor = base × (1 − strip). _Avoid_: "armor removal", "armor ignore"
+(those describe bypass, a different thing).
+
+**Effective Damage**:
+The damage a hit actually deals to a specific **Target** after faction modifiers,
+layer routing, and armor mitigation — the vs-target counterpart to Intrinsic
+Damage. _Avoid_: "real damage", "final damage".
+
+**Time-to-Kill (TTK)**:
+How long a build takes to deplete a Target's layers at its effective sustained
+DPS. At this stage it counts **direct damage only** (status damage-over-time is
+excluded). _Avoid_: "kill time".
+
+**Overguard**:
+A crowd-control-immune buffer some enemies (Eximus, etc.) carry, absorbed
+**before** Shield and Health and **unaffected by Armor**. _Avoid_: "guard",
+"overshield" (a player-shield concept).
