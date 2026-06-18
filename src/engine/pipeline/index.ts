@@ -38,5 +38,11 @@ export {
   CONDITION_OVERLOAD_PER_STATUS,
   CONDITION_OVERLOAD_MAX_STATUS,
 } from './customEffects';
-export { followThroughTotal, comboStringBreakdown } from './melee';
-export type { ComboStringResult } from './melee';
+export {
+  followThroughTotal,
+  comboStringBreakdown,
+  reachTargetCount,
+  sustainedHeavyLoop,
+  DEFAULT_ENEMY_SPACING,
+} from './melee';
+export type { ComboStringResult, HeavyLoopParams, HeavyLoopResult } from './melee';

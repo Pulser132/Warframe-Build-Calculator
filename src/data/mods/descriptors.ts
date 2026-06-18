@@ -52,10 +52,11 @@ export const MOD_DESCRIPTORS: Record<string, AuthoredMod> = {
   },
   // Fire-rate bucket: DPS only.
   'speed-trigger': { slot: 'normal', effects: [{ bucket: 'fireRate', value: 0.6 }] },
-  // Faction bucket (separate, conditional): additive with Roar; ×1.3 vs Grineer.
+  // Faction multiplier bucket (separate, conditional, ADR 0005): additive with
+  // Roar; ×1.3 vs Grineer.
   'bane-of-grineer': {
     slot: 'normal',
-    effects: [{ bucket: 'faction', value: 0.3, condition: 'faction:grineer' }],
+    effects: [{ multiplier: 'faction', value: 0.3, condition: 'faction:grineer' }],
   },
   // Aura: Rifle Amp adds rifle damage, additive in the base-damage bucket.
   'rifle-amp': { slot: 'aura', effects: [{ bucket: 'baseDamage', value: 0.27 }] },
@@ -67,6 +68,23 @@ export const MOD_DESCRIPTORS: Record<string, AuthoredMod> = {
   'hornet-strike': { slot: 'normal', effects: [{ bucket: 'baseDamage', value: 2.2 }] },
   // Multishot bucket.
   'barrel-diffusion': { slot: 'normal', effects: [{ bucket: 'multishot', value: 1.2 }] },
+  // Galvanized Diffusion (Madurai): +110% Multishot base, and on kill +30%
+  // Multishot per stack up to 4 (→ +120%) for 20s. The per-stack bonus is an
+  // additive contribution into the **multishot** bucket, gated on the on-kill
+  // stack count (decision 4). Source: docs/warframe/mods/galvanized-diffusion.md.
+  'galvanized-diffusion': {
+    slot: 'normal',
+    effects: [
+      { bucket: 'multishot', value: 1.1 },
+      {
+        bucket: 'multishot',
+        value: 0.3,
+        perStack: true,
+        maxStacks: 4,
+        condition: 'mod:galvanized-diffusion',
+      },
+    ],
+  },
   // Dual-stat: +60% Multishot, +60% Fire Rate (two buckets, both additive within their own).
   'lethal-torrent': {
     slot: 'normal',
@@ -225,11 +243,11 @@ export const MOD_DESCRIPTORS: Record<string, AuthoredMod> = {
 
 /** Keyed by curated arcane `id`. */
 export const ARCANE_DESCRIPTORS: Record<string, AuthoredArcane> = {
-  // +30% Damage per stack, up to 12 (on kill). Separate conditional multiplier.
+  // +30% Damage per stack, up to 12 (on kill). Direct-damage multiplier bucket (ADR 0005).
   'primary-merciless': {
     effects: [
       {
-        bucket: 'directDamage',
+        multiplier: 'directDamage',
         value: 0.3,
         perStack: true,
         maxStacks: 12,
@@ -237,11 +255,11 @@ export const ARCANE_DESCRIPTORS: Record<string, AuthoredArcane> = {
       },
     ],
   },
-  // +120% Damage per stack, up to 3 (on headshot kill). Separate conditional multiplier.
+  // +120% Damage per stack, up to 3 (on headshot kill). Direct-damage multiplier bucket.
   'primary-deadhead': {
     effects: [
       {
-        bucket: 'directDamage',
+        multiplier: 'directDamage',
         value: 1.2,
         perStack: true,
         maxStacks: 3,

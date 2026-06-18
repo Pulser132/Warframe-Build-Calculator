@@ -35,7 +35,12 @@ import {
 import { effectiveFireRateStage } from './triggers';
 import { probAtLeastOneProc, procTypeWeights, rimFactor } from './mechanics';
 import { comboCount, comboMultiplier } from './combo';
-import { followThroughTotal, comboStringBreakdown } from './melee';
+import {
+  followThroughTotal,
+  comboStringBreakdown,
+  reachTargetCount,
+  sustainedHeavyLoop,
+} from './melee';
 // Side-effect import: registers the Stage 3 custom effects (Blood Rush, Weeping
 // Wounds, Condition Overload) into the global registry that `gather` consults.
 import './customEffects';
@@ -120,14 +125,13 @@ export function calculateBuild(input: CalcInput): DamageResult {
     windUp: mode.windUp,
   });
 
-  const { factionMultiplier, directMultiplier, stage: condStage } =
-    conditionalMultiplierStage(sums);
+  const { combined: conditionalMultiplier, stage: condStage } = conditionalMultiplierStage(sums);
 
   // Combo Multiplier — an intrinsic step applied to Heavy / Heavy-Slam modes only
   // (never Normal/Slam). Reads the raw Combo Count from combat state.
   const count = comboCount(combat);
   const combo = mode.comboScaled ? comboMultiplier(count) : 1;
-  const finalMult = avgCritMultiplier * factionMultiplier * directMultiplier * combo;
+  const finalMult = avgCritMultiplier * conditionalMultiplier * combo;
 
   // ── Per-component base + quantization ──────────────────────────────────────
   const combinedSubtotal: DamageMap = {};
@@ -248,11 +252,40 @@ export function calculateBuild(input: CalcInput): DamageResult {
   if (mode.comboScaled) {
     result.comboMultiplier = combo;
     result.comboCount = count;
+
+    // Sustained heavy-attack DPS via the combo-rebuild loop (Stage 5, decision 18).
+    if (mode.windUp != null) {
+      const heavyMult = mode.heavyMultiplier ?? 1;
+      // Derive the Normal-attack hit from the heavy hit (same crit/mods pipeline):
+      // heavyHit = normalHit × heavyMult × comboMult.
+      const denom = heavyMult * combo;
+      const normalHit = denom > 0 ? avgHitPerShot / denom : avgHitPerShot;
+      result.heavyLoop = sustainedHeavyLoop({
+        heavyHit: avgHitPerShot,
+        normalHit,
+        attackSpeed: modifiedFireRate,
+        windUp: mode.windUp,
+        comboCount: count,
+        comboCost: mode.comboCost ?? 1,
+        heavyEfficiency: mode.heavyEfficiency ?? 0,
+      });
+    }
   }
   if (weapon.range != null) result.reach = weapon.range;
 
+  // Reach → enemy-count (Stage 5, decision 19): when an enemy spacing is set, the
+  // swing's target count is derived from Reach, superseding the manual count.
+  const reachDerived =
+    weapon.range != null && combat.enemySpacing
+      ? reachTargetCount(weapon.range, combat.enemySpacing)
+      : undefined;
+  if (reachDerived != null) {
+    result.reachTargets = { count: reachDerived, spacing: combat.enemySpacing!, reach: weapon.range! };
+  }
+
   // Follow-Through: a multi-target extra (single-target output is unchanged).
-  const targetCount = input.targetCount ?? combat.targetCount ?? 1;
+  // Precedence: explicit input override → reach-derived → manual combat count → 1.
+  const targetCount = input.targetCount ?? reachDerived ?? combat.targetCount ?? 1;
   if (weapon.followThrough != null && targetCount > 1) {
     const ft = weapon.followThrough;
     const total = followThroughTotal(avgHitPerShot, ft, targetCount);

@@ -19,11 +19,16 @@ import {
   getBuffDef,
   buffEffects,
   resolveWarframe,
+  applyTarget,
   type Weapon,
   type ResolvedSource,
   type DamageResult,
   type WarframeStats,
   type FrameSource,
+  type Contribution,
+  type TargetState,
+  type TargetResult,
+  type EnemyData,
 } from '@engine';
 import type { FireMode } from '@engine/model/firemode';
 import type { Build, GearBuild, CombatState } from '@engine/model/build';
@@ -184,4 +189,53 @@ export function computeResult(
   const result = calc(input);
   const contributions = attributeBuild(input, undefined, calc);
   return { ...result, contributions };
+}
+
+/** Resolve the base enemy a Target points at (or null for the custom block). */
+export function findEnemy(target: TargetState, dataset: Dataset): EnemyData | null {
+  if (target.enemyId === 'custom') return null;
+  return dataset.enemies.find((e) => e.id === target.enemyId) ?? null;
+}
+
+/**
+ * Compute the post-intrinsic Target layer for a build (Stage 5, Phase B). Runs
+ * the intrinsic calc, then `applyTarget`. When `withAttribution` is set, also runs
+ * a **vs-target** leave-one-out (effective-DPS scalar) — decision 16.
+ */
+export function computeTargetResult(
+  build: Build,
+  combat: CombatState,
+  target: TargetState,
+  dataset: Dataset,
+  modeName: string | null = null,
+  calc = createMemoizedCalc(),
+  comboStringName: string | null = null,
+  withAttribution = false,
+): { intrinsic: DamageResult; result: TargetResult; contributions?: Contribution[] } | null {
+  const weapon = getWeapon(build, dataset);
+  if (!weapon) return null;
+  const frameStats = resolveFrameStats(build.warframe, dataset, combat);
+  const sources = resolveSources(build.weapon, combat, dataset, frameStats);
+  const base = modeName ? weapon.fireMode(modeName) : weapon.primaryFireMode;
+
+  let mode: FireMode = base;
+  if (comboStringName && base.trigger === 'melee') {
+    const combo = weapon.data.comboStrings?.find((c) => c.name === comboStringName);
+    if (combo) mode = { ...base, comboString: combo };
+  }
+
+  const enemy = findEnemy(target, dataset);
+  const input = { weapon, sources, combat, mode, targetCount: combat.targetCount };
+  const intrinsic = calc(input);
+  const result = applyTarget(intrinsic, target, enemy);
+
+  if (!withAttribution) return { intrinsic, result };
+
+  // vs-target attribution: same leave-one-out machinery, effective-DPS scalar.
+  const contributions = attributeBuild(
+    { ...input, scalarOf: (r) => applyTarget(r, target, enemy).effectiveDps },
+    undefined,
+    calc,
+  );
+  return { intrinsic, result, contributions };
 }

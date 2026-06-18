@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
 import { loadDataset, type Dataset } from '../data/loaders';
 import { useBuildStore } from './store';
-import { computeResult } from './resolve';
+import { computeResult, computeTargetResult } from './resolve';
 import { computeCapacity } from './capacity';
 
 let dataset: Dataset;
@@ -101,6 +101,65 @@ describe('build store — undo/redo', () => {
     store().undo();
     store().assignMod(2, 'point-strike');
     expect(store().canRedo()).toBe(false);
+  });
+});
+
+describe('build store — Target / Enemy (Stage 5, Phase B)', () => {
+  const targetResult = () =>
+    computeTargetResult(store().build, store().combat, store().target, dataset)!.result;
+
+  it('defaults to the Charger (pure health) target', () => {
+    expect(store().target.enemyId).toBe('charger');
+    const r = targetResult();
+    expect(r.scaled.shield).toBe(0);
+    expect(r.scaled.armor).toBe(0);
+    expect(isFinite(r.ttkSeconds)).toBe(true);
+  });
+
+  it('selecting an armored enemy lowers effective DPS; armor strip raises it back', () => {
+    store().selectEnemy('bombard');
+    const withArmor = targetResult().effectiveDps;
+    store().setArmorStrip(1);
+    expect(targetResult().effectiveDps).toBeGreaterThan(withArmor);
+  });
+
+  it('raising the level (and Steel Path) scales the enemy and lengthens TTK', () => {
+    store().selectEnemy('bombard');
+    const baseTtk = targetResult().ttkSeconds;
+    store().setTargetLevel(150);
+    expect(targetResult().ttkSeconds).toBeGreaterThan(baseTtk);
+    const lvlTtk = targetResult().ttkSeconds;
+    store().setSteelPath(true);
+    expect(targetResult().ttkSeconds).toBeGreaterThan(lvlTtk);
+  });
+
+  it('the Eximus / Overguard toggle adds an Overguard pool', () => {
+    store().selectEnemy('lancer');
+    expect(targetResult().scaled.overguard).toBe(0);
+    store().toggleOverguard(true);
+    expect(targetResult().scaled.overguard).toBeGreaterThan(0);
+  });
+
+  it('a faction override changes the modifier table (not the stats)', () => {
+    store().selectEnemy('charger'); // Infested: Slash ×1.5
+    const before = targetResult();
+    store().setFactionOverride('Grineer'); // Grineer: Slash neutral
+    const after = targetResult();
+    expect(after.scaled.health).toBe(before.scaled.health); // stats unchanged
+    // effective damage differs because the faction modifier table changed
+    expect(after.effectiveDps).not.toBeCloseTo(before.effectiveDps, 1);
+  });
+
+  it('undo restores the previous Target state', () => {
+    store().selectEnemy('bombard');
+    store().undo();
+    expect(store().target.enemyId).toBe('charger');
+  });
+
+  it('TargetState is plain serializable data', () => {
+    store().selectEnemy('lancer');
+    store().setTargetLevel(120);
+    expect(JSON.parse(JSON.stringify(store().target))).toEqual(store().target);
   });
 });
 

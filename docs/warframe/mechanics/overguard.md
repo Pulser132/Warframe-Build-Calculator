@@ -1,8 +1,8 @@
 # Overguard Mechanics
 
-**Source**: [Warframe Wiki - Overguard](https://wiki.warframe.com/w/Overguard), [Warframe Wiki - Eximus](https://wiki.warframe.com/w/Eximus)  
-**Last verified**: 2026-06-18  
-**Game version**: Update 36+ (Damage 3.0)
+**Source**: https://wiki.warframe.com/w/Overguard  
+**Game version**: Update 36+ (Damage 3.0)  
+**Last verified**: 2026-06-18
 
 ## What is Overguard?
 
@@ -24,16 +24,36 @@ Overguard is a special defensive buffer that:
 
 **Base value**: 12 Overguard for all Eximus units
 
-**Scaling with level**: Uses a piecewise formula with smooth interpolation between levels 45–50:
+**Scaling with level**: Uses a piecewise formula with smooth interpolation (smoothstep) between levels 46–50:
 
-- **Levels 1–45**: `multiplier = 1 + 0.0015(level - 1)^4`
-- **Levels 50+**: `multiplier = 1 + 260(level - 1)^0.9`
+**For level difference 0–45** (Current Level − 1 < 45):
+```
+multiplier = 1 + 0.0015 × (CurrentLevel − 1)^4
+```
 
-**Final Overguard** = `12 × multiplier`
+**For level difference 50+** (Current Level − 1 > 50):
+```
+multiplier = 1 + 260 × (CurrentLevel − 1)^0.9
+```
 
-Example: A level 100 Eximus would have approximately `12 × (1 + 260(99)^0.9)` ≈ 12 × 1219 ≈ 14,628 Overguard.
+**For levels 46–50:** Linear interpolation via smoothstep function between the two formulas.
 
-Overguard scales **independently** from enemy health/shields; it is not tied to base health values.
+**Final Overguard = Base × Multiplier = 12 × multiplier**
+
+### Worked Example: Level 100 Eximus
+
+Since 100 − 1 = 99 > 50, use the high-level formula:
+```
+multiplier = 1 + 260 × (99)^0.9
+multiplier = 1 + 260 × 63.10
+multiplier ≈ 1 + 16,406 = 16,407
+```
+
+**Final Overguard = 12 × 16,407 ≈ 196,884**
+
+At level 100, an Eximus unit has approximately **196,884 Overguard** (before faction/Void/Magnetic amplification).
+
+Overguard scales **independently** from enemy health/shields; it is not tied to base health values. It represents a separate damage pool.
 
 ## Damage Interaction Rules
 

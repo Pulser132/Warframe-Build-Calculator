@@ -14,6 +14,13 @@ export interface AttributionInput {
   combat: CombatState;
   /** Fire mode to attribute against (defaults to the weapon's primary mode). */
   mode?: FireMode;
+  /**
+   * The scalar each source's marginal contribution is measured on. Defaults to
+   * intrinsic `burstDps`. Supplying e.g. `(r) => applyTarget(r, …).effectiveDps`
+   * yields a **vs-target** attribution with the same leave-one-out machinery
+   * (Stage 5, decision 16) — where armor-strip / faction mods show their worth.
+   */
+  scalarOf?: (result: DamageResult) => number;
 }
 
 /** A calculator function (injected so strategies can share a memoized calc). */

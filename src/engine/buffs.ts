@@ -10,42 +10,28 @@
  * Roar shares the **faction** bucket (so Roar and Bane add together before
  * multiplying), per `docs/warframe/mechanics/damage.md`.
  */
-import type { Bucket, EffectDescriptor } from './model/types';
+import type { EffectDescriptor } from './model/types';
+import { STATE_REGISTRY, type BuffEntry } from './state';
 
-export interface BuffDef {
-  id: string;
-  label: string;
-  description: string;
-  /** Damage bucket this buff's magnitude feeds. */
-  bucket: Bucket;
-  /** Authored ability that emits this buff (frame-derived magnitude). */
-  abilityId: string;
-  /** Manual magnitude (fraction, e.g. 0.5 = +50%) used only when no equipped
-   * frame emits the buff. */
-  defaultMagnitude: number;
-}
-
-export const BUFF_REGISTRY: Record<string, BuffDef> = {
-  roar: {
-    id: 'roar',
-    label: 'Roar (Rhino)',
-    description:
-      'Ability damage buff. Shares the faction bucket — adds with Bane, then multiplies. Magnitude = 0.5 × Ability Strength.',
-    bucket: 'faction',
-    abilityId: 'roar',
-    defaultMagnitude: 0.5,
-  },
-};
+/**
+ * Back-compat alias: a `BuffDef` is a `buff`-kind {@link BuffEntry} from the
+ * unified `STATE_REGISTRY` (ADR 0005 / Stage 5). The catalog itself now lives in
+ * `engine/state`; this module keeps the buff-facing helpers (`getBuffDef`,
+ * `listBuffs`, `buffEffects`) that `resolve.ts`/UI consume.
+ */
+export type BuffDef = BuffEntry;
 
 export function getBuffDef(id: string): BuffDef | undefined {
-  return BUFF_REGISTRY[id];
+  const entry = STATE_REGISTRY[id];
+  return entry?.kind === 'buff' ? entry : undefined;
 }
 
 export function listBuffs(): BuffDef[] {
-  return Object.values(BUFF_REGISTRY);
+  return Object.values(STATE_REGISTRY).filter((e): e is BuffEntry => e.kind === 'buff');
 }
 
-/** Build the effect descriptors a buff contributes at the given magnitude. */
+/** Build the effect descriptors a buff contributes at the given magnitude. A
+ * buff feeds its declared `multiplier` bucket (ADR 0005). */
 export function buffEffects(def: BuffDef, magnitude: number): EffectDescriptor[] {
-  return [{ bucket: def.bucket, value: magnitude }];
+  return [{ multiplier: def.multiplier, value: magnitude }];
 }

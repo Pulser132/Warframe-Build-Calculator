@@ -13,6 +13,7 @@ import type {
   ArcaneData,
   AbilityScaling,
 } from '@engine/model/types';
+import type { EnemyData } from '@engine/target/types';
 import type { ComboString } from '@engine/model/firemode';
 import { MOD_DESCRIPTORS, ARCANE_DESCRIPTORS } from './mods/descriptors';
 
@@ -30,6 +31,7 @@ let warframesPromise: Promise<WarframeData[]> | undefined;
 let abilitiesPromise: Promise<AbilitiesFile> | undefined;
 let modsPromise: Promise<ModData[]> | undefined;
 let arcanesPromise: Promise<ArcaneData[]> | undefined;
+let enemiesPromise: Promise<EnemyData[]> | undefined;
 
 export function loadWeapons(): Promise<WeaponData[]> {
   weaponsPromise ??= Promise.all([
@@ -101,24 +103,34 @@ export function loadArcanes(): Promise<ArcaneData[]> {
   return arcanesPromise;
 }
 
+/** Load the generated enemy dataset (Stage 5 — `scripts/build-enemies.mjs`). */
+export function loadEnemies(): Promise<EnemyData[]> {
+  enemiesPromise ??= import('./generated/enemies.json').then(
+    (m) => m.default as unknown as EnemyData[],
+  );
+  return enemiesPromise;
+}
+
 export interface Dataset {
   weapons: WeaponData[];
   warframes: WarframeData[];
   abilities: AbilitiesFile;
   mods: ModData[];
   arcanes: ArcaneData[];
+  enemies: EnemyData[];
 }
 
 /** Load the full curated dataset (all categories) at once. */
 export async function loadDataset(): Promise<Dataset> {
-  const [weapons, warframes, abilities, mods, arcanes] = await Promise.all([
+  const [weapons, warframes, abilities, mods, arcanes, enemies] = await Promise.all([
     loadWeapons(),
     loadWarframes(),
     loadAbilities(),
     loadMods(),
     loadArcanes(),
+    loadEnemies(),
   ]);
-  return { weapons, warframes, abilities, mods, arcanes };
+  return { weapons, warframes, abilities, mods, arcanes, enemies };
 }
 
 export async function loadWeapon(id: string): Promise<WeaponData | undefined> {

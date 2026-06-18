@@ -47,8 +47,15 @@ export const BASE_ELEMENTS: readonly DamageType[] = ['heat', 'cold', 'electricit
 export type ModSlotKind = 'normal' | 'exilus' | 'aura' | 'arcane' | 'stance';
 
 /**
- * Modifier buckets. Members of a bucket combine **additively**; buckets combine
- * **multiplicatively** with each other (see `docs/warframe/mechanics/damage.md`).
+ * The **additive core** modifier buckets (ADR 0005). Members of a bucket combine
+ * **additively**; the core buckets then combine **multiplicatively** with each
+ * other and with the data-driven multiplier buckets (see
+ * `docs/warframe/mechanics/damage.md`). This union is intentionally **closed and
+ * typed** — it is a stable, finite set carrying the error-prone summing math we
+ * want the compiler to guard. The *conditional/multiplicative* buff buckets
+ * (faction, direct, Eclipse, …) are **not** here: they are declared at runtime in
+ * `MULTIPLIER_BUCKETS` and named by `EffectDescriptor.multiplier` (ADR 0005), so a
+ * new multiplier category is a registry entry rather than a type change.
  */
 export type Bucket =
   /** +%Damage (Serration, Rifle Amp). Multiplies the base+elemental subtotal. */
@@ -66,20 +73,25 @@ export type Bucket =
   /** +%Status chance (Rifle Aptitude). */
   | 'statusChance'
   /** +%Fire rate (Speed Trigger). DPS only. */
-  | 'fireRate'
-  /** Faction/ability multiplier (Bane, Roar) — a separate conditional multiplier. */
-  | 'faction'
-  /** Generic separate conditional multiplier (arcanes like Primary Merciless). */
-  | 'directDamage';
+  | 'fireRate';
 
 /**
  * A single declarative effect. Authored at **max rank**; the engine scales the
  * value by the equipped rank. Effects with a `condition` only apply when that
  * condition is active in the combat state; `perStack` effects multiply `value`
  * by the current stack count.
+ *
+ * An effect feeds **exactly one** target: either an additive core `bucket` **or**
+ * a declared `multiplier` bucket id (ADR 0005). Bane/Roar name `multiplier:
+ * 'faction'`; arcanes name `multiplier: 'directDamage'`; Eclipse names its own
+ * `multiplier: 'eclipse'` bucket — all without touching the typed `Bucket` union.
  */
 export interface EffectDescriptor {
-  bucket: Bucket;
+  /** Additive core bucket (mutually exclusive with `multiplier`). */
+  bucket?: Bucket;
+  /** Declared multiplier-bucket id, e.g. `faction` | `directDamage` | `eclipse`
+   * (mutually exclusive with `bucket`). See `engine/model/buckets`. */
+  multiplier?: string;
   /** Value at max rank (or per stack when `perStack`). E.g. 1.65 = +165%. */
   value: number;
   /** Required for `elemental` / `physical` buckets. */

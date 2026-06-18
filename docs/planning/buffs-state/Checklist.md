@@ -7,81 +7,93 @@
 ## Phase A — Combat State & Buffs
 
 ### Registry
-- [ ] Add `STATE_REGISTRY` (`'toggle' | 'stack' | 'buff'`); each entry declares
-      control, group, `visibleWhen?`, and contribution.
-- [ ] Generalize `BUFF_REGISTRY` into `buff`-kind entries (allow non-frame-derived
-      magnitude + multiple bucket contributions).
-- [ ] Migrate `conditions` (incl. the inline Grineer toggle) and arcane-discovered
+- [x] Add `STATE_REGISTRY` (`'toggle' | 'stack' | 'buff'`); each entry declares
+      control, group, `visibleWhen?`, and contribution. → `engine/state/registry.ts`
+- [x] Generalize `BUFF_REGISTRY` into `buff`-kind entries (allow non-frame-derived
+      magnitude + multiple bucket contributions). → buff entries in `STATE_REGISTRY`;
+      `buffs.ts` now re-derives `getBuffDef`/`listBuffs`/`buffEffects` from it.
+- [x] Migrate `conditions` (incl. the inline Grineer toggle) and arcane-discovered
       `stacks` onto the registry; keep the three `CombatState` fields as runtime
-      values.
+      values. → Grineer toggle is a registry entry; arcane/mod stacks via
+      `discoverStackEntries`.
 
 ### Buckets / stacking (ADR 0005)
-- [ ] Split additive (typed `Bucket` union) vs multiplicative (declared
+- [x] Split additive (typed `Bucket` union) vs multiplicative (declared
       `MultiplierBucketDef` map); replace `BucketSums.faction/directDamage` with
-      `multipliers: Record<string,number>`.
-- [ ] `gather` folds buff contributions into `multipliers`;
+      `multipliers: Record<string,number>`. → `engine/model/buckets.ts`, `gather.ts`.
+- [x] `gather` folds buff contributions into `multipliers`;
       `conditionalMultiplierStage` multiplies the map in declared order (+ tests).
+      → `stages.ts`; `multiplierBuckets.test.ts`.
 
 ### Reference catalog (wiki-sourced, hand-verified)
-- [ ] Roar → faction bucket, additive with **Bane** (same-bucket-adds test).
-- [ ] **Eclipse** → new independent multiplier bucket (data-only) — ⚠️ verify
-      mechanics/cap vs wiki first.
-- [ ] **Galvanized Diffusion** → `perStack` into multishot (secondary weapon test)
-      — ⚠️ verify stack value/count.
-- [ ] Combo Count stack (existing) covered.
-- [ ] Record the **deferred catalog** list.
+- [x] Roar → faction bucket, additive with **Bane** (same-bucket-adds test). →
+      `multiplierBuckets.test.ts` (×1.8).
+- [x] **Eclipse** → new independent multiplier bucket (data-only). Verified vs wiki:
+      +100% at 100% Strength, its own multiplier, no damage-side cap
+      (`docs/warframe/abilities/eclipse.md`). Test: ×2.6 with Bane (independent).
+- [x] **Galvanized Diffusion** → `perStack` into multishot (secondary weapon test).
+      Verified: +110% base, +30%/stack ×4 (`docs/warframe/mods/galvanized-diffusion.md`).
+- [x] Combo Count stack (existing) covered. → registry slider + `combo.test.ts`.
+- [x] Record the **deferred catalog** list. → `DEFERRED_BUFF_CATALOG` in registry.
 
 ### UI
-- [ ] Registry-driven `ConfigMenu`: collapsible groups, text filter, per-kind
+- [x] Registry-driven `ConfigMenu`: collapsible groups, text filter, per-kind
       controls (stepper for stacks, slider for Combo), `visibleWhen` visibility.
-- [ ] Component tests for grouping, filter, and a frame-derived-vs-manual buff.
+- [x] Component tests for grouping, filter, and a frame-derived-vs-manual buff.
 
 ## Phase B — Target / Enemy
 
 ### Verify-first (refresh stale caches)
-- [ ] Re-verify & refresh `enemy-damage-modifiers.md` (faction tables, **enemy
-      armor DR formula**, level-scaling per stat, Steel Path multipliers).
-- [ ] Re-verify the **Overguard** level-scaling formula (cached transcription is
-      inconsistent); refresh `overguard.md`.
-- [ ] Confirm what **base level** the `@wfcd` enemy stats represent.
+- [x] Re-verify & refresh `enemy-damage-modifiers.md` (faction tables, **enemy
+      armor DR formula** `0.9×netArmor/2700` capped 90%, per-stat level scaling,
+      Steel Path ×2.5 hp/shield, +100 lvl). Refreshed 2026-06-18.
+- [x] Re-verify the **Overguard** level-scaling formula (now internally consistent);
+      refreshed `overguard.md`. Encoded in `overguardLevelScale` (coefficients
+      isolated for easy correction; Overguard quirks deferred).
+- [x] Confirm what **base level** the `@wfcd` enemy stats represent → **level 1**.
 
 ### Data
-- [ ] `scripts/build-enemies.mjs`: `@wfcd/items` Enemy.json → git-tracked
-      `src/data/generated/enemies.json` (all 638): base stats direct, faction
-      inferred from `uniqueName` (+ override map), layers from `resistances[]`.
+- [x] `scripts/build-enemies.mjs` (+ `npm run build:enemies`): `@wfcd/items`
+      Enemy.json → git-tracked `src/data/generated/enemies.json` (638 raw →
+      **479 unique**): base stats direct, faction inferred from `uniqueName`
+      segment (+ field fallbacks), armor subtype from `resistances[]`.
 
 ### Engine (`engine/target/`, pure)
-- [ ] `enemyArmorDR(netArmor)` (distinct from player `ARMOR_K`) + armor strip
-      (`netArmor = base × (1−strip)`) (+ tests).
-- [ ] `scaleEnemy(base, baseLevel, targetLevel)` per-stat curves + Steel Path
-      multipliers (+ tests vs wiki points).
-- [ ] `overguardLevelScale(level)`; Overguard pool absorbed first, face value,
+- [x] `enemyArmorDR(netArmor)` (distinct from player `ARMOR_K`) + `armorDamageMultiplier`
+      + armor strip `netArmorAfterStrip` (+ tests).
+- [x] `scaleEnemy` per-stat curves (faction-aware health/shield; unified armor) +
+      Steel Path (+ tests). `factions.ts` modifier table.
+- [x] `overguardLevelScale(level)`; Overguard pool absorbed first, face value,
       armor-ignored.
-- [ ] `applyTarget(intrinsic, target)`: faction mods → Shield (Toxin bypass /
-      Magnetic bonus) → armored Health → min-1 floor; Overguard pool first.
-- [ ] Outputs: effective damage/hit, effective DPS, **direct-only TTK**, enemy EHP,
+- [x] `applyTarget(intrinsic, target, enemy)`: faction mods → Shield (Toxin
+      bypass; Magnetic-vs-shield is a *status* effect → deferred with status DoT)
+      → armored Health → min-1 floor; Overguard pool first.
+- [x] Outputs: effective damage/hit, effective DPS, **direct-only TTK**, enemy EHP,
       status-application figures.
 
 ### UI (`ui/target/`)
-- [ ] `TargetState` on the store (+ actions), serializable.
-- [ ] Target panel: featured-preset picker (backed by full dataset) + overrides
+- [x] `TargetState` on the store (+ actions), serializable, undoable.
+- [x] Target panel: featured-preset picker (backed by full dataset) + overrides
       (level / Steel Path / armor-strip % / faction / Eximus) + custom block.
-- [ ] Effective-damage / DPS / TTK / enemy-EHP readout + status-application panel;
+- [x] Effective-damage / DPS / TTK / enemy-EHP readout + status-application panel;
       TTK labeled "excludes status DoT".
-- [ ] vs-target leave-one-out attribution as an optional second mode.
+- [x] vs-target leave-one-out attribution as an optional second mode
+      (`AttributionInput.scalarOf` → effective DPS).
 
 ### Carried over from Stage 3 (melee defers)
-- [ ] Sustained heavy-attack DPS: combo-rebuild loop (Normal-hit cadence at attack
-      speed + `comboCost`/`heavyEfficiency` + wind-up) → sustained heavy DPS feeding
-      TTK (+ tests).
-- [ ] Reach → enemy-count: derive swing target-count from Reach + enemy spacing;
-      feed the Follow-Through multi-target total (replaces manual `targetCount`)
-      (+ tests).
+- [x] Sustained heavy-attack DPS: combo-rebuild loop (`sustainedHeavyLoop`:
+      Normal-hit cadence at modified attack speed + `comboCost`/`heavyEfficiency`
+      + wind-up) → `result.heavyLoop` (+ tests).
+- [x] Reach → enemy-count: `reachTargetCount` derives swing target-count from
+      Reach + enemy spacing; feeds Follow-Through (supersedes manual `targetCount`
+      when a spacing is set) (+ tests).
 
 ### Reference cases
-- [ ] Vulkar Wraith vs **Charger** (raw/faction) — hand-computed test.
-- [ ] Kronen Prime vs **Bombard**, with/without armor strip — hand-computed test.
+- [x] Vulkar Wraith vs **Charger** (raw/faction) — hand-computed test.
+- [x] Kronen Prime vs **Bombard**, with/without armor strip — hand-computed test.
 
 ## Deferred (record, do not implement here)
-- [ ] Status-DoT-integrated TTK · Overguard damage-type quirks · Corrosive-proc
-      strip automation · wider buff catalog · enemy-facing damage abilities.
+- [x] Recorded: Status-DoT-integrated TTK · Overguard damage-type quirks (Void/
+      Magnetic amplification, faction/DoT on Overguard) · Magnetic-vs-shield bonus
+      (a status effect) · Corrosive-proc strip automation · wider buff catalog
+      (`DEFERRED_BUFF_CATALOG`) · enemy-facing damage abilities.

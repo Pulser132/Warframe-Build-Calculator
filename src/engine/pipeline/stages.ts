@@ -7,6 +7,7 @@
  */
 import type { DamageType } from '../model/types';
 import type { DamageMap, PipelineStage } from '../model/result';
+import { MULTIPLIER_BUCKETS, MULTIPLIER_BUCKET_ORDER } from '../model/buckets';
 import type { BucketSums } from './gather';
 import { combineElements } from './elements';
 
@@ -174,24 +175,37 @@ export function fireRateStage(
 }
 
 /**
- * Stage 6 — conditional multipliers (faction + direct/arcane). Each bucket is
- * additive within itself and applied as a separate multiplier: `1 + Σ`.
+ * Stage 6 — conditional multipliers (ADR 0005). Iterates the **declared**
+ * `MULTIPLIER_BUCKETS` in order: each bucket is additive within itself and
+ * applied as a separate multiplier `× (1 + Σ)`; the buckets multiply across each
+ * other. `combined` is the product fed into the final multiplier. A new
+ * independent multiplier category is a `MULTIPLIER_BUCKETS` entry — no change
+ * here.
  */
 export function conditionalMultiplierStage(sums: BucketSums): {
-  factionMultiplier: number;
-  directMultiplier: number;
+  /** Per-bucket `(1 + Σ)` factor, keyed by bucket id. */
+  multipliers: Record<string, number>;
+  /** Product of every multiplier bucket. */
+  combined: number;
   stage: PipelineStage;
 } {
-  const factionMultiplier = 1 + sums.faction;
-  const directMultiplier = 1 + sums.directDamage;
+  const multipliers: Record<string, number> = {};
+  let combined = 1;
+  const parts: string[] = [];
+  for (const id of MULTIPLIER_BUCKET_ORDER) {
+    const factor = 1 + (sums.multipliers[id] ?? 0);
+    multipliers[id] = factor;
+    combined *= factor;
+    if (factor !== 1) parts.push(`${MULTIPLIER_BUCKETS[id].label} ×${factor.toFixed(2)}`);
+  }
   return {
-    factionMultiplier,
-    directMultiplier,
+    multipliers,
+    combined,
     stage: {
       id: 'conditional',
-      label: 'Faction / Direct',
-      detail: `faction ×${factionMultiplier.toFixed(2)}, direct ×${directMultiplier.toFixed(2)}`,
-      value: factionMultiplier * directMultiplier,
+      label: 'Conditional Multipliers',
+      detail: parts.length ? parts.join(', ') : 'none active',
+      value: combined,
     },
   };
 }

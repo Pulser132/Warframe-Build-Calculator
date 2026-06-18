@@ -98,8 +98,22 @@ export interface DamageResult {
   followThrough?: FollowThroughResult;
   /** Reach / swing distance (m) — display-only metadata this stage. */
   reach?: number;
+  /** Reach-derived swing target count (Stage 5; present when an enemy spacing is set). */
+  reachTargets?: { count: number; spacing: number; reach: number };
+  /** Sustained heavy-attack DPS via the combo-rebuild loop (Stage 5; heavy modes). */
+  heavyLoop?: HeavyLoopResultRef;
   /** Combo String breakdown (Normal mode with a selected combo string). */
   comboString?: ComboStringResultRef;
+}
+
+/** Sustained heavy-attack loop result (computed by `pipeline/melee.sustainedHeavyLoop`). */
+export interface HeavyLoopResultRef {
+  sustainedDps: number;
+  comboConsumed: number;
+  rebuildHits: number;
+  loopSeconds: number;
+  normalHit: number;
+  heavyHit: number;
 }
 
 /** The combo-string result shape (computed by `pipeline/melee.comboStringBreakdown`). */

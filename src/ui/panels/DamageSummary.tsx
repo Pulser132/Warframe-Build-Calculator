@@ -121,9 +121,14 @@ export function DamageSummary({ result }: Props) {
           <div className={styles.grid}>
             <Stat label="Combo Count" value={`${result.comboCount ?? 0}`} />
             <Stat label="Multiplier" value={`${fmt(result.comboMultiplier, 0)}×`} accent />
+            {result.heavyLoop && (
+              <Stat label="Sustained Heavy DPS" value={fmt(result.heavyLoop.sustainedDps)} accent />
+            )}
           </div>
           <p className={styles.mechNote}>
             Heavy attacks scale with the Combo Counter; Normal attacks do not.
+            {result.heavyLoop &&
+              ` Sustained DPS rebuilds ${fmt(result.heavyLoop.rebuildHits, 0)} combo hits per heavy (loop ${fmt(result.heavyLoop.loopSeconds, 2)}s).`}
           </p>
         </div>
       )}
@@ -140,7 +145,11 @@ export function DamageSummary({ result }: Props) {
           </div>
           <p className={styles.mechNote}>
             The n-th enemy in the swing arc takes FT^(n−1) of the hit
-            {result.reach != null ? ` · reach ${fmt(result.reach, 1)} m` : ''}.
+            {result.reach != null ? ` · reach ${fmt(result.reach, 1)} m` : ''}
+            {result.reachTargets
+              ? ` · ${result.reachTargets.count} targets auto-derived from reach ÷ ${fmt(result.reachTargets.spacing, 1)} m spacing`
+              : ''}
+            .
           </p>
         </div>
       )}

@@ -65,7 +65,7 @@ describe('per-stack scaling — a per-stack effect scales with, and clamps to, t
   // Primary Merciless: +30% direct damage per stack, capped at 12 stacks.
   const merciless: ResolvedSource = {
     id: 'primary-merciless', label: 'Primary Merciless', kind: 'arcane', rank: 0, maxRank: 0,
-    effects: [{ bucket: 'directDamage', value: 0.3, perStack: true, maxStacks: 12, condition: 'arcane:primary-merciless' }],
+    effects: [{ multiplier: 'directDamage', value: 0.3, perStack: true, maxStacks: 12, condition: 'arcane:primary-merciless' }],
   };
   const withStacks = (n: number): CombatState => ({ ...EMPTY_COMBAT_STATE, stacks: { 'arcane:primary-merciless': n } });
 

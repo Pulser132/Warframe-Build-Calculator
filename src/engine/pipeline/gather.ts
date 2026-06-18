@@ -49,8 +49,12 @@ export interface BucketSums {
   critDamage: number;
   statusChance: number;
   fireRate: number;
-  faction: number;
-  directDamage: number;
+  /**
+   * Data-driven multiplier buckets (ADR 0005): `id → Σ members`. Each becomes an
+   * independent `× (1 + Σ)` multiplier; same id ⇒ members add. Replaces the old
+   * typed `faction`/`directDamage` fields. Declared in `MULTIPLIER_BUCKETS`.
+   */
+  multipliers: Record<string, number>;
 }
 
 /** Linear rank scaling: a mod at rank r gives `(r+1)/(maxRank+1)` of its max value. */
@@ -92,13 +96,17 @@ export function emptyBucketSums(): BucketSums {
     critDamage: 0,
     statusChance: 0,
     fireRate: 0,
-    faction: 0,
-    directDamage: 0,
+    multipliers: {},
   };
 }
 
 /** Fold a single (already-scaled) bucket value into the running sums. */
 function foldEffect(sums: BucketSums, effect: EffectDescriptor, value: number): void {
+  // Multiplier-bucket contribution (ADR 0005): same id ⇒ members add.
+  if (effect.multiplier) {
+    sums.multipliers[effect.multiplier] = (sums.multipliers[effect.multiplier] ?? 0) + value;
+    return;
+  }
   switch (effect.bucket) {
     case 'baseDamage':
       sums.baseDamage += value;
@@ -125,12 +133,6 @@ function foldEffect(sums: BucketSums, effect: EffectDescriptor, value: number): 
     case 'fireRate':
       sums.fireRate += value;
       break;
-    case 'faction':
-      sums.faction += value;
-      break;
-    case 'directDamage':
-      sums.directDamage += value;
-      break;
   }
 }
 
@@ -156,10 +158,11 @@ export function gatherBuckets(
       if (fn) {
         const produced = fn({ rank: source.rank, maxRank: source.maxRank, combat, build, setCounts });
         for (const effect of produced) {
-          // Weapon `gather` folds only damage descriptors; frame-stat effects
-          // (from shared set-bonus fns) carry `stat` instead of `bucket` and are
-          // handled by the frame resolver (ADR 0004).
-          if (!('bucket' in effect) || !effect.value) continue;
+          // Weapon `gather` folds only damage descriptors (an additive `bucket`
+          // or a `multiplier` bucket); frame-stat effects (from shared set-bonus
+          // fns) carry `stat` instead and are handled by the frame resolver
+          // (ADR 0004).
+          if (!('bucket' in effect || 'multiplier' in effect) || !effect.value) continue;
           foldEffect(sums, effect, effect.value);
         }
       }

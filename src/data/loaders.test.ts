@@ -46,10 +46,10 @@ describe('mod mapping — curated stats + authored descriptors', () => {
     });
   });
 
-  it('maps Bane of Grineer to a conditional faction multiplier', async () => {
+  it('maps Bane of Grineer to a conditional faction multiplier (ADR 0005)', async () => {
     const m = await loadMod('bane-of-grineer');
     expect(m!.effects).toEqual([
-      { bucket: 'faction', value: 0.3, condition: 'faction:grineer' },
+      { multiplier: 'faction', value: 0.3, condition: 'faction:grineer' },
     ]);
   });
 
@@ -74,11 +74,11 @@ describe('mod mapping — curated stats + authored descriptors', () => {
 });
 
 describe('arcane mapping', () => {
-  it('maps Primary Merciless to a per-stack directDamage effect', async () => {
+  it('maps Primary Merciless to a per-stack directDamage multiplier (ADR 0005)', async () => {
     const a = await loadArcane('primary-merciless');
     expect(a).toBeDefined();
     expect(a!.effects[0]).toMatchObject({
-      bucket: 'directDamage',
+      multiplier: 'directDamage',
       value: 0.3,
       perStack: true,
       maxStacks: 12,

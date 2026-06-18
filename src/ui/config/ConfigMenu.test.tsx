@@ -82,4 +82,48 @@ describe('ConfigMenu', () => {
     fireEvent.change(slider, { target: { value: slider.max } }); // full strength stacks
     expect(roarMagnitudePct()).toBeGreaterThan(before);
   });
+
+  // ── Stage 5: registry-driven groups, filter, kinds ──
+
+  it('groups rows into collapsible sections from the registry', () => {
+    render(<ConfigMenu />);
+    // The buff group + the enemy-conditional group are always present.
+    expect(screen.getByText(/Frame & ability buffs/i)).toBeInTheDocument();
+    expect(screen.getByText(/Enemy & conditionals/i)).toBeInTheDocument();
+    // Both render inside a collapsible <details>.
+    expect(screen.getByText(/Frame & ability buffs/i).closest('details')).toBeInTheDocument();
+  });
+
+  it('renders Eclipse as an independent-multiplier buff (new ADR-0005 bucket)', () => {
+    render(<ConfigMenu />);
+    expect(screen.getByRole('checkbox', { name: /Eclipse.*active/i })).toBeInTheDocument();
+  });
+
+  it('text filter narrows the visible rows', async () => {
+    const user = userEvent.setup();
+    render(<ConfigMenu />);
+    expect(screen.getByRole('checkbox', { name: /Roar.*active/i })).toBeInTheDocument();
+    await user.type(screen.getByLabelText(/filter combat state/i), 'eclipse');
+    // Roar is filtered out; Eclipse remains.
+    expect(screen.queryByRole('checkbox', { name: /Roar.*active/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: /Eclipse.*active/i })).toBeInTheDocument();
+  });
+
+  it('shows a manual-magnitude input for a buff with no frame source (Eclipse)', () => {
+    // No Mirage / eclipse scaling in the dataset → Eclipse is manual-magnitude.
+    render(<ConfigMenu />);
+    expect(screen.getByLabelText(/Eclipse.*manual magnitude/i)).toBeInTheDocument();
+    // Roar IS frame-derived (Rhino Prime) → no manual input, shows the frame hint.
+    expect(screen.queryByLabelText(/Roar.*manual magnitude/i)).not.toBeInTheDocument();
+  });
+
+  it('renders discovered stacks as a stepper (Primary Merciless)', async () => {
+    const user = userEvent.setup();
+    store().assignMod(10, 'primary-merciless');
+    render(<ConfigMenu />);
+    const input = screen.getByLabelText(/Primary Merciless stacks/i) as HTMLInputElement;
+    expect(input).toHaveAttribute('type', 'number');
+    await user.click(screen.getByRole('button', { name: /increase Primary Merciless/i }));
+    expect(Number(input.value)).toBe(1);
+  });
 });

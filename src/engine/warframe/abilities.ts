@@ -24,6 +24,9 @@ export interface AbilityBuffMapping {
 
 export const ABILITY_BUFFS: readonly AbilityBuffMapping[] = [
   { abilityId: 'roar', buffId: 'roar', scaling: 'strength' },
+  // Mirage's Eclipse (Solar side). Frame-derived when Mirage + eclipse scaling
+  // are in the dataset; otherwise the buff falls back to its manual magnitude.
+  { abilityId: 'eclipse', buffId: 'eclipse', scaling: 'strength' },
 ];
 
 /** Buff mappings emitted by an ability id. */

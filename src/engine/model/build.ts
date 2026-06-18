@@ -76,8 +76,12 @@ export interface CombatState {
   stacks: Record<string, number>;
   /** Active Emitted-Buff toggles (Roar-style); magnitude is frame-derived. */
   buffs: BuffState[];
-  /** Number of enemies in a melee swing arc (Follow-Through extra). Default 1. */
+  /** Number of enemies in a melee swing arc (Follow-Through extra). Default 1.
+   * Superseded by the reach-derived count when `enemySpacing` is set (Stage 5). */
   targetCount?: number;
+  /** Enemy-spacing assumption (m). When set, the melee swing's target count is
+   * derived from Reach (`reachTargetCount`) instead of the manual `targetCount`. */
+  enemySpacing?: number;
 }
 
 export const EMPTY_COMBAT_STATE: CombatState = {

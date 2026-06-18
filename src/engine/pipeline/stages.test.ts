@@ -118,7 +118,7 @@ describe('conditional-multiplier stage', () => {
   it('adds within the faction bucket then multiplies (Bane +30% + Roar +50% = ×1.8)', () => {
     const roar: ResolvedSource = {
       id: 'roar', label: 'Roar', kind: 'buff', rank: 0, maxRank: 0,
-      effects: [{ bucket: 'faction', value: 0.5 }],
+      effects: [{ multiplier: 'faction', value: 0.5 }],
     };
     const grineer: CombatState = { ...EMPTY_COMBAT_STATE, conditions: { 'faction:grineer': true } };
     const off = calculateBuild({ weapon: gun, sources: [], combat: EMPTY_COMBAT_STATE });

@@ -6,11 +6,11 @@
  */
 import { useMemo } from 'react';
 import { createMemoizedCalc } from '@engine';
-import type { DamageResult, WarframeStats } from '@engine';
+import type { DamageResult, WarframeStats, TargetResult, Contribution, EnemyData } from '@engine';
 import type { GearBuild } from '@engine/model/build';
 import type { WarframeData, WeaponData } from '@engine/model/types';
 import { useBuildStore } from './store';
-import { computeResult, resolveFrameStats } from './resolve';
+import { computeResult, computeTargetResult, resolveFrameStats } from './resolve';
 import { computeCapacity, type CapacityInfo } from './capacity';
 
 const sharedCalc = createMemoizedCalc(128);
@@ -28,6 +28,45 @@ export function useDamageResult(): DamageResult | null {
         : null,
     [build, combat, dataset, activeMode, activeComboString],
   );
+}
+
+/**
+ * The post-intrinsic Target result (effective dmg / DPS / TTK / EHP). When
+ * `withAttribution` is true, also returns the vs-target contributions.
+ */
+export function useTargetResult(withAttribution = false): {
+  intrinsic: DamageResult;
+  result: TargetResult;
+  contributions?: Contribution[];
+} | null {
+  const build = useBuildStore((s) => s.build);
+  const combat = useBuildStore((s) => s.combat);
+  const target = useBuildStore((s) => s.target);
+  const dataset = useBuildStore((s) => s.dataset);
+  const activeMode = useBuildStore((s) => s.activeMode);
+  const activeComboString = useBuildStore((s) => s.activeComboString);
+  return useMemo(
+    () =>
+      dataset
+        ? computeTargetResult(
+            build,
+            combat,
+            target,
+            dataset,
+            activeMode,
+            sharedCalc,
+            activeComboString,
+            withAttribution,
+          )
+        : null,
+    [build, combat, target, dataset, activeMode, activeComboString, withAttribution],
+  );
+}
+
+/** The loaded enemy dataset (for the Target picker). */
+export function useEnemies(): EnemyData[] {
+  const dataset = useBuildStore((s) => s.dataset);
+  return dataset?.enemies ?? [];
 }
 
 /** The currently-equipped weapon's curated data (or null). */

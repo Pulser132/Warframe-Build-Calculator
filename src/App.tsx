@@ -8,6 +8,7 @@ import {
   PipelineChain,
   ConfigMenu,
   FramePanel,
+  TargetPanel,
 } from '@ui';
 import styles from './App.module.css';
 
@@ -59,6 +60,7 @@ export function App() {
             </div>
             <aside className={styles.sidebar}>
               <ConfigMenu />
+              <TargetPanel />
             </aside>
           </div>
         </main>

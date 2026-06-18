@@ -6,3 +6,4 @@ export * from './components';
 export { ModdingScreen } from './gear';
 export * from './panels';
 export { ConfigMenu } from './config';
+export { TargetPanel } from './target';

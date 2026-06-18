@@ -12,7 +12,17 @@ import { create } from 'zustand';
 import type { Build, GearBuild, CombatState, SlotState, Compartment } from '@engine/model/build';
 import { EMPTY_COMBAT_STATE } from '@engine/model/build';
 import type { ModData, Polarity } from '@engine/model/types';
+import type { TargetState } from '@engine/target/types';
 import type { Dataset } from '@data/loaders';
+
+/** Default Target (Stage 5): a Charger — pure health, the clean baseline. */
+export const DEFAULT_TARGET_STATE: TargetState = {
+  enemyId: 'charger',
+  level: 1,
+  steelPath: false,
+  armorStripPct: 0,
+  overguard: false,
+};
 import { makeInitialBuild, makeWarframeBuild } from './initialBuild';
 import { slotAccepts } from './slotRules';
 import { gearModGroup, modMatchesGroup, arcaneMatchesGroup } from './modCompat';
@@ -20,12 +30,15 @@ import { gearModGroup, modMatchesGroup, arcaneMatchesGroup } from './modCompat';
 interface Snapshot {
   build: Build;
   combat: CombatState;
+  target: TargetState;
 }
 
 export interface BuildStore {
   dataset: Dataset | null;
   build: Build;
   combat: CombatState;
+  /** Target / Enemy configuration (Stage 5, Phase B). Serializable for Stage 8. */
+  target: TargetState;
   /** Which compartment the modding screen edits (ADR 0003). */
   activeCompartment: Compartment;
   /** Active fire-mode name (`null` = the weapon's primary mode). */
@@ -62,6 +75,27 @@ export interface BuildStore {
   setBuffManual: (id: string, manualMagnitude: number | null) => void;
   /** Set the melee Follow-Through target count (1 = single-target). */
   setTargetCount: (n: number) => void;
+  /** Set the enemy-spacing assumption (m); 0/undefined → manual target count
+   * is used instead of the reach-derived count (Stage 5, decision 19). */
+  setEnemySpacing: (m: number | null) => void;
+
+  // ── Target / Enemy (Stage 5, Phase B) ──
+  /** Select the targeted enemy (or `'custom'` for the manual block). */
+  selectEnemy: (enemyId: string) => void;
+  /** Set the target enemy level (1–9999). */
+  setTargetLevel: (level: number) => void;
+  /** Toggle Steel Path (+100 levels + SP stat multipliers). */
+  setSteelPath: (on: boolean) => void;
+  /** Set the armor-strip fraction (0..1). */
+  setArmorStrip: (pct: number) => void;
+  /** Override (or clear, with `null`) the target's faction. */
+  setFactionOverride: (faction: string | null) => void;
+  /** Toggle the Eximus / Overguard pool. */
+  toggleOverguard: (on?: boolean) => void;
+  /** Patch the custom (manual) target stat block. */
+  setCustomTarget: (patch: Partial<TargetState['custom']>) => void;
+  /** Apply a featured-preset Target in one shot (enemy + overrides). */
+  applyTargetPreset: (preset: Partial<TargetState> & { enemyId: string }) => void;
 
   undo: () => void;
   redo: () => void;
@@ -88,14 +122,15 @@ function itemKindOf(itemId: string, dataset: Dataset): SlotState['kind'] | null 
 }
 
 export const useBuildStore = create<BuildStore>((set, get) => {
-  /** Apply a build/combat mutation, snapshotting current state for undo. */
+  /** Apply a build/combat/target mutation, snapshotting current state for undo. */
   const commit = (next: Partial<Snapshot>) => {
-    const { build, combat, past } = get();
+    const { build, combat, target, past } = get();
     set({
-      past: [...past, { build, combat }],
+      past: [...past, { build, combat, target }],
       future: [],
       build: next.build ?? build,
       combat: next.combat ?? combat,
+      target: next.target ?? target,
     });
   };
 
@@ -122,6 +157,7 @@ export const useBuildStore = create<BuildStore>((set, get) => {
     dataset: null,
     build: EMPTY_BUILD,
     combat: EMPTY_COMBAT_STATE,
+    target: DEFAULT_TARGET_STATE,
     activeCompartment: 'weapon',
     activeMode: null,
     activeComboString: null,
@@ -135,6 +171,7 @@ export const useBuildStore = create<BuildStore>((set, get) => {
         dataset,
         build: weapon ? makeInitialBuild(weapon, frame) : EMPTY_BUILD,
         combat: EMPTY_COMBAT_STATE,
+        target: DEFAULT_TARGET_STATE,
         activeCompartment: 'weapon',
         activeMode: null,
         activeComboString: null,
@@ -248,27 +285,92 @@ export const useBuildStore = create<BuildStore>((set, get) => {
       commit({ combat: { ...combat, targetCount: Math.max(1, Math.floor(n)) } });
     },
 
+    setEnemySpacing: (m) => {
+      const { combat } = get();
+      const next = { ...combat };
+      if (m === null || m <= 0) delete next.enemySpacing;
+      else next.enemySpacing = m;
+      commit({ combat: next });
+    },
+
+    // ── Target / Enemy (Stage 5, Phase B) ──
+    selectEnemy: (enemyId) => {
+      const { target } = get();
+      commit({ target: { ...target, enemyId } });
+    },
+
+    setTargetLevel: (level) => {
+      const { target } = get();
+      commit({ target: { ...target, level: Math.max(1, Math.min(9999, Math.floor(level))) } });
+    },
+
+    setSteelPath: (on) => {
+      const { target } = get();
+      commit({ target: { ...target, steelPath: on } });
+    },
+
+    setArmorStrip: (pct) => {
+      const { target } = get();
+      commit({ target: { ...target, armorStripPct: Math.max(0, Math.min(1, pct)) } });
+    },
+
+    setFactionOverride: (faction) => {
+      const { target } = get();
+      const next = { ...target };
+      if (faction === null) delete next.factionOverride;
+      else next.factionOverride = faction;
+      commit({ target: next });
+    },
+
+    toggleOverguard: (on) => {
+      const { target } = get();
+      commit({ target: { ...target, overguard: on ?? !target.overguard } });
+    },
+
+    setCustomTarget: (patch) => {
+      const { target } = get();
+      commit({ target: { ...target, custom: { ...target.custom, ...patch } } });
+    },
+
+    applyTargetPreset: (preset) => {
+      const { target } = get();
+      // A preset replaces the enemy + its overrides but keeps the level/strip the
+      // user dialed in unless the preset states them.
+      commit({
+        target: {
+          ...target,
+          steelPath: false,
+          overguard: false,
+          armorStripPct: target.armorStripPct,
+          factionOverride: undefined,
+          ...preset,
+        },
+      });
+    },
+
     undo: () => {
-      const { past, future, build, combat } = get();
+      const { past, future, build, combat, target } = get();
       if (past.length === 0) return;
       const prev = past[past.length - 1];
       set({
         past: past.slice(0, -1),
-        future: [{ build, combat }, ...future],
+        future: [{ build, combat, target }, ...future],
         build: prev.build,
         combat: prev.combat,
+        target: prev.target,
       });
     },
 
     redo: () => {
-      const { past, future, build, combat } = get();
+      const { past, future, build, combat, target } = get();
       if (future.length === 0) return;
       const next = future[0];
       set({
-        past: [...past, { build, combat }],
+        past: [...past, { build, combat, target }],
         future: future.slice(1),
         build: next.build,
         combat: next.combat,
+        target: next.target,
       });
     },
 

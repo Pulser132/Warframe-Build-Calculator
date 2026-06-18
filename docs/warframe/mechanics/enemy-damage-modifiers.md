@@ -1,7 +1,10 @@
 # Enemy Damage Modifiers & Raw Damage Testing Guide
 
-**Source:** https://wiki.warframe.com/w/Damage (Update 36.0+, 2024-06-18)  
-**Last verified:** 2024-06-18
+**Source:** https://wiki.warframe.com/w/Damage (Update 36.0+)  
+**Armor:** https://wiki.warframe.com/w/Armor  
+**Enemy Level Scaling:** https://wiki.warframe.com/w/Enemy_Level_Scaling  
+**Steel Path:** https://wiki.warframe.com/w/Steel_Path  
+**Last verified:** 2026-06-18
 
 ---
 
@@ -99,12 +102,22 @@
 
 **Enemy armor damage reduction formula:**
 ```
-DR = 90% × NetArmor / 2700
+DR = 90% × (NetArmor / 2700)
+Damage Multiplier = 1 − DR = 1 − (0.9 × NetArmor / 2700) = 1 − (NetArmor / 3000)
 ```
 
-Example: Lancer with 100 armor:
-- DR = 0.90 × 100 / 2700 = 0.0333 = 3.33% reduction
-- Displayed damage = raw damage × (1 − 0.0333) ≈ raw × 0.967
+Alternatively:
+```
+Damage Multiplier = 300 / (300 + NetArmor)
+```
+
+Example: Enemy with 500 armor:
+- DR = 0.9 × (500 / 2700) = 0.9 × 0.1852 = 16.67% reduction
+- Damage Multiplier = 1 − 0.1667 = 0.833 (83.3% of damage gets through)
+- A weapon dealing 100 raw damage inflicts ~83.3 damage to shields/health
+
+**Armor cap:** Hard-capped at 2700 armor value (90% damage reduction = 10% multiplier).  
+**Minimum armor:** New enemies start with a minimum of 200 armor.
 
 **Key: Armor is FACTION-AGNOSTIC.** It does not interact with damage types; it uniformly reduces all incoming damage.
 
@@ -138,6 +151,76 @@ Each damage type has a minimum damage of 1 per hit. This means:
 | **Finisher** | Applies via finishers only | Ignores armor; neutral to all factions (+1.0×) |
 | **Void** | Operator/Xaku ability | Vulnerable to Zariman faction only; neutral to all others |
 | **Slash Status** | Applied via Slash proc | Ignores armor; neutral modifiers. Bypasses shields (→ health). |
+
+---
+
+## Enemy Level Scaling (Piecewise Formulas)
+
+**General pattern:** `Current Stat = Base Stat × (1 + Coefficient × (CurrentLevel − BaseLevel)^Exponent)`
+
+All enemy stats scale using piecewise functions with smooth interpolation (smoothstep) between transitions at level difference 70–80.
+
+### Health Scaling
+
+**Grineer and Scaldra:**
+- Levels 0–70 difference: `multiplier = 1 + 0.015 × (level_diff)^2.12`
+- Levels 70–80: Smooth interpolation (smoothstep)
+- Levels 80+: `multiplier = 1 + 10.7332 × (level_diff)^0.72`
+
+**Corpus:**
+- Levels 0–70 difference: `multiplier = 1 + 0.015 × (level_diff)^2.12`
+- Levels 70–80: Smooth interpolation
+- Levels 80+: `multiplier = 1 + 13.4165 × (level_diff)^0.55`
+
+### Shield Scaling
+
+**Corpus:**
+- Levels 0–70: `multiplier = 1 + 0.02 × (level_diff)^1.76`
+- Levels 70–80: Smooth interpolation
+- Levels 80+: `multiplier = 1 + 2 × (level_diff)^0.76`
+
+**Grineer and Sentient:**
+- Levels 0–70: `multiplier = 1 + 0.02 × (level_diff)^1.75`
+- Levels 70–80: Smooth interpolation
+- Levels 80+: `multiplier = 1 + 1.6 × (level_diff)^0.75`
+
+### Armor Scaling
+
+**All factions (unified formula):**
+- Levels 0–70 difference: `multiplier = 1 + 0.005 × (level_diff)^1.75`
+- Levels 70–80: Smooth interpolation
+- Levels 80+: `multiplier = 1 + 0.4 × (level_diff)^0.75`
+- **Hard cap:** 2700 armor (90% damage reduction)
+- **Minimum initial:** 200 armor
+
+### Level Scaling Example (Grineer, Base Level 1 → Level 100)
+
+Level difference = 99 (exceeds 80 threshold, use high-level formulas):
+
+| Stat | Calculation | Result |
+|---|---|---|
+| Health | `1 + 10.7332 × (99)^0.72` | ≈ `1 + 10.7332 × 31.6` ≈ **340×** |
+| Shield | `1 + 1.6 × (99)^0.75` | ≈ `1 + 1.6 × 18.9` ≈ **31×** |
+| Armor | `1 + 0.4 × (99)^0.75` | ≈ `1 + 0.4 × 18.9` ≈ **8.5×** |
+
+**Base level of @wfcd Enemy.json stats:** Level 1 (standard Warframe convention).
+
+---
+
+## Steel Path Enemy Modifiers
+
+Steel Path enemies receive stat multipliers and a level offset:
+
+| Stat/Offset | Multiplier | Notes |
+|---|---|---|
+| **Health** | 2.5× (150% increase) | Missions on Steel Path use this multiplier |
+| **Shields** | 2.5× (150% increase) | Corrected in Update 36.0 (was 6.25×, unintentionally doubled) |
+| **Armor** | 1.0× (no change) | Armor is NOT increased on Steel Path (changed in Update 36.0) |
+| **Level offset (standard missions)** | +100 levels | Effective enemy level = base + 100 |
+| **Level offset (Archwing/Railjack)** | +50 levels | — |
+| **Level offset (Duviri landscape)** | +20 levels | — |
+
+**Steel Path interaction with scaling:** Apply the level offset first (e.g., level 1 enemy becomes level 101), then apply stat multipliers, then apply level-scaling formula.
 
 ---
 
