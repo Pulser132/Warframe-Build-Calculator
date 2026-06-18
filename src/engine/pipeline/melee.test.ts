@@ -1,27 +1,55 @@
-import { describe, it, expect } from 'vitest';
-import { followThroughTotal, comboStringBreakdown } from './melee';
+import { describe, it, expect, beforeAll } from 'vitest';
+import { loadWeapon } from '../../data/loaders';
+import { EMPTY_COMBAT_STATE, type CombatState } from '../model/build';
+import { createWeapon } from '../gear/factory';
+import { Melee } from '../gear/melee';
+import { calculateBuild, type CalcWeapon } from './calculate';
 import type { ComboString } from '../model/firemode';
 
-describe('follow-through multi-target total', () => {
-  it('single target is just the hit', () => {
-    expect(followThroughTotal(100, 0.6, 1)).toBe(100);
+/**
+ * Melee multi-target / stance-sequence extras observed through `calculateBuild`:
+ * Follow-Through's geometric falloff across a swing arc (`result.followThrough`)
+ * and the Combo String per-hit breakdown on the Normal mode (`result.comboString`).
+ */
+
+let kronen: Melee;
+
+beforeAll(async () => {
+  kronen = createWeapon((await loadWeapon('kronen-prime'))!) as Melee;
+});
+
+const cs = (count = 0): CombatState => ({ ...EMPTY_COMBAT_STATE, stacks: { combo: count } });
+
+describe('Follow-Through across a swing arc', () => {
+  it('falls off geometrically by the Follow-Through factor (Kronen 0.6, 3 targets)', () => {
+    const r = calculateBuild({ weapon: kronen, sources: [], combat: cs(), targetCount: 3 });
+    const ft = r.followThrough!;
+    expect(ft.factor).toBeCloseTo(0.6, 4);
+    // total = hit × (1 + 0.6 + 0.36) = 1.96 × singleTarget; per-target = hit × 0.6^k.
+    expect(ft.total / ft.singleTarget).toBeCloseTo(1 + 0.6 + 0.36, 6);
+    expect(ft.perTarget[1] / ft.singleTarget).toBeCloseTo(0.6, 6);
+    expect(ft.perTarget[2] / ft.singleTarget).toBeCloseTo(0.36, 6);
   });
 
-  it('geometric sum for n targets (FT = 0.6)', () => {
-    // 100 × (1 + 0.6 + 0.36) = 196 for 3 targets (docs/.../follow-through.md).
-    expect(followThroughTotal(100, 0.6, 3)).toBeCloseTo(196, 6);
+  it('with no reduction (FT = 1) every target takes the full hit', () => {
+    const weapon: CalcWeapon = { id: kronen.id, primaryFireMode: kronen.fireMode('Normal Attack'), followThrough: 1 };
+    const r = calculateBuild({ weapon, sources: [], combat: cs(), targetCount: 4 });
+    expect(r.followThrough!.total / r.followThrough!.singleTarget).toBeCloseTo(4, 6);
   });
 
-  it('FT = 1 (no reduction) → n × hit', () => {
-    expect(followThroughTotal(50, 1, 4)).toBe(200);
+  it('with total reduction (FT = 0) only the first target is hit', () => {
+    const weapon: CalcWeapon = { id: kronen.id, primaryFireMode: kronen.fireMode('Normal Attack'), followThrough: 0 };
+    const r = calculateBuild({ weapon, sources: [], combat: cs(), targetCount: 4 });
+    expect(r.followThrough!.total).toBeCloseTo(r.followThrough!.singleTarget, 6);
   });
 
-  it('FT = 0 → only the first target', () => {
-    expect(followThroughTotal(50, 0, 4)).toBe(50);
+  it('no Follow-Through extra for a single target', () => {
+    const r = calculateBuild({ weapon: kronen, sources: [], combat: cs(), targetCount: 1 });
+    expect(r.followThrough).toBeUndefined();
   });
 });
 
-describe('combo-string breakdown', () => {
+describe('Combo String breakdown (Normal mode)', () => {
   const combo: ComboString = {
     name: 'Test Combo',
     stance: 'Test Stance',
@@ -32,19 +60,31 @@ describe('combo-string breakdown', () => {
     ],
   };
 
-  it('expands repeated hits and computes total / average / dps', () => {
-    // baseHit 100, attackSpeed 2/s. Hits: 200, 50, 50, 300 = 600 over 4 hits.
-    const r = comboStringBreakdown(combo, 100, 2);
-    expect(r.hitCount).toBe(4);
-    expect(r.perHit).toEqual([200, 50, 50, 300]);
-    expect(r.totalDamage).toBe(600);
-    expect(r.averagePerHit).toBeCloseTo(150, 6);
-    expect(r.durationSeconds).toBeCloseTo(4 / 2, 6); // 2s
-    expect(r.dps).toBeCloseTo(600 / 2, 6); // 300
+  it('expands repeated hits and scales each by the Normal hit', () => {
+    const normal = kronen.fireMode('Normal Attack');
+    const plain = calculateBuild({ weapon: kronen, sources: [], combat: cs(), mode: normal });
+    const baseHit = plain.avgHitPerShot;
+
+    const r = calculateBuild({ weapon: kronen, sources: [], combat: cs(), mode: { ...normal, comboString: combo } });
+    const cb = r.comboString!;
+    expect(cb.hitCount).toBe(4); // 1 + 2 (repeated) + 1
+    // Per hit = baseHit × the hit's multiplier, in order [2, 0.5, 0.5, 3].
+    [2, 0.5, 0.5, 3].forEach((m, i) => expect(cb.perHit[i] / baseHit).toBeCloseTo(m, 6));
+    expect(cb.totalDamage / baseHit).toBeCloseTo(6, 6); // 2 + 0.5 + 0.5 + 3
+    expect(cb.averagePerHit / baseHit).toBeCloseTo(6 / 4, 6);
   });
 
-  it('collects forced procs across hits', () => {
-    const r = comboStringBreakdown(combo, 100, 2);
-    expect(r.forcedProcs).toContain('impact');
+  it('derives duration and DPS from the attack speed', () => {
+    const normal = kronen.fireMode('Normal Attack');
+    const r = calculateBuild({ weapon: kronen, sources: [], combat: cs(), mode: { ...normal, comboString: combo } });
+    const cb = r.comboString!;
+    expect(cb.durationSeconds).toBeCloseTo(4 / r.fireRate, 6); // hitCount / attacks-per-sec
+    expect(cb.dps).toBeCloseTo(cb.totalDamage / cb.durationSeconds, 4);
+  });
+
+  it('collects forced procs across the sequence', () => {
+    const normal = kronen.fireMode('Normal Attack');
+    const r = calculateBuild({ weapon: kronen, sources: [], combat: cs(), mode: { ...normal, comboString: combo } });
+    expect(r.comboString!.forcedProcs).toContain('impact');
   });
 });

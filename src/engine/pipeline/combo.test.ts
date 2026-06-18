@@ -1,54 +1,69 @@
-import { describe, it, expect } from 'vitest';
-import {
-  comboTier,
-  comboMultiplier,
-  comboCount,
-  comboTierFromState,
-  comboMultiplierFromState,
-  MAX_COMBO_MULTIPLIER,
-  MAX_COMBO_TIER,
-} from './combo';
-import { EMPTY_COMBAT_STATE } from '../model/build';
+import { describe, it, expect, beforeAll } from 'vitest';
+import { loadWeapon } from '../../data/loaders';
+import { EMPTY_COMBAT_STATE, type CombatState } from '../model/build';
+import { createWeapon } from '../gear/factory';
+import { Melee } from '../gear/melee';
+import { calculateBuild } from './calculate';
 
-describe('combo counter math', () => {
-  it('tier is floor(count / 20)', () => {
-    expect(comboTier(0)).toBe(0);
-    expect(comboTier(19)).toBe(0);
-    expect(comboTier(20)).toBe(1);
-    expect(comboTier(39)).toBe(1);
-    expect(comboTier(40)).toBe(2);
-    expect(comboTier(60)).toBe(3);
-    expect(comboTier(100)).toBe(5);
+/**
+ * Combo Multiplier behavior, observed through `calculateBuild` on the Kronen Prime
+ * Heavy attack: the multiplier follows the wiki breakpoints (1 + floor(count/20),
+ * capped at 12×), multiplies Heavy damage only — never Normal — and is reported
+ * alongside the raw Combo Count it derived from.
+ */
+
+let kronen: Melee;
+
+beforeAll(async () => {
+  kronen = createWeapon((await loadWeapon('kronen-prime'))!) as Melee;
+});
+
+/** Combat state with a given raw Combo Count. */
+function cs(count: number): CombatState {
+  return { ...EMPTY_COMBAT_STATE, stacks: { combo: count } };
+}
+
+/** Combo Multiplier reported for a Heavy attack at the given Combo Count. */
+function heavyMult(count: number): number {
+  const r = calculateBuild({ weapon: kronen, sources: [], combat: cs(count), mode: kronen.fireMode('Heavy Attack') });
+  return r.comboMultiplier!;
+}
+
+describe('Combo Multiplier (Heavy attacks)', () => {
+  it('is 1 + floor(count/20) across the wiki breakpoints', () => {
+    // docs/warframe/mechanics/melee-combo.md: 20→2×, 40→3×, 60→4×, 100→6×, 220→12×.
+    expect(heavyMult(0)).toBe(1);
+    expect(heavyMult(20)).toBe(2);
+    expect(heavyMult(40)).toBe(3);
+    expect(heavyMult(60)).toBe(4);
+    expect(heavyMult(100)).toBe(6);
+    expect(heavyMult(220)).toBe(12);
   });
 
-  it('multiplier is 1 + tier, matching the wiki breakpoints', () => {
-    // docs/warframe/mechanics/melee-combo.md: 20→2x, 40→3x, 60→4x, 100→6x, 220→12x.
-    expect(comboMultiplier(0)).toBe(1);
-    expect(comboMultiplier(20)).toBe(2);
-    expect(comboMultiplier(40)).toBe(3);
-    expect(comboMultiplier(60)).toBe(4);
-    expect(comboMultiplier(100)).toBe(6);
-    expect(comboMultiplier(220)).toBe(12);
+  it('caps at 12× for 220+ hits', () => {
+    expect(heavyMult(220)).toBe(12);
+    expect(heavyMult(500)).toBe(12);
   });
 
-  it('caps the multiplier at 12x (tier at 11) for 220+ hits', () => {
-    expect(comboTier(220)).toBe(MAX_COMBO_TIER);
-    expect(comboTier(500)).toBe(MAX_COMBO_TIER);
-    expect(comboMultiplier(220)).toBe(MAX_COMBO_MULTIPLIER);
-    expect(comboMultiplier(1000)).toBe(MAX_COMBO_MULTIPLIER);
+  it('clamps negative and fractional counts', () => {
+    expect(heavyMult(-5)).toBe(1); // count floored to 0 → tier 0
+    expect(heavyMult(25.9)).toBe(2); // floor 25 → tier 1
   });
 
-  it('clamps negative / fractional counts', () => {
-    expect(comboTier(-5)).toBe(0);
-    expect(comboMultiplier(-5)).toBe(1);
-    expect(comboTier(25.9)).toBe(1);
+  it('reports the raw Combo Count it derived the multiplier from', () => {
+    const r = calculateBuild({ weapon: kronen, sources: [], combat: cs(60), mode: kronen.fireMode('Heavy Attack') });
+    expect(r.comboCount).toBe(60);
   });
 
-  it('reads the count from combat state stacks.combo', () => {
-    const combat = { ...EMPTY_COMBAT_STATE, stacks: { combo: 60 } };
-    expect(comboCount(combat)).toBe(60);
-    expect(comboTierFromState(combat)).toBe(3);
-    expect(comboMultiplierFromState(combat)).toBe(4);
-    expect(comboCount(EMPTY_COMBAT_STATE)).toBe(0);
+  it('multiplies Heavy damage by the multiplier', () => {
+    const at0 = calculateBuild({ weapon: kronen, sources: [], combat: cs(0), mode: kronen.fireMode('Heavy Attack') });
+    const at60 = calculateBuild({ weapon: kronen, sources: [], combat: cs(60), mode: kronen.fireMode('Heavy Attack') });
+    expect(at60.avgHitPerShot).toBeCloseTo(at0.avgHitPerShot * 4, 4);
+  });
+
+  it('never applies to Normal attacks', () => {
+    const normal = calculateBuild({ weapon: kronen, sources: [], combat: cs(60) });
+    expect(normal.comboMultiplier).toBeUndefined();
+    expect(normal.comboCount).toBeUndefined();
   });
 });

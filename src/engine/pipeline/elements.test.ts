@@ -1,41 +1,91 @@
-import { describe, it, expect } from 'vitest';
-import { combineElements } from './elements';
+import { describe, it, expect, beforeAll } from 'vitest';
+import { loadWeapon } from '../../data/loaders';
+import { EMPTY_COMBAT_STATE } from '../model/build';
+import { createWeapon } from '../gear/factory';
+import type { Gun } from '../gear/weapon';
+import type { DamageType } from '../model/types';
+import { calculateBuild } from './calculate';
+import type { ResolvedSource } from './gather';
 
-describe('combineElements', () => {
-  it('combines Toxin + Electricity into Corrosive (slice case)', () => {
-    const out = combineElements([
-      { type: 'toxin', amount: 31.5 },
-      { type: 'electricity', amount: 31.5 },
-    ]);
-    expect(out).toEqual({ corrosive: 63 });
+/**
+ * Elemental combination, observed through `calculateBuild`'s `perType` output:
+ * two base elements fuse into their compound (in mod load order), and the raw
+ * components disappear from the breakdown. Driven with elemental sources on the
+ * Vulkar Wraith so the rule is asserted where the user actually sees it.
+ */
+
+let gun: Gun;
+
+beforeAll(async () => {
+  gun = createWeapon((await loadWeapon('vulkar-wraith'))!) as Gun;
+});
+
+/** A +element source contributing `amount × base` of one base element. */
+function element(type: DamageType, amount = 0.5): ResolvedSource {
+  return {
+    id: `+${type}`, label: type, kind: 'mod', rank: 0, maxRank: 0,
+    effects: [{ bucket: 'elemental', element: type, value: amount }],
+  };
+}
+
+function perTypeOf(...sources: ResolvedSource[]) {
+  return calculateBuild({ weapon: gun, sources, combat: EMPTY_COMBAT_STATE }).perType;
+}
+
+describe('elemental combination (via perType)', () => {
+  it('fuses Toxin + Electricity into Corrosive and drops the raw elements', () => {
+    const pt = perTypeOf(element('toxin'), element('electricity'));
+    expect(pt.corrosive).toBeDefined();
+    expect(pt.toxin).toBeUndefined();
+    expect(pt.electricity).toBeUndefined();
   });
 
-  it('leaves a single element uncombined', () => {
-    expect(combineElements([{ type: 'toxin', amount: 30 }])).toEqual({ toxin: 30 });
+  it('leaves a lone base element uncombined', () => {
+    const pt = perTypeOf(element('toxin'));
+    expect(pt.toxin).toBeDefined();
+    expect(pt.corrosive).toBeUndefined();
   });
 
-  it('combines each documented pair', () => {
-    expect(combineElements([{ type: 'heat', amount: 1 }, { type: 'cold', amount: 1 }])).toEqual({
-      blast: 2,
+  it('combines each documented base-element pair into its compound', () => {
+    const pairs: [DamageType, DamageType, DamageType][] = [
+      ['heat', 'cold', 'blast'],
+      ['heat', 'toxin', 'gas'],
+      ['heat', 'electricity', 'radiation'],
+      ['cold', 'toxin', 'viral'],
+      ['cold', 'electricity', 'magnetic'],
+      ['electricity', 'toxin', 'corrosive'],
+    ];
+    for (const [a, b, compound] of pairs) {
+      const pt = perTypeOf(element(a), element(b));
+      expect(pt[compound], `${a}+${b}→${compound}`).toBeDefined();
+      expect(pt[a], `${a} consumed`).toBeUndefined();
+      expect(pt[b], `${b} consumed`).toBeUndefined();
+    }
+  });
+
+  it('respects load order: the earliest valid pair fuses, the extra stays single', () => {
+    // Toxin then Electricity fuse to Corrosive first; the trailing Cold is left raw.
+    const pt = perTypeOf(element('toxin'), element('electricity'), element('cold'));
+    expect(pt.corrosive).toBeDefined();
+    expect(pt.cold).toBeDefined();
+    expect(pt.viral).toBeUndefined(); // would appear only if Cold+Toxin fused first
+  });
+
+  it('conserves total damage — the compound carries the sum of its parts', () => {
+    // Corrosive (Toxin+Electricity) and a same-magnitude pair of Toxin sources both
+    // add 2 × 0.5 × base of elemental damage, so the headline average matches.
+    const fused = calculateBuild({
+      weapon: gun, sources: [element('toxin'), element('electricity')], combat: EMPTY_COMBAT_STATE,
     });
-    expect(combineElements([{ type: 'cold', amount: 1 }, { type: 'toxin', amount: 1 }])).toEqual({
-      viral: 2,
+    const uncombined = calculateBuild({
+      weapon: gun, sources: [element('toxin'), element('toxin')], combat: EMPTY_COMBAT_STATE,
     });
-    expect(
-      combineElements([{ type: 'heat', amount: 1 }, { type: 'electricity', amount: 1 }]),
-    ).toEqual({ radiation: 2 });
+    expect(fused.perType.corrosive).toBeDefined();
+    expect(fused.perPelletAverage).toBeCloseTo(uncombined.perPelletAverage, 6);
   });
 
-  it('respects load order: first valid pair combines, extra stays single', () => {
-    const out = combineElements([
-      { type: 'toxin', amount: 10 },
-      { type: 'electricity', amount: 10 },
-      { type: 'cold', amount: 5 },
-    ]);
-    expect(out).toEqual({ corrosive: 20, cold: 5 });
-  });
-
-  it('drops zero-amount contributions', () => {
-    expect(combineElements([{ type: 'toxin', amount: 0 }])).toEqual({});
+  it('a zero-amount contribution never appears in the breakdown', () => {
+    const pt = perTypeOf(element('toxin', 0));
+    expect(pt.toxin).toBeUndefined();
   });
 });

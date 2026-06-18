@@ -42,10 +42,10 @@ describe('ModdingScreen', () => {
     await user.type(within(dialog).getByLabelText('search mods'), 'serration');
     await user.click(within(dialog).getByRole('button', { name: /Serration/i }));
 
-    // The slot now shows Serration at max rank.
-    expect(screen.getByText('Serration')).toBeInTheDocument();
-    const slots = useBuildStore.getState().build.weapon.slots;
-    expect(slots.some((s) => s.itemId === 'serration' && s.rank === 10)).toBe(true);
+    // The slot now shows Serration assigned at max rank.
+    const filled = screen.getByLabelText('Mod slot: Serration');
+    expect(within(filled).getByText('Serration')).toBeInTheDocument();
+    expect(within(filled).getByLabelText('rank 10 of 10')).toBeInTheDocument();
   });
 
   it('removes a mod via the slot clear button', async () => {
@@ -61,7 +61,7 @@ describe('ModdingScreen', () => {
     const user = userEvent.setup();
     render(<ModdingScreen />);
     await user.selectOptions(screen.getByLabelText('select weapon'), 'lex-prime');
-    expect(useBuildStore.getState().build.weapon.itemId).toBe('lex-prime');
+    // The type label reflects the newly selected secondary.
     expect(screen.getByText(/Secondary · Pistol/)).toBeInTheDocument();
   });
 
@@ -82,9 +82,12 @@ describe('ModdingScreen', () => {
     useBuildStore.getState().selectWeapon('stradavar-prime');
     render(<ModdingScreen />);
     const tablist = screen.getByRole('tablist', { name: /fire modes/i });
-    expect(within(tablist).getByRole('tab', { name: 'Full Auto Mode' })).toBeInTheDocument();
-    await user.click(within(tablist).getByRole('tab', { name: 'Semi-Auto Mode' }));
-    expect(useBuildStore.getState().activeMode).toBe('Semi-Auto Mode');
+    const semi = within(tablist).getByRole('tab', { name: 'Semi-Auto Mode' });
+    // Full Auto is selected by default; clicking selects Semi-Auto.
+    expect(within(tablist).getByRole('tab', { name: 'Full Auto Mode' })).toHaveAttribute('aria-selected', 'true');
+    await user.click(semi);
+    expect(semi).toHaveAttribute('aria-selected', 'true');
+    expect(within(tablist).getByRole('tab', { name: 'Full Auto Mode' })).toHaveAttribute('aria-selected', 'false');
   });
 
   it('hides the fire-mode switcher for single-mode weapons', () => {
@@ -97,8 +100,9 @@ describe('ModdingScreen', () => {
     const user = userEvent.setup();
     render(<ModdingScreen />);
     const switcher = screen.getByRole('tablist', { name: /gear compartment/i });
-    await user.click(within(switcher).getByRole('tab', { name: 'Warframe' }));
-    expect(useBuildStore.getState().activeCompartment).toBe('warframe');
+    const frameTab = within(switcher).getByRole('tab', { name: 'Warframe' });
+    await user.click(frameTab);
+    expect(frameTab).toHaveAttribute('aria-selected', 'true');
     // The frame picker shows the reference frame; the frame keeps its aura slot.
     const picker = screen.getByLabelText('select warframe') as HTMLSelectElement;
     expect(picker.options[picker.selectedIndex].textContent).toBe('Rhino Prime');

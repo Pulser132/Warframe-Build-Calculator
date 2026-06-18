@@ -1,50 +1,41 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { loadWeapon } from '../../data/loaders';
-import { createWeapon, Primary, hasCrit, hasStatus } from './index';
-import { Gun, Weapon } from './weapon';
+import { createWeapon } from './index';
+import type { Gun } from './weapon';
+import { EMPTY_COMBAT_STATE } from '../model/build';
+import { calculateBuild } from '../pipeline/calculate';
 
-describe('gear hierarchy — Primary from curated data', () => {
-  it('instantiates the slice rifle and exposes base stats', async () => {
-    const data = await loadWeapon('vulkar-wraith');
-    const weapon = createWeapon(data!);
+/**
+ * A weapon's curated base stats, observed through an unmodded calculation — the
+ * numbers the gear class feeds the pipeline (IPS split, crit, status, multishot).
+ * The class hierarchy/slot layout that carries them is exercised behaviorally
+ * elsewhere: the gun's 11-slot layout in `state/store.test.ts`, and the
+ * Secondary/Melee factory dispatch in `weapons`/`meleeCalc` tests.
+ */
 
-    expect(weapon).toBeInstanceOf(Primary);
-    expect(weapon).toBeInstanceOf(Gun);
-    expect(weapon).toBeInstanceOf(Weapon);
-    expect(weapon.kind).toBe('primary');
-    expect(weapon.name).toBe('Vulkar Wraith');
-    expect(weapon.totalBaseDamage).toBe(273);
-    const dmg = weapon.baseDamage();
-    expect(dmg.impact).toBeCloseTo(245.7, 4);
-    expect(dmg.puncture).toBeCloseTo(27.3, 4); // wiki: Impact 245.7, Puncture 27.3
-    expect(dmg.slash).toBeUndefined();
+let gun: Gun;
 
-    // Capability interfaces are implemented by Gun/Primary.
-    expect(hasCrit(weapon)).toBe(true);
-    expect(hasStatus(weapon)).toBe(true);
-    const gun = weapon as Primary;
-    expect(gun.baseCritChance).toBeCloseTo(0.2, 5);
-    expect(gun.baseCritMultiplier).toBe(2);
-    expect(gun.baseStatusChance).toBeCloseTo(0.25, 4);
-    expect(gun.baseMultishot).toBe(1);
+beforeAll(async () => {
+  gun = createWeapon((await loadWeapon('vulkar-wraith'))!) as Gun;
+});
+
+const unmodded = () => calculateBuild({ weapon: gun, sources: [], combat: EMPTY_COMBAT_STATE });
+
+describe('Vulkar Wraith base stats (via an unmodded calculation)', () => {
+  it('carries the wiki IPS split — Impact 245.7 / Puncture 27.3, no Slash', () => {
+    const base = unmodded().chain.find((s) => s.id === 'base')!;
+    expect(base.value).toBeCloseTo(273, 4); // total base damage
+    expect(base.perType!.impact).toBeCloseTo(245.7, 4);
+    expect(base.perType!.puncture).toBeCloseTo(27.3, 4);
+    expect(base.perType!.slash).toBeUndefined(); // Slash/Puncture not transposed (@wfcd note)
   });
 
-  it('exposes the 11-slot in-game gun layout (no aura — Stage 4)', async () => {
-    const data = await loadWeapon('vulkar-wraith');
-    const weapon = createWeapon(data!);
-    const layout = weapon.slotLayout;
-    expect(layout).toHaveLength(11);
-    expect(layout[0]).toBe('exilus');
-    expect(layout).not.toContain('aura'); // aura is Warframe-only now
-    expect(layout.filter((s) => s === 'normal')).toHaveLength(8);
-    expect(layout.filter((s) => s === 'arcane')).toHaveLength(2);
-  });
-
-  it('baseDamage() returns a fresh copy each call', async () => {
-    const data = await loadWeapon('vulkar-wraith');
-    const weapon = createWeapon(data!);
-    const a = weapon.baseDamage();
-    a.impact = 999;
-    expect(weapon.baseDamage().impact).toBeCloseTo(245.7, 4);
+  it('exposes its base crit, status, and multishot', () => {
+    const r = unmodded();
+    expect(r.critChance).toBeCloseTo(0.2, 5);
+    expect(r.critMultiplier).toBe(2);
+    expect(r.avgCritMultiplier).toBeCloseTo(1.2, 5); // 1 + 0.2 × (2 − 1)
+    expect(r.statusChancePerPellet).toBeCloseTo(0.25, 4);
+    expect(r.multishot).toBe(1);
   });
 });

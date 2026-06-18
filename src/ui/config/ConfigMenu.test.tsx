@@ -1,14 +1,20 @@
 import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { loadDataset, type Dataset } from '../../data/loaders';
 import { useBuildStore } from '@state';
-import { computeResult } from '@state';
 import { ConfigMenu } from './ConfigMenu';
+
+/**
+ * ConfigMenu tests assert what the user observes in this panel: which toggles
+ * exist, that they flip, which stack sliders appear, and the frame-derived buff
+ * magnitude it displays. The DPS consequences of these toggles (Bane ×1.3, Roar
+ * +50%, Molt Augmented strength) are engine behavior verified at the store level
+ * in `state/store.test.ts` / `state/warframe.test.ts` — not re-asserted here.
+ */
 
 let dataset: Dataset;
 const store = () => useBuildStore.getState();
-const dps = () => computeResult(store().build, store().combat, dataset)!.burstDps;
 
 beforeAll(async () => {
   dataset = await loadDataset();
@@ -17,30 +23,40 @@ beforeEach(() => {
   store().initFromDataset(dataset);
 });
 
+/** The Roar buff row's displayed magnitude (e.g. "+50%"), as a number. */
+function roarMagnitudePct(): number {
+  const checkbox = screen.getByRole('checkbox', { name: /Roar.*active/i });
+  const row = checkbox.closest('label')!;
+  const match = row.textContent!.match(/\+(\d+)%/);
+  if (!match) throw new Error(`no magnitude in Roar row: "${row.textContent}"`);
+  return Number(match[1]);
+}
+
 describe('ConfigMenu', () => {
-  it('renders the registry-driven external buff (Roar)', () => {
+  it('renders the registry-driven external buff (Roar) and the faction conditional', () => {
     render(<ConfigMenu />);
     expect(screen.getByText(/Roar/i)).toBeInTheDocument();
     expect(screen.getByText(/Enemy faction: Grineer/i)).toBeInTheDocument();
   });
 
-  it('toggling the faction conditional changes the computed DPS when Bane is equipped', async () => {
+  it('toggles the enemy-faction conditional', async () => {
     const user = userEvent.setup();
-    store().assignMod(2, 'bane-of-grineer');
     render(<ConfigMenu />);
-    const before = dps();
-    await user.click(screen.getByRole('checkbox', { name: /Enemy faction: Grineer/i }));
-    expect(store().combat.conditions['faction:grineer']).toBe(true);
-    expect(dps()).toBeCloseTo(before * 1.3, 0);
+    const checkbox = screen.getByRole('checkbox', { name: /Enemy faction: Grineer/i });
+    expect(checkbox).not.toBeChecked();
+    await user.click(checkbox);
+    expect(checkbox).toBeChecked();
   });
 
-  it('enabling Roar raises DPS through the engine', async () => {
+  it('toggles the Roar ability buff and shows its frame-derived magnitude', async () => {
     const user = userEvent.setup();
     render(<ConfigMenu />);
-    const before = dps();
-    await user.click(screen.getByRole('checkbox', { name: /Roar/i }));
-    expect(store().combat.buffs.some((b) => b.id === 'roar')).toBe(true);
-    expect(dps()).toBeGreaterThan(before);
+    const checkbox = screen.getByRole('checkbox', { name: /Roar.*active/i });
+    expect(checkbox).not.toBeChecked();
+    // Rhino Prime emits Roar at +50% (0.5 × 100% strength) — shown from the frame.
+    expect(roarMagnitudePct()).toBe(50);
+    await user.click(checkbox);
+    expect(checkbox).toBeChecked();
   });
 
   it('shows a stacks slider when a stacking arcane is equipped', () => {
@@ -56,14 +72,14 @@ describe('ConfigMenu', () => {
     expect(screen.getByLabelText(/Molt Augmented stacks/i)).toBeInTheDocument();
   });
 
-  it('Molt Augmented stacks raise the frame-derived Roar through the engine', async () => {
-    const user = userEvent.setup();
+  it('raising Molt Augmented stacks increases the displayed frame-derived Roar magnitude', () => {
     store().setActiveCompartment('warframe');
     store().assignMod(10, 'molt-augmented');
     render(<ConfigMenu />);
-    await user.click(screen.getByRole('checkbox', { name: /Roar/i })); // toggle Roar on
-    const before = dps();
-    store().setStacks('arcane:molt-augmented', 250); // +60% strength → bigger Roar
-    expect(dps()).toBeGreaterThan(before);
+
+    const before = roarMagnitudePct(); // 50% at 0 stacks (base strength)
+    const slider = screen.getByLabelText(/Molt Augmented stacks/i) as HTMLInputElement;
+    fireEvent.change(slider, { target: { value: slider.max } }); // full strength stacks
+    expect(roarMagnitudePct()).toBeGreaterThan(before);
   });
 });

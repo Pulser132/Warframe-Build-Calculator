@@ -2,7 +2,6 @@ import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
 import { loadDataset, type Dataset } from '../data/loaders';
 import { useBuildStore } from './store';
 import { computeResult, resolveFrameStats } from './resolve';
-import { gearModGroup, modMatchesGroup, arcaneMatchesGroup } from './modCompat';
 
 let dataset: Dataset;
 
@@ -16,38 +15,6 @@ beforeEach(() => {
 
 const store = () => useBuildStore.getState();
 const result = () => computeResult(store().build, store().combat, dataset);
-const modById = (id: string) => dataset.mods.find((m) => m.id === id)!;
-const arcaneById = (id: string) => dataset.arcanes.find((a) => a.id === id)!;
-
-describe('mod compatibility — gear-type aware (ADR 0003 / closing the leak)', () => {
-  it('frame mods fit the warframe group, not weapon groups', () => {
-    expect(modMatchesGroup(modById('intensify'), 'warframe')).toBe(true);
-    expect(modMatchesGroup(modById('intensify'), 'rifle')).toBe(false);
-    expect(modMatchesGroup(modById('vitality'), 'warframe')).toBe(true);
-    expect(modMatchesGroup(modById('vitality'), 'pistol')).toBe(false);
-  });
-
-  it('the aura is Warframe-only (no longer matches every group)', () => {
-    expect(modMatchesGroup(modById('corrosive-projection'), 'warframe')).toBe(true);
-    expect(modMatchesGroup(modById('corrosive-projection'), 'rifle')).toBe(false);
-  });
-
-  it('weapon mods do not fit the warframe group', () => {
-    expect(modMatchesGroup(modById('serration'), 'warframe')).toBe(false);
-    expect(modMatchesGroup(modById('serration'), 'rifle')).toBe(true);
-  });
-
-  it('arcanes are gear-type aware (frame vs weapon)', () => {
-    expect(arcaneMatchesGroup(arcaneById('molt-augmented'), 'warframe')).toBe(true);
-    expect(arcaneMatchesGroup(arcaneById('molt-augmented'), 'rifle')).toBe(false);
-    expect(arcaneMatchesGroup(arcaneById('primary-merciless'), 'rifle')).toBe(true);
-    expect(arcaneMatchesGroup(arcaneById('primary-merciless'), 'warframe')).toBe(false);
-  });
-
-  it('gearModGroup distinguishes the warframe compartment', () => {
-    expect(gearModGroup({ category: 'Warframe' })).toBe('warframe');
-  });
-});
 
 describe('Warframe compartment — store mutations + frame resolver', () => {
   function equipFrameMod(slotIndex: number, id: string) {
@@ -56,13 +23,32 @@ describe('Warframe compartment — store mutations + frame resolver', () => {
   }
 
   it('rejects a weapon mod on the frame and a frame mod on the weapon', () => {
-    // Serration cannot go on the frame.
+    // Serration (weapon mod) cannot go on the frame; Intensify (frame mod) cannot
+    // go on the weapon — gear-type-aware compatibility (ADR 0003).
     equipFrameMod(2, 'serration');
     expect(store().build.warframe!.slots[2].itemId).toBeNull();
-    // Intensify cannot go on the weapon.
     store().setActiveCompartment('weapon');
     store().assignMod(1, 'intensify');
     expect(store().build.weapon.slots[1].itemId).toBeNull();
+    // A frame mod fits a frame slot, confirming the group match (not just rejection).
+    equipFrameMod(2, 'intensify');
+    expect(store().build.warframe!.slots[2].itemId).toBe('intensify');
+  });
+
+  it('keeps arcanes gear-type aware (frame vs weapon arcane slots)', () => {
+    // Molt Augmented is a frame arcane: fits a frame arcane slot, not a weapon one.
+    store().setActiveCompartment('warframe');
+    store().assignMod(10, 'molt-augmented');
+    expect(store().build.warframe!.slots[10].itemId).toBe('molt-augmented');
+    store().setActiveCompartment('weapon');
+    store().assignMod(9, 'molt-augmented');
+    expect(store().build.weapon.slots[9].itemId).toBeNull();
+    // Primary Merciless is a weapon arcane: fits the weapon, not the frame.
+    store().assignMod(9, 'primary-merciless');
+    expect(store().build.weapon.slots[9].itemId).toBe('primary-merciless');
+    store().setActiveCompartment('warframe');
+    store().assignMod(11, 'primary-merciless');
+    expect(store().build.warframe!.slots[11].itemId).toBeNull();
   });
 
   it('reference build (Rhino Prime, Umbral-inclusive) resolves the wiki numbers', () => {

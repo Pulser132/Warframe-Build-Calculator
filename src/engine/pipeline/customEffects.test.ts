@@ -1,111 +1,115 @@
-import { describe, it, expect } from 'vitest';
-import { bloodRush, weepingWounds, conditionOverload, STATUS_COUNT_KEY } from './customEffects';
-import { gatherBuckets, type ResolvedSource } from './gather';
-import { CUSTOM_EFFECTS } from '../model/registry';
+import { describe, it, expect, beforeAll } from 'vitest';
+import { loadWeapon, loadMods } from '../../data/loaders';
+import type { ModData } from '../model/types';
 import { EMPTY_COMBAT_STATE, type CombatState } from '../model/build';
+import { createWeapon } from '../gear/factory';
+import { Melee } from '../gear/melee';
+import { calculateBuild } from './calculate';
+import type { ResolvedSource } from './gather';
 
-function withCombo(count: number, extra: Partial<CombatState> = {}): CombatState {
-  return { ...EMPTY_COMBAT_STATE, stacks: { combo: count, ...extra.stacks } };
+/**
+ * Stage 3 custom-effect mods (Blood Rush, Weeping Wounds, Condition Overload),
+ * exercised through `calculateBuild` on the Kronen Prime Normal attack — each
+ * isolated so its combat-state scaling shows up in the headline numbers it drives.
+ *
+ * The end-to-end reference build (all three together, wiki-verified) lives in
+ * `meleeCalc.test.ts`; this file pins one mod's behavior at a time plus the
+ * critical invariant that a custom effect's self-scaled output is folded **once**
+ * (gather must NOT re-apply rankFactor — ADR 0002).
+ *
+ * Kronen Prime base crit 0.22, base status 0.34.
+ */
+
+let modsById: Map<string, ModData>;
+let kronen: Melee;
+
+beforeAll(async () => {
+  modsById = new Map((await loadMods()).map((m) => [m.id, m]));
+  kronen = createWeapon((await loadWeapon('kronen-prime'))!) as Melee;
+});
+
+function mod(id: string, rank?: number): ResolvedSource {
+  const m = modsById.get(id);
+  if (!m) throw new Error(`missing mod ${id}`);
+  return {
+    id: m.id,
+    label: m.name,
+    kind: 'mod',
+    rank: rank ?? m.maxRank,
+    maxRank: m.maxRank,
+    effects: m.effects,
+    customEffectId: m.customEffectId,
+  };
 }
 
-describe('Blood Rush (custom effect)', () => {
-  it('adds 0.4 × tier to critChance at max rank', () => {
-    // combo 60 → tier 3 → +1.2 crit chance bucket (wiki: ×(combo−1)=×3 at 4x).
-    const eff = bloodRush({ rank: 10, maxRank: 10, combat: withCombo(60), setCounts: {} });
-    expect(eff).toHaveLength(1);
-    expect(eff[0].bucket).toBe('critChance');
-    expect(eff[0].value).toBeCloseTo(1.2, 6);
+/** Combat state with a raw Combo Count and a unique-status count. */
+function cs(count: number, statusCount = 0): CombatState {
+  return { ...EMPTY_COMBAT_STATE, stacks: { combo: count, 'status:count': statusCount } };
+}
+
+/** Normal-attack result for the given sources/combat. */
+function normal(sources: ResolvedSource[], combat: CombatState) {
+  return calculateBuild({ weapon: kronen, sources, combat });
+}
+
+describe('Blood Rush — crit chance scales on combo tier', () => {
+  it('raises crit chance by 0.4 × tier (combo 60 = tier 3 → ×2.2)', () => {
+    const r = normal([mod('blood-rush')], cs(60));
+    expect(r.critChance).toBeCloseTo(0.22 * 2.2, 4); // 0.22 × (1 + 1.2) = 0.484
   });
 
-  it('is zero at tier 0 (combo < 20)', () => {
-    expect(bloodRush({ rank: 10, maxRank: 10, combat: withCombo(19), setCounts: {} })).toEqual([]);
+  it('contributes nothing below tier 1 (combo < 20)', () => {
+    const below = normal([mod('blood-rush')], cs(19));
+    const none = normal([], cs(19));
+    expect(below.critChance).toBeCloseTo(none.critChance, 6);
+    expect(below.critChance).toBeCloseTo(0.22, 6);
   });
 
-  it('scales linearly with rank', () => {
-    // rankFactor(5,10) = 6/11; tier 1 → 0.4 × 6/11.
-    const eff = bloodRush({ rank: 5, maxRank: 10, combat: withCombo(20), setCounts: {} });
-    expect(eff[0].value).toBeCloseTo(0.4 * (6 / 11), 6);
+  it('scales with mod rank (rank 5/10 at tier 1 → 0.4 × 6/11)', () => {
+    const r = normal([mod('blood-rush', 5)], cs(20));
+    expect(r.critChance).toBeCloseTo(0.22 * (1 + 0.4 * (6 / 11)), 6);
+  });
+
+  it('folds additively with a static crit mod in the same bucket (Blood Rush + True Steel)', () => {
+    const r = normal([mod('blood-rush'), mod('true-steel')], cs(60));
+    // 0.22 × (1 + 0.8 True Steel + 1.2 Blood Rush) = 0.22 × 3.0 = 0.66.
+    expect(r.critChance).toBeCloseTo(0.66, 4);
   });
 });
 
-describe('Weeping Wounds (custom effect)', () => {
-  it('adds 0.4 × tier to statusChance at max rank', () => {
-    const eff = weepingWounds({ rank: 5, maxRank: 5, combat: withCombo(60), setCounts: {} });
-    expect(eff).toHaveLength(1);
-    expect(eff[0].bucket).toBe('statusChance');
-    expect(eff[0].value).toBeCloseTo(1.2, 6);
+describe('Weeping Wounds — status chance scales on combo tier', () => {
+  it('raises per-pellet status chance by 0.4 × tier (combo 60 = tier 3 → ×2.2)', () => {
+    const r = normal([mod('weeping-wounds')], cs(60));
+    expect(r.statusChancePerPellet).toBeCloseTo(0.34 * 2.2, 4); // 0.748
   });
 });
 
-describe('Condition Overload (custom effect)', () => {
-  it('adds 0.8 × status count to baseDamage at max rank', () => {
-    const eff = conditionOverload({
-      rank: 5,
-      maxRank: 5,
-      combat: { ...EMPTY_COMBAT_STATE, stacks: { [STATUS_COUNT_KEY]: 4 } },
-      setCounts: {},
-    });
-    expect(eff).toHaveLength(1);
-    expect(eff[0].bucket).toBe('baseDamage');
-    expect(eff[0].value).toBeCloseTo(3.2, 6);
+describe('Condition Overload — base damage scales on unique status count', () => {
+  it('adds 0.8 × n to the base-damage multiplier (4 statuses → ×4.2)', () => {
+    const co = normal([mod('condition-overload')], cs(0, 4));
+    const none = normal([mod('condition-overload')], cs(0, 0));
+    expect(co.avgHitPerShot / none.avgHitPerShot).toBeCloseTo(4.2, 1); // (1 + 3.2) / 1
   });
 
   it('caps at 16 unique statuses', () => {
-    const eff = conditionOverload({
-      rank: 5,
-      maxRank: 5,
-      combat: { ...EMPTY_COMBAT_STATE, stacks: { [STATUS_COUNT_KEY]: 99 } },
-      setCounts: {},
-    });
-    expect(eff[0].value).toBeCloseTo(0.8 * 16, 6);
+    const at15 = normal([mod('condition-overload')], cs(0, 15));
+    const at16 = normal([mod('condition-overload')], cs(0, 16));
+    const at99 = normal([mod('condition-overload')], cs(0, 99));
+    expect(at99.avgHitPerShot).toBeCloseTo(at16.avgHitPerShot, 4); // clamped
+    expect(at16.avgHitPerShot).toBeGreaterThan(at15.avgHitPerShot); // still rising before the cap
   });
 
-  it('is zero with no statuses', () => {
-    expect(conditionOverload({ rank: 5, maxRank: 5, combat: EMPTY_COMBAT_STATE, setCounts: {} })).toEqual([]);
+  it('does nothing with no statuses', () => {
+    const co = normal([mod('condition-overload')], cs(0, 0));
+    const none = normal([], cs(0));
+    expect(co.avgHitPerShot).toBeCloseTo(none.avgHitPerShot, 6);
   });
 });
 
-describe('gather folds custom effects without re-scaling, additively with static mods', () => {
-  it('Blood Rush + a Point-Strike-equivalent sum in the critChance bucket', () => {
-    // The registry is auto-populated at import (pipeline/index registers it).
-    expect(CUSTOM_EFFECTS['blood-rush']).toBeTypeOf('function');
-
-    const truesteel: ResolvedSource = {
-      id: 'true-steel',
-      label: 'True Steel',
-      kind: 'mod',
-      rank: 5,
-      maxRank: 5,
-      effects: [{ bucket: 'critChance', value: 0.8 }],
-    };
-    const bloodRushSrc: ResolvedSource = {
-      id: 'blood-rush',
-      label: 'Blood Rush',
-      kind: 'mod',
-      rank: 10,
-      maxRank: 10,
-      effects: [],
-      customEffectId: 'blood-rush',
-    };
-    const sums = gatherBuckets([truesteel, bloodRushSrc], withCombo(60));
-    // 0.8 (True Steel, full rank) + 1.2 (Blood Rush tier 3) = 2.0, additive.
-    expect(sums.critChance).toBeCloseTo(2.0, 6);
-  });
-
-  it('does NOT re-apply rankFactor to the custom output', () => {
-    // A custom source at rank 0/maxRank 10 still yields its self-scaled value; if
-    // gather re-scaled, the value would be multiplied by 1/11.
-    const src: ResolvedSource = {
-      id: 'blood-rush',
-      label: 'Blood Rush',
-      kind: 'mod',
-      rank: 0,
-      maxRank: 10,
-      effects: [],
-      customEffectId: 'blood-rush',
-    };
-    const sums = gatherBuckets([src], withCombo(40)); // tier 2
-    // bloodRush self-scales: 0.4 × rankFactor(0,10)=1/11 × 2 = 0.0727…
-    expect(sums.critChance).toBeCloseTo(0.4 * (1 / 11) * 2, 6);
+describe('custom output is self-scaled exactly once (no double rankFactor)', () => {
+  it('an unranked Blood Rush yields its own 1/11 scaling, not (1/11)²', () => {
+    // tier 2 (combo 40); rank 0 of 10 → rankFactor 1/11 applied once inside the mod.
+    const r = normal([mod('blood-rush', 0)], cs(40));
+    expect(r.critChance).toBeCloseTo(0.22 * (1 + 0.4 * (1 / 11) * 2), 6);
   });
 });

@@ -1,117 +1,132 @@
-import { describe, it, expect } from 'vitest';
-import { emptyBucketSums, type BucketSums } from './gather';
-import {
-  baseElementalStage,
-  quantizeStage,
-  multishotStage,
-  critStage,
-  statusStage,
-  fireRateStage,
-  conditionalMultiplierStage,
-  sumDamage,
-} from './stages';
+import { describe, it, expect, beforeAll } from 'vitest';
+import { loadWeapon, loadMods } from '../../data/loaders';
+import type { ModData } from '../model/types';
+import type { CombatState } from '../model/build';
+import { EMPTY_COMBAT_STATE } from '../model/build';
+import { createWeapon } from '../gear/factory';
+import type { Gun } from '../gear/weapon';
+import { calculateBuild } from './calculate';
+import type { ResolvedSource } from './gather';
 
-function sums(partial: Partial<BucketSums>): BucketSums {
-  return { ...emptyBucketSums(), ...partial };
+/**
+ * Each damage-pipeline stage, isolated by equipping a SINGLE mod on the Vulkar
+ * Wraith and asserting the headline field (or labeled chain stage) it drives.
+ * These exercise the same hand-verified game math the old per-`*Stage` unit tests
+ * pinned, but through the public `calculateBuild` interface — so they survive any
+ * internal reshuffle of the stage functions. (Full-slice integration lives in
+ * `calculate.test.ts`; this file covers one mechanic at a time.)
+ *
+ * Vulkar Wraith base stats the expected numbers derive from (see gear/data):
+ *   base damage 273 (Impact 245.7 / Puncture 27.3), crit 0.20 ×2.0, status 0.25,
+ *   multishot 1, fire rate 2.0.
+ */
+
+let gun: Gun;
+let modsById: Map<string, ModData>;
+
+beforeAll(async () => {
+  gun = createWeapon((await loadWeapon('vulkar-wraith'))!) as Gun;
+  modsById = new Map((await loadMods()).map((m) => [m.id, m]));
+});
+
+function modSource(id: string): ResolvedSource {
+  const m = modsById.get(id);
+  if (!m) throw new Error(`missing mod ${id}`);
+  return { id: m.id, label: m.name, kind: 'mod', rank: m.maxRank, maxRank: m.maxRank, effects: m.effects };
 }
 
-describe('baseElementalStage', () => {
-  it('adds elementals as a fraction of base then multiplies the whole subtotal by base damage', () => {
-    // base 100 Slash, +100% base damage, +50% Toxin element.
-    const { perType, stage } = baseElementalStage(
-      { slash: 100 },
-      100,
-      sums({ baseDamage: 1, elements: [{ type: 'toxin', amount: 0.5 }] }),
-    );
-    // Toxin = 0.5 × 100 = 50; subtotal {slash 100, toxin 50} × (1 + 1) = {slash 200, toxin 100}.
-    expect(perType.slash).toBeCloseTo(200, 6);
-    expect(perType.toxin).toBeCloseTo(100, 6);
-    expect(stage.value).toBeCloseTo(300, 6);
+function calc(modIds: string[], combat: CombatState = EMPTY_COMBAT_STATE) {
+  return calculateBuild({ weapon: gun, sources: modIds.map(modSource), combat });
+}
+
+const stage = (r: ReturnType<typeof calc>, id: string) => r.chain.find((s) => s.id === id)!;
+
+describe('base + elemental stage', () => {
+  it('a base-damage mod multiplies the whole subtotal (Serration → ×2.65 pre-crit)', () => {
+    const base = stage(calc(['serration']), 'base');
+    // 273 × (1 + 1.65) = 723.45; Impact 245.7×2.65, Puncture 27.3×2.65.
+    expect(base.value).toBeCloseTo(723.45, 2);
+    expect(base.perType!.impact).toBeCloseTo(651.105, 2);
+    expect(base.perType!.puncture).toBeCloseTo(72.345, 2);
   });
 
-  it('matches the Vulkar Wraith slice subtotal (2025.66) pre-crit', () => {
-    const { perType } = baseElementalStage(
-      { impact: 245.7, puncture: 27.3 },
-      273,
-      sums({
-        baseDamage: 1.65,
-        elements: [
-          { type: 'toxin', amount: 0.9 },
-          { type: 'electricity', amount: 0.9 },
-        ],
-      }),
-    );
-    expect(sumDamage(perType)).toBeCloseTo(2025.66, 2);
-    expect(perType.corrosive).toBeCloseTo(1302.21, 2);
-    expect(perType.impact).toBeCloseTo(651.105, 2);
-    expect(perType.toxin).toBeUndefined(); // combined away
+  it('an elemental mod adds damage as a fraction of base total (Stormbringer +90% Electric)', () => {
+    const base = stage(calc(['stormbringer']), 'base');
+    // Electric = 0.90 × 273 = 245.7 added on top of physical; no base-damage mult.
+    expect(base.perType!.electricity).toBeCloseTo(245.7, 2);
+    expect(base.value).toBeCloseTo(518.7, 2); // 245.7 + 27.3 + 245.7
   });
 });
 
-describe('quantizeStage', () => {
-  it('rounds each damage type to the nearest base/32 (Vulkar + Stormbringer → 520)', () => {
-    // base total 273 → quantum = 273/32 = 8.53125 (no base-damage mods).
-    const { perType, stage } = quantizeStage(
-      { impact: 245.7, puncture: 27.3, electricity: 245.7 },
-      273 / 32,
-    );
-    expect(perType.impact).toBeCloseTo(247.40625, 4); // 29 × 8.53125
-    expect(perType.puncture).toBeCloseTo(25.59375, 4); // 3 × 8.53125
-    expect(perType.electricity).toBeCloseTo(247.40625, 4);
-    expect(sumDamage(perType)).toBeCloseTo(520.40625, 4); // displays as 520 in game
-    expect(stage.id).toBe('quantize');
-  });
-
-  it('passes values through unchanged when the quantum is zero', () => {
-    const { perType } = quantizeStage({ impact: 13.37 }, 0);
-    expect(perType.impact).toBe(13.37);
+describe('quantization stage', () => {
+  it('rounds each type to the nearest base/32 step (Vulkar + Stormbringer → 520)', () => {
+    // quantum = 273/32 = 8.53125 → Impact 29×, Puncture 3×, Electric 29× steps.
+    const quant = stage(calc(['stormbringer']), 'quantize');
+    expect(quant.perType!.impact).toBeCloseTo(247.40625, 4);
+    expect(quant.perType!.puncture).toBeCloseTo(25.59375, 4);
+    expect(quant.perType!.electricity).toBeCloseTo(247.40625, 4);
+    expect(quant.value).toBeCloseTo(520.40625, 4); // reads as 520 in the Arsenal
   });
 });
 
-describe('multishotStage', () => {
-  it('scales the base pellet count', () => {
-    expect(multishotStage(1, sums({ multishot: 0.9 })).multishot).toBeCloseTo(1.9, 6);
+describe('multishot stage', () => {
+  it('scales the base pellet count (Split Chamber +90% → 1.9)', () => {
+    expect(calc(['split-chamber']).multishot).toBeCloseTo(1.9, 6);
   });
 });
 
-describe('critStage', () => {
-  it('computes average crit for sub-100% chance', () => {
-    const r = critStage(0.12, 2, sums({ critChance: 1.5, critDamage: 1.2 }));
-    expect(r.critChance).toBeCloseTo(0.3, 6);
-    expect(r.critMultiplier).toBeCloseTo(4.4, 6);
-    expect(r.avgCritMultiplier).toBeCloseTo(2.02, 6); // 1 + 0.30×3.4
+describe('critical stage', () => {
+  it('crit-chance and crit-damage mods feed the average crit multiplier', () => {
+    const r = calc(['point-strike', 'vital-sense']);
+    expect(r.critChance).toBeCloseTo(0.5, 6); // 0.20 × (1 + 1.5)
+    expect(r.critMultiplier).toBeCloseTo(4.4, 6); // 2.0 × (1 + 1.2)
+    expect(r.avgCritMultiplier).toBeCloseTo(2.7, 6); // 1 + 0.5 × (4.4 − 1)
   });
 
-  it('handles crit chance over 100% with the same expectation formula', () => {
-    // base 0.3, +300% → cc 1.20 (120%, orange-crit territory); cd 2.
-    const r = critStage(0.3, 2, sums({ critChance: 3 }));
-    expect(r.critChance).toBeCloseTo(1.2, 6);
-    expect(r.avgCritMultiplier).toBeCloseTo(2.2, 6); // 1 + 1.2×(2−1)
+  it('uses the expectation formula for crit chance over 100% (orange crits)', () => {
+    // Synthetic +800% crit chance → 0.20 × 9 = 1.80 (180%); base crit mult 2.0.
+    const superCrit: ResolvedSource = {
+      id: 'x', label: 'x', kind: 'mod', rank: 0, maxRank: 0,
+      effects: [{ bucket: 'critChance', value: 8 }],
+    };
+    const r = calculateBuild({ weapon: gun, sources: [superCrit], combat: EMPTY_COMBAT_STATE });
+    expect(r.critChance).toBeCloseTo(1.8, 6);
+    expect(r.avgCritMultiplier).toBeCloseTo(1 + 1.8 * (2 - 1), 6); // 2.80
   });
 });
 
-describe('statusStage', () => {
-  it('computes per-pellet status and procs per shot', () => {
-    const r = statusStage(0.26, 1.9, sums({ statusChance: 0.9 }));
-    expect(r.statusChancePerPellet).toBeCloseTo(0.494, 6);
-    expect(r.avgProcsPerShot).toBeCloseTo(0.9386, 4);
+describe('status stage', () => {
+  it('raises per-pellet status chance and procs per shot (Rifle Aptitude +90%)', () => {
+    const r = calc(['rifle-aptitude']);
+    expect(r.statusChancePerPellet).toBeCloseTo(0.475, 6); // 0.25 × (1 + 0.9)
+    expect(r.avgProcsPerShot).toBeCloseTo(0.475, 6); // × 1 pellet
   });
 });
 
-describe('fireRateStage', () => {
-  it('scales fire rate additively', () => {
-    expect(fireRateStage(2, sums({ fireRate: 0.6 })).fireRate).toBeCloseTo(3.2, 3);
+describe('fire-rate stage', () => {
+  it('scales fire rate additively (Speed Trigger +60% → 3.2/s)', () => {
+    expect(calc(['speed-trigger']).fireRate).toBeCloseTo(3.2, 3); // 2.0 × 1.6
   });
 });
 
-describe('conditionalMultiplierStage', () => {
-  it('is 1× when no conditionals are active', () => {
-    const r = conditionalMultiplierStage(emptyBucketSums());
-    expect(r.factionMultiplier).toBe(1);
-    expect(r.directMultiplier).toBe(1);
+describe('conditional-multiplier stage', () => {
+  it('applies no multiplier when no conditional is active', () => {
+    // Bane equipped but its faction toggle is OFF → identical to no Bane.
+    expect(calc(['bane-of-grineer']).burstDps).toBeCloseTo(calc([]).burstDps, 6);
   });
-  it('adds within the faction bucket (Bane + Roar) then multiplies', () => {
-    const r = conditionalMultiplierStage(sums({ faction: 0.3 + 0.5 }));
-    expect(r.factionMultiplier).toBeCloseTo(1.8, 6);
+
+  it('adds within the faction bucket then multiplies (Bane +30% + Roar +50% = ×1.8)', () => {
+    const roar: ResolvedSource = {
+      id: 'roar', label: 'Roar', kind: 'buff', rank: 0, maxRank: 0,
+      effects: [{ bucket: 'faction', value: 0.5 }],
+    };
+    const grineer: CombatState = { ...EMPTY_COMBAT_STATE, conditions: { 'faction:grineer': true } };
+    const off = calculateBuild({ weapon: gun, sources: [], combat: EMPTY_COMBAT_STATE });
+    const on = calculateBuild({
+      weapon: gun,
+      sources: [modSource('bane-of-grineer'), roar],
+      combat: grineer,
+    });
+    expect(on.burstDps / off.burstDps).toBeCloseTo(1.8, 6);
   });
 });
