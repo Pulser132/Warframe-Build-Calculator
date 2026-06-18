@@ -608,5 +608,268 @@
     "compat": "Heavy Blade",
     "description": "Arcing cuts with spinning finish.",
     "rawMaxStats": []
+  },
+  {
+    "id": "intensify",
+    "uniqueName": "/Lotus/Upgrades/Mods/Warframe/AvatarAbilityStrengthMod",
+    "name": "Intensify",
+    "polarity": "madurai",
+    "baseDrain": 6,
+    "maxRank": 5,
+    "rarity": "Rare",
+    "compat": "WARFRAME",
+    "description": "",
+    "rawMaxStats": [
+      "+30% Ability Strength"
+    ]
+  },
+  {
+    "id": "transient-fortitude",
+    "uniqueName": "/Lotus/Upgrades/Mods/Warframe/DualStat/CorruptedPowerStrengthPowerDurationWarframe",
+    "name": "Transient Fortitude",
+    "polarity": "madurai",
+    "baseDrain": 6,
+    "maxRank": 10,
+    "rarity": "Rare",
+    "compat": "WARFRAME",
+    "description": "",
+    "rawMaxStats": [
+      "+55% Ability Strength",
+      "-27.5% Ability Duration"
+    ]
+  },
+  {
+    "id": "blind-rage",
+    "uniqueName": "/Lotus/Upgrades/Mods/Warframe/DualStat/CorruptedPowerEfficiencyWarframe",
+    "name": "Blind Rage",
+    "polarity": "madurai",
+    "baseDrain": 6,
+    "maxRank": 10,
+    "rarity": "Rare",
+    "compat": "WARFRAME",
+    "description": "",
+    "rawMaxStats": [
+      "+99% Ability Strength",
+      "-55% Ability Efficiency"
+    ]
+  },
+  {
+    "id": "overextended",
+    "uniqueName": "/Lotus/Upgrades/Mods/Warframe/DualStat/CorruptedRangePowerWarframe",
+    "name": "Overextended",
+    "polarity": "vazarin",
+    "baseDrain": 6,
+    "maxRank": 5,
+    "rarity": "Rare",
+    "compat": "WARFRAME",
+    "description": "",
+    "rawMaxStats": [
+      "+90% Ability Range",
+      "-60% Ability Strength"
+    ]
+  },
+  {
+    "id": "streamline",
+    "uniqueName": "/Lotus/Upgrades/Mods/Warframe/AvatarAbilityEfficiencyMod",
+    "name": "Streamline",
+    "polarity": "naramon",
+    "baseDrain": 4,
+    "maxRank": 5,
+    "rarity": "Rare",
+    "compat": "WARFRAME",
+    "description": "",
+    "rawMaxStats": [
+      "+30% Ability Efficiency"
+    ]
+  },
+  {
+    "id": "fleeting-expertise",
+    "uniqueName": "/Lotus/Upgrades/Mods/Warframe/DualStat/CorruptedEfficiencyDurationWarframe",
+    "name": "Fleeting Expertise",
+    "polarity": "naramon",
+    "baseDrain": 6,
+    "maxRank": 5,
+    "rarity": "Rare",
+    "compat": "WARFRAME",
+    "description": "",
+    "rawMaxStats": [
+      "+60% Ability Efficiency",
+      "-60% Ability Duration"
+    ]
+  },
+  {
+    "id": "narrow-minded",
+    "uniqueName": "/Lotus/Upgrades/Mods/Warframe/DualStat/CorruptedDurationRangeWarframe",
+    "name": "Narrow Minded",
+    "polarity": "vazarin",
+    "baseDrain": 6,
+    "maxRank": 10,
+    "rarity": "Rare",
+    "compat": "WARFRAME",
+    "description": "",
+    "rawMaxStats": [
+      "+99% Ability Duration",
+      "-66% Ability Range"
+    ]
+  },
+  {
+    "id": "stretch",
+    "uniqueName": "/Lotus/Upgrades/Mods/Warframe/AvatarAbilityRangeMod",
+    "name": "Stretch",
+    "polarity": "naramon",
+    "baseDrain": 4,
+    "maxRank": 5,
+    "rarity": "Uncommon",
+    "compat": "WARFRAME",
+    "description": "",
+    "rawMaxStats": [
+      "+45% Ability Range"
+    ]
+  },
+  {
+    "id": "continuity",
+    "uniqueName": "/Lotus/Upgrades/Mods/Warframe/AvatarAbilityDurationMod",
+    "name": "Continuity",
+    "polarity": "madurai",
+    "baseDrain": 2,
+    "maxRank": 5,
+    "rarity": "Rare",
+    "compat": "WARFRAME",
+    "description": "",
+    "rawMaxStats": [
+      "+30% Ability Duration"
+    ]
+  },
+  {
+    "id": "power-drift",
+    "uniqueName": "/Lotus/Upgrades/Mods/OrokinChallenge/OrokinChallengeModPower",
+    "name": "Power Drift",
+    "polarity": "zenurik",
+    "baseDrain": 4,
+    "maxRank": 5,
+    "rarity": "Rare",
+    "compat": "WARFRAME",
+    "description": "",
+    "rawMaxStats": [
+      "+15% Ability Strength",
+      "+30% Chance to Resist Knockdown"
+    ]
+  },
+  {
+    "id": "cunning-drift",
+    "uniqueName": "/Lotus/Upgrades/Mods/OrokinChallenge/OrokinChallengeModCunning",
+    "name": "Cunning Drift",
+    "polarity": "madurai",
+    "baseDrain": 4,
+    "maxRank": 5,
+    "rarity": "Rare",
+    "compat": "WARFRAME",
+    "description": "",
+    "rawMaxStats": [
+      "+12% Slide",
+      "-30% Friction",
+      "+15% Ability Range"
+    ]
+  },
+  {
+    "id": "umbral-intensify",
+    "uniqueName": "/Lotus/Upgrades/Mods/Sets/Umbra/WarframeUmbraModC",
+    "name": "Umbral Intensify",
+    "polarity": "umbra",
+    "baseDrain": 6,
+    "maxRank": 10,
+    "rarity": "Legendary",
+    "compat": "WARFRAME",
+    "description": "",
+    "rawMaxStats": [
+      "+44% Ability Strength",
+      "+11% <DT_SENTIENT>Tau Resistance"
+    ]
+  },
+  {
+    "id": "umbral-vitality",
+    "uniqueName": "/Lotus/Upgrades/Mods/Sets/Umbra/WarframeUmbraModA",
+    "name": "Umbral Vitality",
+    "polarity": "umbra",
+    "baseDrain": 6,
+    "maxRank": 10,
+    "rarity": "Legendary",
+    "compat": "WARFRAME",
+    "description": "",
+    "rawMaxStats": [
+      "+100% Health",
+      "+11% <DT_SENTIENT>Tau Resistance"
+    ]
+  },
+  {
+    "id": "umbral-fiber",
+    "uniqueName": "/Lotus/Upgrades/Mods/Sets/Umbra/WarframeUmbraModB",
+    "name": "Umbral Fiber",
+    "polarity": "umbra",
+    "baseDrain": 6,
+    "maxRank": 10,
+    "rarity": "Legendary",
+    "compat": "WARFRAME",
+    "description": "",
+    "rawMaxStats": [
+      "+100% Armor",
+      "+11% <DT_SENTIENT>Tau Resistance"
+    ]
+  },
+  {
+    "id": "vitality",
+    "uniqueName": "/Lotus/Upgrades/Mods/Warframe/AvatarHealthMaxMod",
+    "name": "Vitality",
+    "polarity": "vazarin",
+    "baseDrain": 2,
+    "maxRank": 10,
+    "rarity": "Common",
+    "compat": "WARFRAME",
+    "description": "",
+    "rawMaxStats": [
+      "+100% Health"
+    ]
+  },
+  {
+    "id": "steel-fiber",
+    "uniqueName": "/Lotus/Upgrades/Mods/Warframe/AvatarArmourMod",
+    "name": "Steel Fiber",
+    "polarity": "vazarin",
+    "baseDrain": 4,
+    "maxRank": 10,
+    "rarity": "Common",
+    "compat": "WARFRAME",
+    "description": "",
+    "rawMaxStats": [
+      "+100% Armor"
+    ]
+  },
+  {
+    "id": "redirection",
+    "uniqueName": "/Lotus/Upgrades/Mods/Warframe/AvatarShieldMaxMod",
+    "name": "Redirection",
+    "polarity": "vazarin",
+    "baseDrain": 2,
+    "maxRank": 10,
+    "rarity": "Common",
+    "compat": "WARFRAME",
+    "description": "",
+    "rawMaxStats": [
+      "+100% Shield Capacity"
+    ]
+  },
+  {
+    "id": "corrosive-projection",
+    "uniqueName": "/Lotus/Upgrades/Mods/Aura/EnemyArmorReductionAuraMod",
+    "name": "Corrosive Projection",
+    "polarity": "naramon",
+    "baseDrain": -2,
+    "maxRank": 5,
+    "rarity": "Uncommon",
+    "compat": "AURA",
+    "description": "",
+    "rawMaxStats": [
+      "Enemies lose -18% Armor"
+    ]
   }
 ]

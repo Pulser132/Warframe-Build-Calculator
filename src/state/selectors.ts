@@ -1,14 +1,16 @@
 /**
  * Derived selectors. `useDamageResult` runs the engine (calculate + attribution)
  * and recomputes only when the build, combat state, or dataset change identity —
- * a single shared memoized calculator keeps recomputes cheap.
+ * a single shared memoized calculator keeps recomputes cheap. `useWarframeStats`
+ * runs the frame resolver for the equipped Warframe compartment (Stage 4).
  */
 import { useMemo } from 'react';
 import { createMemoizedCalc } from '@engine';
-import type { DamageResult } from '@engine';
-import type { WeaponData } from '@engine/model/types';
+import type { DamageResult, WarframeStats } from '@engine';
+import type { GearBuild } from '@engine/model/build';
+import type { WarframeData, WeaponData } from '@engine/model/types';
 import { useBuildStore } from './store';
-import { computeResult } from './resolve';
+import { computeResult, resolveFrameStats } from './resolve';
 import { computeCapacity, type CapacityInfo } from './capacity';
 
 const sharedCalc = createMemoizedCalc(128);
@@ -33,17 +35,47 @@ export function useWeapon(): WeaponData | null {
   const build = useBuildStore((s) => s.build);
   const dataset = useBuildStore((s) => s.dataset);
   return useMemo(
-    () => dataset?.weapons.find((w) => w.id === build.weaponId) ?? null,
-    [build.weaponId, dataset],
+    () => dataset?.weapons.find((w) => w.id === build.weapon.itemId) ?? null,
+    [build.weapon.itemId, dataset],
   );
 }
 
-export function useCapacity(): CapacityInfo | null {
+/** The currently-equipped Warframe's curated data (or null when none). */
+export function useWarframe(): WarframeData | null {
   const build = useBuildStore((s) => s.build);
   const dataset = useBuildStore((s) => s.dataset);
+  return useMemo(
+    () => dataset?.warframes.find((f) => f.id === build.warframe?.itemId) ?? null,
+    [build.warframe?.itemId, dataset],
+  );
+}
+
+/** The active compartment's gear build (`null` for an empty warframe). */
+export function useActiveGear(): GearBuild | null {
+  const build = useBuildStore((s) => s.build);
+  const activeCompartment = useBuildStore((s) => s.activeCompartment);
+  return activeCompartment === 'weapon' ? build.weapon : build.warframe;
+}
+
+/** Resolved frame stats (ability attributes / EHP / emitted buffs), or null.
+ * Depends on combat state — per-stack frame arcanes (Molt Augmented) read it. */
+export function useWarframeStats(): WarframeStats | null {
+  const build = useBuildStore((s) => s.build);
+  const combat = useBuildStore((s) => s.combat);
+  const dataset = useBuildStore((s) => s.dataset);
+  return useMemo(
+    () => (dataset ? resolveFrameStats(build.warframe, dataset, combat) : null),
+    [build.warframe, combat, dataset],
+  );
+}
+
+/** Mod capacity for the **active** compartment. */
+export function useCapacity(): CapacityInfo | null {
+  const dataset = useBuildStore((s) => s.dataset);
+  const gear = useActiveGear();
   return useMemo(() => {
-    if (!dataset) return null;
+    if (!dataset || !gear) return null;
     const modsById = new Map(dataset.mods.map((m) => [m.id, m]));
-    return computeCapacity(build, modsById);
-  }, [build, dataset]);
+    return computeCapacity(gear, modsById);
+  }, [gear, dataset]);
 }

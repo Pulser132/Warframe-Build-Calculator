@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ModData, ArcaneData, ModSlotKind, Polarity, WeaponClass } from '@engine/model/types';
-import { slotAccepts, modMatchesGroup, type ModGroup } from '@state';
+import { slotAccepts, modMatchesGroup, arcaneMatchesGroup, type ModGroup } from '@state';
 import { ModCard } from './ModCard';
 import { cleanStat } from '../util';
 import styles from './ModPicker.module.css';
@@ -44,6 +44,7 @@ export function ModPicker({ slotIndex, slotKind, mods, arcanes, modGroup, weapon
     const q = query.trim().toLowerCase();
     if (slotKind === 'arcane') {
       return arcanes
+        .filter((a) => arcaneMatchesGroup(a, modGroup))
         .filter((a) => a.name.toLowerCase().includes(q))
         .map((a) => ({ id: a.id, name: a.name, stats: a.rawMaxStats.map(cleanStat), rarity: a.rarity }));
     }

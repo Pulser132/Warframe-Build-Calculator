@@ -9,7 +9,7 @@
  * Stage 1 ships no custom effects — the registry exists so later stages add a
  * data entry + a small function without touching the pipeline or UI (Goal.md).
  */
-import type { EffectDescriptor } from './types';
+import type { EffectDescriptor, FrameEffect } from './types';
 import type { Build, CombatState } from './build';
 
 export interface CustomEffectContext {
@@ -21,14 +21,26 @@ export interface CustomEffectContext {
   maxRank: number;
   /** The build, when available (optional — the Stage 3 fns don't need it). */
   build?: Build;
+  /**
+   * Precomputed per-set tally (ADR 0004): count of equipped mods per `set` id in
+   * the current compartment, e.g. `{ umbral: 3 }`. Computed once per resolve and
+   * threaded into both the weapon `gather` ctx and the frame resolver ctx so a
+   * set-bonus function reads `ctx.setCounts['umbral']` without re-scanning the
+   * loadout. Empty when no set mods are equipped.
+   */
+  setCounts: Record<string, number>;
 }
 
 /**
- * A registry function returns **already-computed, rank-scaled** effect
- * descriptors. The `gather` stage folds them into the bucket sums **without**
- * re-applying `rankFactor`/`perStack` (see ADR 0002).
+ * A registry function returns **already-computed, rank-scaled** effects. The
+ * `gather` stage folds damage descriptors into the bucket sums and the frame
+ * resolver folds frame-stat effects into the frame-stat sums — each **without**
+ * re-applying `rankFactor`/`perStack` (see ADR 0002 / ADR 0004). A function
+ * returns whichever kind suits its mod (weapon-damage mods → `EffectDescriptor`;
+ * Warframe set-bonus mods → `FrameEffect`); a `'bucket' in e` / `'stat' in e`
+ * guard at each call site narrows the union.
  */
-export type CustomEffectFn = (ctx: CustomEffectContext) => EffectDescriptor[];
+export type CustomEffectFn = (ctx: CustomEffectContext) => (EffectDescriptor | FrameEffect)[];
 
 export type CustomEffectRegistry = Record<string, CustomEffectFn>;
 

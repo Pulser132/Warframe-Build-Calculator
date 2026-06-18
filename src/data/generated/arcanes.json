@@ -23,5 +23,17 @@
       "+30% to Headshot Multiplier",
       "-50% Weapon Recoil"
     ]
+  },
+  {
+    "id": "molt-augmented",
+    "uniqueName": "/Lotus/Upgrades/CosmeticEnhancers/Offensive/PowerStrengthOnKill",
+    "name": "Molt Augmented",
+    "rarity": "Rare",
+    "maxRank": 5,
+    "description": "",
+    "rawMaxStats": [
+      "On Kill:\\n+0.24% Ability Strength. Stacks up to 250x.\\n+1 Arcane Revive",
+      "+1 Arcane Revive"
+    ]
   }
 ]

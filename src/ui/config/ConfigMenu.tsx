@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { listBuffs } from '@engine';
-import { useBuildStore } from '@state';
+import { useBuildStore, useWarframeStats } from '@state';
 import styles from './ConfigMenu.module.css';
 
 /**
@@ -18,24 +18,30 @@ export function ConfigMenu() {
   const combat = useBuildStore((s) => s.combat);
   const toggleCondition = useBuildStore((s) => s.toggleCondition);
   const setStacks = useBuildStore((s) => s.setStacks);
-  const setBuff = useBuildStore((s) => s.setBuff);
+  const toggleBuff = useBuildStore((s) => s.toggleBuff);
+  const setBuffManual = useBuildStore((s) => s.setBuffManual);
   const setTargetCount = useBuildStore((s) => s.setTargetCount);
+  const frameStats = useWarframeStats();
 
-  const weapon = dataset?.weapons.find((w) => w.id === build.weaponId);
+  const weaponSlots = build.weapon.slots;
+  const frameBuild = build.warframe;
+  const weapon = dataset?.weapons.find((w) => w.id === build.weapon.itemId);
   const isMelee = weapon?.category === 'Melee';
 
   // The "status types on target" input only feeds Condition Overload — show it
   // only when a mod that consumes it is equipped.
-  const usesStatusCount = build.slots.some((slot) => {
+  const usesStatusCount = weaponSlots.some((slot) => {
     if (!slot.itemId) return false;
     return dataset?.mods.find((m) => m.id === slot.itemId)?.customEffectId === 'condition-overload';
   });
 
-  // Discover stackable sources from equipped arcanes.
+  // Discover stackable sources from equipped arcanes — weapon arcanes (per-stack
+  // damage `effects`, e.g. Primary Merciless) and frame arcanes (per-stack
+  // `frameEffects`, e.g. Molt Augmented). Both surface as a stack slider.
   const stackSources = useMemo(() => {
     if (!dataset) return [];
     const out: { key: string; label: string; max: number }[] = [];
-    for (const slot of build.slots) {
+    for (const slot of weaponSlots) {
       if (slot.kind !== 'arcane' || !slot.itemId) continue;
       const arcane = dataset.arcanes.find((a) => a.id === slot.itemId);
       const eff = arcane?.effects.find((e) => e.perStack && e.condition);
@@ -43,8 +49,16 @@ export function ConfigMenu() {
         out.push({ key: eff.condition, label: arcane.name, max: eff.maxStacks ?? 1 });
       }
     }
+    for (const slot of frameBuild?.slots ?? []) {
+      if (slot.kind !== 'arcane' || !slot.itemId) continue;
+      const arcane = dataset.arcanes.find((a) => a.id === slot.itemId);
+      const eff = arcane?.frameEffects?.find((e) => e.perStack && e.condition);
+      if (arcane && eff?.condition) {
+        out.push({ key: eff.condition, label: arcane.name, max: eff.maxStacks ?? 1 });
+      }
+    }
     return out;
-  }, [dataset, build.slots]);
+  }, [dataset, weaponSlots, frameBuild]);
 
   const buffs = listBuffs();
 
@@ -144,33 +158,49 @@ export function ConfigMenu() {
       )}
 
       <div className={styles.group}>
-        <span className={styles.groupLabel}>External buffs</span>
+        <span className={styles.groupLabel}>
+          Ability buffs <span className={styles.hint}>(frame-derived)</span>
+        </span>
         {buffs.map((def) => {
           const active = combat.buffs.find((b) => b.id === def.id);
-          const strength = active?.strength ?? def.defaultStrength;
+          // Magnitude is derived from the equipped frame when it emits this buff;
+          // otherwise the user supplies a manual fallback (squadmate's Roar).
+          const frameMagnitude = frameStats?.emittedBuffs[def.id];
+          const fromFrame = frameMagnitude != null;
+          const magnitude = frameMagnitude ?? active?.manualMagnitude ?? def.defaultMagnitude;
           return (
             <div key={def.id} className={styles.buff}>
               <label className={styles.toggle}>
                 <input
                   type="checkbox"
                   checked={!!active}
-                  onChange={(e) => setBuff(def.id, e.target.checked ? strength : null)}
+                  aria-label={`${def.label} active`}
+                  onChange={(e) => toggleBuff(def.id, e.target.checked)}
                 />
                 {def.label}
+                <span className={styles.value}> +{Math.round(magnitude * 100)}%</span>
               </label>
-              <div className={styles.slider}>
-                <input
-                  type="range"
-                  min={def.min}
-                  max={def.max}
-                  step={def.step}
-                  value={strength}
-                  disabled={!active}
-                  aria-label={`${def.label} strength`}
-                  onChange={(e) => setBuff(def.id, Number(e.target.value))}
-                />
-                <span className={styles.value}>+{Math.round(strength * 100)}%</span>
-              </div>
+              {fromFrame ? (
+                <span className={styles.hint}>from equipped frame (Ability Strength)</span>
+              ) : (
+                <div className={styles.slider}>
+                  <label className={styles.sliderLabel} htmlFor={`buff-manual-${def.id}`}>
+                    Manual magnitude <span className={styles.hint}>(no frame source)</span>
+                  </label>
+                  <input
+                    id={`buff-manual-${def.id}`}
+                    type="number"
+                    min={0}
+                    step={0.05}
+                    value={active?.manualMagnitude ?? def.defaultMagnitude}
+                    disabled={!active}
+                    aria-label={`${def.label} manual magnitude`}
+                    onChange={(e) =>
+                      setBuffManual(def.id, e.target.value === '' ? null : Number(e.target.value))
+                    }
+                  />
+                </div>
+              )}
             </div>
           );
         })}

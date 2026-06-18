@@ -26,6 +26,17 @@ export interface ResolvedSource {
    * into the bucket sums **without** re-applying `rankFactor`/`perStack`.
    */
   customEffectId?: string;
+  /** Set id (Stage 4, ADR 0004): tallied into `ctx.setCounts` for set bonuses. */
+  set?: string;
+}
+
+/** Tally equipped sources by `set` id (ADR 0004). Computed once per resolve. */
+export function tallySetCounts(sources: readonly { set?: string }[]): Record<string, number> {
+  const counts: Record<string, number> = {};
+  for (const s of sources) {
+    if (s.set) counts[s.set] = (counts[s.set] ?? 0) + 1;
+  }
+  return counts;
 }
 
 /** Additive sums per bucket, plus base-element contributions in load order. */
@@ -129,6 +140,7 @@ export function gatherBuckets(
   build?: Build,
 ): BucketSums {
   const sums = emptyBucketSums();
+  const setCounts = tallySetCounts(sources);
   for (const source of sources) {
     // Static descriptors: scale by rank/stacks, drop inactive conditionals.
     for (const effect of source.effects) {
@@ -142,9 +154,12 @@ export function gatherBuckets(
     if (source.customEffectId) {
       const fn = CUSTOM_EFFECTS[source.customEffectId];
       if (fn) {
-        const produced = fn({ rank: source.rank, maxRank: source.maxRank, combat, build });
+        const produced = fn({ rank: source.rank, maxRank: source.maxRank, combat, build, setCounts });
         for (const effect of produced) {
-          if (!effect.value) continue;
+          // Weapon `gather` folds only damage descriptors; frame-stat effects
+          // (from shared set-bonus fns) carry `stat` instead of `bucket` and are
+          // handled by the frame resolver (ADR 0004).
+          if (!('bucket' in effect) || !effect.value) continue;
           foldEffect(sums, effect, effect.value);
         }
       }

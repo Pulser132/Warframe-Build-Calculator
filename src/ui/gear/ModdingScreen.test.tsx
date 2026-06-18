@@ -16,17 +16,17 @@ beforeEach(() => {
 });
 
 describe('ModdingScreen', () => {
-  it('renders the 12-slot layout with the weapon picker', () => {
+  it('renders the 11-slot gun layout with the weapon picker', () => {
     render(<ModdingScreen />);
     const picker = screen.getByLabelText('select weapon') as HTMLSelectElement;
     const selected = picker.options[picker.selectedIndex];
     expect(selected.textContent).toBe('Vulkar Wraith');
-    // aura + exilus + 8 normal + 2 arcane = 12 slot buttons (role=button on each slot).
+    // exilus + 8 normal + 2 arcane = 11 slot buttons (guns have no aura — Stage 4).
     const slots = screen.getAllByRole('button').filter((b) => {
       const label = b.getAttribute('aria-label') ?? '';
       return /slot/i.test(label) && !/polarize/i.test(label);
     });
-    expect(slots.length).toBe(12);
+    expect(slots.length).toBe(11);
   });
 
   it('assigns a mod through the picker and shows it in the slot', async () => {
@@ -44,7 +44,7 @@ describe('ModdingScreen', () => {
 
     // The slot now shows Serration at max rank.
     expect(screen.getByText('Serration')).toBeInTheDocument();
-    const slots = useBuildStore.getState().build.slots;
+    const slots = useBuildStore.getState().build.weapon.slots;
     expect(slots.some((s) => s.itemId === 'serration' && s.rank === 10)).toBe(true);
   });
 
@@ -61,7 +61,7 @@ describe('ModdingScreen', () => {
     const user = userEvent.setup();
     render(<ModdingScreen />);
     await user.selectOptions(screen.getByLabelText('select weapon'), 'lex-prime');
-    expect(useBuildStore.getState().build.weaponId).toBe('lex-prime');
+    expect(useBuildStore.getState().build.weapon.itemId).toBe('lex-prime');
     expect(screen.getByText(/Secondary · Pistol/)).toBeInTheDocument();
   });
 
@@ -91,5 +91,39 @@ describe('ModdingScreen', () => {
     useBuildStore.getState().selectWeapon('lex-prime');
     render(<ModdingScreen />);
     expect(screen.queryByRole('tablist', { name: /fire modes/i })).not.toBeInTheDocument();
+  });
+
+  it('switches to the Warframe compartment and shows the frame layout + aura slot', async () => {
+    const user = userEvent.setup();
+    render(<ModdingScreen />);
+    const switcher = screen.getByRole('tablist', { name: /gear compartment/i });
+    await user.click(within(switcher).getByRole('tab', { name: 'Warframe' }));
+    expect(useBuildStore.getState().activeCompartment).toBe('warframe');
+    // The frame picker shows the reference frame; the frame keeps its aura slot.
+    const picker = screen.getByLabelText('select warframe') as HTMLSelectElement;
+    expect(picker.options[picker.selectedIndex].textContent).toBe('Rhino Prime');
+    const slots = screen.getAllByRole('button').filter((b) => {
+      const label = b.getAttribute('aria-label') ?? '';
+      return /slot/i.test(label) && !/polarize/i.test(label);
+    });
+    expect(slots.length).toBe(12); // aura + exilus + 8 normal + 2 arcane
+  });
+
+  it('offers only Warframe mods in the frame mod picker', async () => {
+    const user = userEvent.setup();
+    render(<ModdingScreen />);
+    await user.click(
+      within(screen.getByRole('tablist', { name: /gear compartment/i })).getByRole('tab', {
+        name: 'Warframe',
+      }),
+    );
+    // Open a normal frame slot.
+    const emptyNormal = screen.getAllByRole('button', { name: /empty Mod slot/i })[0];
+    await user.click(emptyNormal);
+    const dialog = screen.getByRole('dialog');
+    // Warframe mods are offered (Intensify + Umbral Intensify both match)…
+    expect(within(dialog).getAllByRole('button', { name: /Intensify/i }).length).toBeGreaterThan(0);
+    // …and weapon mods are not.
+    expect(within(dialog).queryByRole('button', { name: /^Serration/i })).not.toBeInTheDocument();
   });
 });

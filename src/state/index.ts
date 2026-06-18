@@ -4,11 +4,24 @@
  */
 export { useBuildStore, modFromStore } from './store';
 export type { BuildStore } from './store';
-export { useDamageResult, useCapacity, useWeapon } from './selectors';
-export { computeResult, resolveSources, getWeapon, getGun } from './resolve';
+export {
+  useDamageResult,
+  useCapacity,
+  useWeapon,
+  useWarframe,
+  useWarframeStats,
+  useActiveGear,
+} from './selectors';
+export { computeResult, resolveSources, resolveFrameStats, getWeapon, getGun } from './resolve';
 export { computeCapacity, modCost } from './capacity';
 export type { CapacityInfo } from './capacity';
-export { makeInitialBuild } from './initialBuild';
+export { makeInitialBuild, makeWeaponBuild, makeWarframeBuild } from './initialBuild';
 export { slotAccepts } from './slotRules';
-export { weaponModGroup, modMatchesGroup, stanceMatchesClass } from './modCompat';
+export {
+  weaponModGroup,
+  gearModGroup,
+  modMatchesGroup,
+  arcaneMatchesGroup,
+  stanceMatchesClass,
+} from './modCompat';
 export type { ModGroup, WeaponLike } from './modCompat';

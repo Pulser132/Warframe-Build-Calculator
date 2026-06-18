@@ -6,7 +6,13 @@
  * `mods/descriptors.ts`, producing fully-typed domain objects. Results are
  * memoized per module load.
  */
-import type { WeaponData, ModData, ArcaneData } from '@engine/model/types';
+import type {
+  WeaponData,
+  WarframeData,
+  ModData,
+  ArcaneData,
+  AbilityScaling,
+} from '@engine/model/types';
 import type { ComboString } from '@engine/model/firemode';
 import { MOD_DESCRIPTORS, ARCANE_DESCRIPTORS } from './mods/descriptors';
 
@@ -16,8 +22,12 @@ type GeneratedMod = Omit<ModData, 'slot' | 'effects'>;
 type GeneratedArcane = Omit<ArcaneData, 'effects'>;
 /** Committed combo-string dataset (scripts/scrape-combos.mjs → combos.json). */
 type CombosFile = Record<string, ComboString[]>;
+/** Committed ability-scaling dataset (scripts/scrape-abilities.mjs → abilities.json). */
+type AbilitiesFile = Record<string, AbilityScaling>;
 
 let weaponsPromise: Promise<WeaponData[]> | undefined;
+let warframesPromise: Promise<WarframeData[]> | undefined;
+let abilitiesPromise: Promise<AbilitiesFile> | undefined;
 let modsPromise: Promise<ModData[]> | undefined;
 let arcanesPromise: Promise<ArcaneData[]> | undefined;
 
@@ -39,6 +49,22 @@ export function loadWeapons(): Promise<WeaponData[]> {
   return weaponsPromise;
 }
 
+/** Load the curated Warframe roster (base stats + ability metadata). */
+export function loadWarframes(): Promise<WarframeData[]> {
+  warframesPromise ??= import('./generated/warframes.json').then(
+    (m) => m.default as unknown as WarframeData[],
+  );
+  return warframesPromise;
+}
+
+/** Load committed ability scaling (the only source the app reads — ADR 0001). */
+export function loadAbilities(): Promise<AbilitiesFile> {
+  abilitiesPromise ??= import('./generated/abilities.json').then(
+    (m) => m.default as unknown as AbilitiesFile,
+  );
+  return abilitiesPromise;
+}
+
 export function loadMods(): Promise<ModData[]> {
   modsPromise ??= import('./generated/mods.json').then((m) => {
     const generated = m.default as unknown as GeneratedMod[];
@@ -52,6 +78,8 @@ export function loadMods(): Promise<ModData[]> {
         slot: authored.slot,
         effects: authored.effects,
         ...(authored.customEffectId ? { customEffectId: authored.customEffectId } : {}),
+        ...(authored.frameEffects ? { frameEffects: authored.frameEffects } : {}),
+        ...(authored.set ? { set: authored.set } : {}),
       };
     });
   });
@@ -61,28 +89,36 @@ export function loadMods(): Promise<ModData[]> {
 export function loadArcanes(): Promise<ArcaneData[]> {
   arcanesPromise ??= import('./generated/arcanes.json').then((m) => {
     const generated = m.default as unknown as GeneratedArcane[];
-    return generated.map((g): ArcaneData => ({
-      ...g,
-      effects: ARCANE_DESCRIPTORS[g.id] ?? [],
-    }));
+    return generated.map((g): ArcaneData => {
+      const authored = ARCANE_DESCRIPTORS[g.id];
+      return {
+        ...g,
+        effects: authored?.effects ?? [],
+        ...(authored?.frameEffects ? { frameEffects: authored.frameEffects } : {}),
+      };
+    });
   });
   return arcanesPromise;
 }
 
 export interface Dataset {
   weapons: WeaponData[];
+  warframes: WarframeData[];
+  abilities: AbilitiesFile;
   mods: ModData[];
   arcanes: ArcaneData[];
 }
 
 /** Load the full curated dataset (all categories) at once. */
 export async function loadDataset(): Promise<Dataset> {
-  const [weapons, mods, arcanes] = await Promise.all([
+  const [weapons, warframes, abilities, mods, arcanes] = await Promise.all([
     loadWeapons(),
+    loadWarframes(),
+    loadAbilities(),
     loadMods(),
     loadArcanes(),
   ]);
-  return { weapons, mods, arcanes };
+  return { weapons, warframes, abilities, mods, arcanes };
 }
 
 export async function loadWeapon(id: string): Promise<WeaponData | undefined> {

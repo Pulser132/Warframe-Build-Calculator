@@ -181,36 +181,36 @@ Numbers + set-bonus values from the wiki.
 
 ## Tasks
 
-- [ ] **Build model (ADR 0003):** `GearBuild`; `Build = { weapon, warframe }`;
+- [x] **Build model (ADR 0003):** `GearBuild`; `Build = { weapon, warframe }`;
       migrate `EMPTY_BUILD` / `makeInitialBuild` / store actions to be
       compartment-addressed; "active compartment" in the store; default-equip the
       reference frame (clearable to `null`). Tests for compartment mutations + undo.
-- [ ] **Weapon-aura removal (decision 10):** gun `slotLayout` → no aura; migrate
+- [x] **Weapon-aura removal (decision 10):** gun `slotLayout` → no aura; migrate
       initial build / capacity / gun tests; `'aura'` becomes Warframe-only.
-- [ ] **Data pipeline:** `build-data.mjs` emits `warframes.json` (roster base stats +
+- [x] **Data pipeline:** `build-data.mjs` emits `warframes.json` (roster base stats +
       ability metadata); `loadWarframes()` + extended `Dataset`. Tests for the
       transform.
-- [ ] **Ability scraper (ADR 0001 pattern):** `scripts/scrape-abilities.mjs` →
+- [x] **Ability scraper (ADR 0001 pattern):** `scripts/scrape-abilities.mjs` →
       committed `abilities.json` (Roar verified; low-confidence flagged). Loader merge.
-- [ ] **`Warframe` gear class + factory branch;** slot layout; capability interfaces.
-- [ ] **Frame-stat resolver:** `resolveWarframe → WarframeStats`; ability-attribute
+- [x] **`Warframe` gear class + factory branch;** slot layout; capability interfaces.
+- [x] **Frame-stat resolver:** `resolveWarframe → WarframeStats`; ability-attribute
       buckets (additive) + efficiency cap; EHP. Unit tests with hand-verified numbers.
-- [ ] **Set bonuses (ADR 0004):** `set?` on `ModData`; `setCounts` tally helper +
+- [x] **Set bonuses (ADR 0004):** `set?` on `ModData`; `setCounts` tally helper +
       ctx extension; Umbral mods via the registry; shared registry across gather +
       frame resolver. Tests at 1/2/3 members.
-- [ ] **Ability modeling:** authored ability→buff/bucket mapping; Roar magnitude =
+- [x] **Ability modeling:** authored ability→buff/bucket mapping; Roar magnitude =
       `base × strength` (+ duration/range display). Tests.
-- [ ] **Buff link:** `CombatState.buffs` → active toggles; buff registry as catalog;
+- [x] **Buff link:** `CombatState.buffs` → active toggles; buff registry as catalog;
       weapon calc resolves Roar magnitude from the frame (manual-override fallback).
       Cross-compartment integration test (toggle on → faction bucket; off → gone;
       manual path).
-- [ ] **Mod compatibility:** `gearModGroup` + `'warframe'` group; frame mod pools;
+- [x] **Mod compatibility:** `gearModGroup` + `'warframe'` group; frame mod pools;
       close the aura/arcane cross-gear leak. Tests.
-- [ ] **Frame mod set:** author the frame mods + Umbral set + an aura + an arcane
+- [x] **Frame mod set:** author the frame mods + Umbral set + an aura + an arcane
       (numbers from the wiki, cached under `docs/warframe/`).
-- [ ] **UI:** compartment switcher; Warframe modding screen; frame panel (stats / EHP
+- [x] **UI:** compartment switcher; Warframe modding screen; frame panel (stats / EHP
       / emitted Roar); Roar toggle in combat config. Component tests.
-- [ ] **Reference build — Rhino Prime:** verify ability strength, efficiency cap,
+- [x] **Reference build — Rhino Prime:** verify ability strength, efficiency cap,
       Umbral set bonus (1/2/3), Roar magnitude, EHP, and the cross-compartment toggle
       against the wiki. Cache in `docs/warframe/warframes/rhino-prime.md`.
 

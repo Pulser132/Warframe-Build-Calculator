@@ -1,7 +1,14 @@
 import { useEffect, useState } from 'react';
 import { loadDataset } from '@data/loaders';
-import { useBuildStore, useDamageResult } from '@state';
-import { ModdingScreen, DamageSummary, ContributionList, PipelineChain, ConfigMenu } from '@ui';
+import { useBuildStore, useDamageResult, useWarframe, useWarframeStats } from '@state';
+import {
+  ModdingScreen,
+  DamageSummary,
+  ContributionList,
+  PipelineChain,
+  ConfigMenu,
+  FramePanel,
+} from '@ui';
 import styles from './App.module.css';
 
 export function App() {
@@ -9,6 +16,8 @@ export function App() {
   const dataset = useBuildStore((s) => s.dataset);
   const [error, setError] = useState<string | null>(null);
   const result = useDamageResult();
+  const warframe = useWarframe();
+  const frameStats = useWarframeStats();
 
   useEffect(() => {
     let cancelled = false;
@@ -44,6 +53,7 @@ export function App() {
           <div className={styles.results}>
             <div className={styles.resultsMain}>
               {result && <DamageSummary result={result} />}
+              {warframe && frameStats && <FramePanel frameName={warframe.name} stats={frameStats} />}
               {result && <PipelineChain result={result} />}
               {result?.contributions && <ContributionList contributions={result.contributions} />}
             </div>

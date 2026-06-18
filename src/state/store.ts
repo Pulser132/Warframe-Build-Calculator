@@ -1,18 +1,21 @@
 /**
- * The single Zustand build store: the current `Build` + `CombatState`, the loaded
- * dataset, mutation actions, and hand-rolled undo/redo history.
+ * The single Zustand build store: the current `Build` (gear compartments) +
+ * `CombatState`, the loaded dataset, mutation actions, and hand-rolled undo/redo.
  *
- * The store owns all mutation; the engine only reads (via `resolve.ts`). Each
- * mutating action snapshots {build, combat} onto an undo stack and clears redo.
+ * The store owns all mutation; the engine only reads (via `resolve.ts`). Build
+ * mutations are **compartment-addressed** (ADR 0003): they act on the
+ * `activeCompartment` (`weapon` | `warframe`), so the modding-screen UI stays
+ * compartment-agnostic. Each mutating action snapshots {build, combat} onto an
+ * undo stack and clears redo.
  */
 import { create } from 'zustand';
-import type { Build, CombatState, SlotState } from '@engine/model/build';
+import type { Build, GearBuild, CombatState, SlotState, Compartment } from '@engine/model/build';
 import { EMPTY_COMBAT_STATE } from '@engine/model/build';
 import type { ModData, Polarity } from '@engine/model/types';
 import type { Dataset } from '@data/loaders';
-import { makeInitialBuild } from './initialBuild';
+import { makeInitialBuild, makeWarframeBuild } from './initialBuild';
 import { slotAccepts } from './slotRules';
-import { weaponModGroup, modMatchesGroup } from './modCompat';
+import { gearModGroup, modMatchesGroup, arcaneMatchesGroup } from './modCompat';
 
 interface Snapshot {
   build: Build;
@@ -23,6 +26,8 @@ export interface BuildStore {
   dataset: Dataset | null;
   build: Build;
   combat: CombatState;
+  /** Which compartment the modding screen edits (ADR 0003). */
+  activeCompartment: Compartment;
   /** Active fire-mode name (`null` = the weapon's primary mode). */
   activeMode: string | null;
   past: Snapshot[];
@@ -32,8 +37,12 @@ export interface BuildStore {
   activeComboString: string | null;
 
   initFromDataset: (dataset: Dataset) => void;
-  /** Switch the equipped weapon, rebuilding the slots for its layout. */
+  /** Switch the active modding compartment. */
+  setActiveCompartment: (compartment: Compartment) => void;
+  /** Switch the equipped weapon, rebuilding the weapon compartment's slots. */
   selectWeapon: (weaponId: string) => void;
+  /** Switch (or clear, with `null`) the equipped Warframe. */
+  selectWarframe: (warframeId: string | null) => void;
   /** Switch the active fire mode (multi-mode weapons). */
   setMode: (modeName: string | null) => void;
   /** Select a stance Combo String (melee Normal mode). */
@@ -47,7 +56,10 @@ export interface BuildStore {
 
   toggleCondition: (key: string, on?: boolean) => void;
   setStacks: (key: string, n: number) => void;
-  setBuff: (id: string, strength: number | null) => void;
+  /** Toggle an Emitted Buff on/off (magnitude is frame-derived). */
+  toggleBuff: (id: string, on?: boolean) => void;
+  /** Set a buff's manual-magnitude fallback (used when no frame emits it). */
+  setBuffManual: (id: string, manualMagnitude: number | null) => void;
   /** Set the melee Follow-Through target count (1 = single-target). */
   setTargetCount: (n: number) => void;
 
@@ -57,7 +69,8 @@ export interface BuildStore {
   canRedo: () => boolean;
 }
 
-const EMPTY_BUILD: Build = { weaponId: '', slots: [], reactor: true, baseCapacity: 30 };
+const EMPTY_GEAR: GearBuild = { itemId: '', slots: [], reactor: true, baseCapacity: 30 };
+const EMPTY_BUILD: Build = { weapon: EMPTY_GEAR, warframe: null };
 
 /** The max rank to assign a freshly-equipped item at (theorycrafting default). */
 function defaultRankFor(itemId: string, slotKind: SlotState['kind'], dataset: Dataset): number {
@@ -86,16 +99,30 @@ export const useBuildStore = create<BuildStore>((set, get) => {
     });
   };
 
+  /** The gear of the active compartment (or `null` for an empty warframe). */
+  const activeGear = (): GearBuild | null => {
+    const { build, activeCompartment } = get();
+    return activeCompartment === 'weapon' ? build.weapon : build.warframe;
+  };
+
+  /** Commit a replacement gear into the active compartment. */
+  const commitActiveGear = (gear: GearBuild) => {
+    const { build, activeCompartment } = get();
+    commit({ build: { ...build, [activeCompartment]: gear } });
+  };
+
   const updateSlot = (slotIndex: number, patch: Partial<SlotState>) => {
-    const { build } = get();
-    const slots = build.slots.map((s, i) => (i === slotIndex ? { ...s, ...patch } : s));
-    commit({ build: { ...build, slots } });
+    const gear = activeGear();
+    if (!gear) return;
+    const slots = gear.slots.map((s, i) => (i === slotIndex ? { ...s, ...patch } : s));
+    commitActiveGear({ ...gear, slots });
   };
 
   return {
     dataset: null,
     build: EMPTY_BUILD,
     combat: EMPTY_COMBAT_STATE,
+    activeCompartment: 'weapon',
     activeMode: null,
     activeComboString: null,
     past: [],
@@ -103,10 +130,12 @@ export const useBuildStore = create<BuildStore>((set, get) => {
 
     initFromDataset: (dataset) => {
       const weapon = dataset.weapons[0];
+      const frame = dataset.warframes[0] ?? null;
       set({
         dataset,
-        build: weapon ? makeInitialBuild(weapon) : EMPTY_BUILD,
+        build: weapon ? makeInitialBuild(weapon, frame) : EMPTY_BUILD,
         combat: EMPTY_COMBAT_STATE,
+        activeCompartment: 'weapon',
         activeMode: null,
         activeComboString: null,
         past: [],
@@ -114,14 +143,30 @@ export const useBuildStore = create<BuildStore>((set, get) => {
       });
     },
 
+    setActiveCompartment: (compartment) => set({ activeCompartment: compartment }),
+
     selectWeapon: (weaponId) => {
       const { dataset, build } = get();
-      if (!dataset || weaponId === build.weaponId) return;
+      if (!dataset || weaponId === build.weapon.itemId) return;
       const weapon = dataset.weapons.find((w) => w.id === weaponId);
       if (!weapon) return;
-      // A weapon swap discards the old loadout; mode/combo reset.
-      commit({ build: makeInitialBuild(weapon) });
+      // A weapon swap discards the old weapon loadout; mode/combo reset.
+      commit({ build: { ...build, weapon: makeInitialBuild(weapon).weapon } });
       set({ activeMode: null, activeComboString: null });
+    },
+
+    selectWarframe: (warframeId) => {
+      const { dataset, build } = get();
+      if (!dataset) return;
+      if (warframeId === null) {
+        if (!build.warframe) return;
+        commit({ build: { ...build, warframe: null } });
+        return;
+      }
+      if (warframeId === build.warframe?.itemId) return;
+      const frame = dataset.warframes.find((f) => f.id === warframeId);
+      if (!frame) return;
+      commit({ build: { ...build, warframe: makeWarframeBuild(frame) } });
     },
 
     setMode: (modeName) => set({ activeMode: modeName }),
@@ -129,16 +174,28 @@ export const useBuildStore = create<BuildStore>((set, get) => {
     setComboString: (name) => set({ activeComboString: name }),
 
     assignMod: (slotIndex, itemId) => {
-      const { build, dataset } = get();
+      const { dataset, activeCompartment } = get();
       if (!dataset) return;
-      const slot = build.slots[slotIndex];
-      if (!slot) return;
+      const gear = activeGear();
+      const slot = gear?.slots[slotIndex];
+      if (!gear || !slot) return;
       const itemKind = itemKindOf(itemId, dataset);
       if (!itemKind || !slotAccepts(slot.kind, itemKind)) return; // incompatible slot — ignore
-      // Class-compatibility guard (e.g. a Pistol mod cannot go on a rifle).
-      const mod = dataset.mods.find((m) => m.id === itemId);
-      const weapon = dataset.weapons.find((w) => w.id === build.weaponId);
-      if (mod && weapon && !modMatchesGroup(mod, weaponModGroup(weapon), weapon.weaponClass)) return;
+
+      // Gear-type compatibility guard (a Pistol mod can't go on a rifle; a
+      // weapon mod can't go on the frame; a frame arcane can't go on a weapon).
+      const group =
+        activeCompartment === 'warframe'
+          ? gearModGroup({ category: 'Warframe' })
+          : gearModGroup(dataset.weapons.find((w) => w.id === gear.itemId)!);
+      const weaponClass = dataset.weapons.find((w) => w.id === gear.itemId)?.weaponClass;
+      if (itemKind === 'arcane') {
+        const arcane = dataset.arcanes.find((a) => a.id === itemId);
+        if (arcane && !arcaneMatchesGroup(arcane, group)) return;
+      } else {
+        const mod = dataset.mods.find((m) => m.id === itemId);
+        if (mod && !modMatchesGroup(mod, group, weaponClass)) return;
+      }
       updateSlot(slotIndex, { itemId, rank: defaultRankFor(itemId, slot.kind, dataset) });
     },
 
@@ -149,8 +206,9 @@ export const useBuildStore = create<BuildStore>((set, get) => {
     setSlotPolarity: (slotIndex, polarity) => updateSlot(slotIndex, { polarity }),
 
     setReactor: (on) => {
-      const { build } = get();
-      commit({ build: { ...build, reactor: on } });
+      const gear = activeGear();
+      if (!gear) return;
+      commitActiveGear({ ...gear, reactor: on });
     },
 
     toggleCondition: (key, on) => {
@@ -164,10 +222,24 @@ export const useBuildStore = create<BuildStore>((set, get) => {
       commit({ combat: { ...combat, stacks: { ...combat.stacks, [key]: Math.max(0, n) } } });
     },
 
-    setBuff: (id, strength) => {
+    toggleBuff: (id, on) => {
       const { combat } = get();
+      const active = combat.buffs.some((b) => b.id === id);
+      const next = on ?? !active;
       const buffs = combat.buffs.filter((b) => b.id !== id);
-      if (strength !== null) buffs.push({ id, strength });
+      if (next) buffs.push({ id });
+      commit({ combat: { ...combat, buffs } });
+    },
+
+    setBuffManual: (id, manualMagnitude) => {
+      const { combat } = get();
+      const buffs = combat.buffs.map((b) =>
+        b.id === id
+          ? manualMagnitude === null
+            ? { id: b.id }
+            : { id: b.id, manualMagnitude }
+          : b,
+      );
       commit({ combat: { ...combat, buffs } });
     },
 

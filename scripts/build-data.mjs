@@ -118,10 +118,35 @@ const MOD_UNIQUE_NAMES = [
   '/Lotus/Weapons/Tenno/Melee/MeleeTrees/TonfaCmbTwoMeleeTree', // Sovereign Outcast (Tonfas)
   '/Lotus/Weapons/Tenno/Melee/MeleeTrees/AxeCmbThreeMeleeTree', // Tempo Royale (Heavy Blade)
   '/Lotus/Weapons/Tenno/Melee/MeleeTrees/AxeCmbTwoMeleeTree', // Cleaving Whirlwind (Heavy Blade)
+  // ── Warframe ability-attribute mods (Stage 4) ──
+  '/Lotus/Upgrades/Mods/Warframe/AvatarAbilityStrengthMod', // Intensify
+  '/Lotus/Upgrades/Mods/Warframe/DualStat/CorruptedPowerStrengthPowerDurationWarframe', // Transient Fortitude
+  '/Lotus/Upgrades/Mods/Warframe/DualStat/CorruptedPowerEfficiencyWarframe', // Blind Rage
+  '/Lotus/Upgrades/Mods/Warframe/DualStat/CorruptedRangePowerWarframe', // Overextended
+  '/Lotus/Upgrades/Mods/Warframe/AvatarAbilityEfficiencyMod', // Streamline
+  '/Lotus/Upgrades/Mods/Warframe/DualStat/CorruptedEfficiencyDurationWarframe', // Fleeting Expertise
+  '/Lotus/Upgrades/Mods/Warframe/DualStat/CorruptedDurationRangeWarframe', // Narrow Minded
+  '/Lotus/Upgrades/Mods/Warframe/AvatarAbilityRangeMod', // Stretch
+  '/Lotus/Upgrades/Mods/Warframe/AvatarAbilityDurationMod', // Continuity
+  '/Lotus/Upgrades/Mods/OrokinChallenge/OrokinChallengeModPower', // Power Drift (exilus)
+  '/Lotus/Upgrades/Mods/OrokinChallenge/OrokinChallengeModCunning', // Cunning Drift (exilus)
+  // ── Umbral set ──
+  '/Lotus/Upgrades/Mods/Sets/Umbra/WarframeUmbraModC', // Umbral Intensify
+  '/Lotus/Upgrades/Mods/Sets/Umbra/WarframeUmbraModA', // Umbral Vitality
+  '/Lotus/Upgrades/Mods/Sets/Umbra/WarframeUmbraModB', // Umbral Fiber
+  // ── Survivability ──
+  '/Lotus/Upgrades/Mods/Warframe/AvatarHealthMaxMod', // Vitality
+  '/Lotus/Upgrades/Mods/Warframe/AvatarArmourMod', // Steel Fiber
+  '/Lotus/Upgrades/Mods/Warframe/AvatarShieldMaxMod', // Redirection
+  // ── Aura ──
+  '/Lotus/Upgrades/Mods/Aura/EnemyArmorReductionAuraMod', // Corrosive Projection
 ];
 
 /** Curated arcanes, by exact name. */
-const ARCANES = ['Primary Merciless', 'Primary Deadhead'];
+const ARCANES = ['Primary Merciless', 'Primary Deadhead', 'Molt Augmented'];
+
+/** Warframes kept first (reference frame) so the app default is stable. */
+const DEFAULT_WARFRAME = 'Rhino Prime';
 
 function loadCategory(name) {
   return JSON.parse(readFileSync(join(DATA_DIR, `${name}.json`), 'utf8'));
@@ -642,6 +667,46 @@ function normalizeWeapon(w) {
   };
 }
 
+// ── Warframe mapping (Stage 4) ───────────────────────────────────────────────
+
+/**
+ * Normalize a `@wfcd` Warframe record into curated `WarframeData`: base stats,
+ * the ability roster (names/descriptions only — numeric scaling comes from the
+ * offline ability scraper, ADR 0001), and slot polarities. `@wfcd` does not
+ * populate `auraPolarity`/`exilusPolarity` for every frame, so they default to
+ * `null` (→ `none` in the engine) when absent (Plan: verify per frame).
+ */
+function normalizeWarframe(w) {
+  return {
+    id: slugify(w.name),
+    uniqueName: w.uniqueName,
+    name: w.name,
+    health: w.health ?? 0,
+    shield: w.shield ?? 0,
+    armor: w.armor ?? 0,
+    energy: w.power ?? 0,
+    sprintSpeed: w.sprintSpeed ?? 1,
+    masteryReq: w.masteryReq ?? 0,
+    passiveDescription: (w.passiveDescription ?? '').trim(),
+    abilities: (w.abilities ?? []).map((a) => ({
+      id: slugify(a.name),
+      name: a.name,
+      description: (a.description ?? '').trim(),
+    })),
+    auraPolarity: w.auraPolarity ?? null,
+    exilusPolarity: w.exilusPolarity ?? null,
+    polarities: w.polarities ?? [],
+  };
+}
+
+/** Whether a raw record is a real, moddable Warframe we can map. */
+function isUsableWarframe(w) {
+  if (w.productCategory !== 'Suits') return false; // excludes archwing/necramech etc.
+  if (!w.name || !w.uniqueName) return false;
+  if ((w.health ?? 0) <= 0) return false;
+  return true;
+}
+
 function normalizeMod(m) {
   return {
     id: slugify(m.name),
@@ -701,6 +766,7 @@ function main() {
   const primary = loadCategory('Primary');
   const secondary = loadCategory('Secondary');
   const melee = loadCategory('Melee');
+  const warframes = loadCategory('Warframes');
   const mods = loadCategory('Mods');
   const arcanes = loadCategory('Arcanes');
 
@@ -756,6 +822,32 @@ function main() {
     return a.name.localeCompare(b.name);
   });
 
+  // ── Warframes: every usable frame, mapped generically (reference frame first). ──
+  const frameBest = new Map();
+  for (const w of warframes) {
+    if (!isUsableWarframe(w)) continue;
+    const id = slugify(w.name);
+    const prev = frameBest.get(id);
+    if (!prev || (w.health ?? 0) > (prev.health ?? 0)) frameBest.set(id, w);
+  }
+  const warframesOut = [];
+  for (const w of frameBest.values()) {
+    try {
+      warframesOut.push(normalizeWarframe(w));
+    } catch (e) {
+      skipped++;
+      console.warn(`build-data: skipped frame ${w.name}: ${e.message}`);
+    }
+  }
+  warframesOut.sort((a, b) => {
+    if (a.name === DEFAULT_WARFRAME) return -1;
+    if (b.name === DEFAULT_WARFRAME) return 1;
+    return a.name.localeCompare(b.name);
+  });
+  if (!warframesOut.some((w) => w.name === DEFAULT_WARFRAME)) {
+    throw new Error(`Reference Warframe failed to map: ${DEFAULT_WARFRAME}`);
+  }
+
   const modsOut = MOD_UNIQUE_NAMES.map((u) => {
     const m = mods.find((x) => x.uniqueName === u);
     if (!m) throw new Error(`Curated mod not found in @wfcd (uniqueName): ${u}`);
@@ -785,11 +877,13 @@ function main() {
     writeFileSync(join(OUT_DIR, file), JSON.stringify(data, null, 2) + '\n');
 
   write('weapons.json', weaponsOut);
+  write('warframes.json', warframesOut);
   write('mods.json', modsOut);
   write('arcanes.json', arcanesOut);
 
   console.log(
     `build-data: wrote ${weaponsOut.length} weapon(s) (${meleeCount} melee, ${skipped} skipped), ` +
+      `${warframesOut.length} warframe(s), ` +
       `${modsOut.length} mod(s), ${arcanesOut.length} arcane(s) to src/data/generated/`,
   );
 }

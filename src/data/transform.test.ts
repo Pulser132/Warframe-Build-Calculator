@@ -4,7 +4,7 @@
  * weapon per mechanic). These pin the `build-data.mjs` output shape.
  */
 import { describe, it, expect } from 'vitest';
-import { loadWeapon } from './loaders';
+import { loadWeapon, loadWarframes, loadAbilities } from './loaders';
 
 describe('fire-mode mapping (generic, from @wfcd attacks[])', () => {
   it('single-mode weapon → exactly one mode (Soma Prime; Incarnon dropped)', async () => {
@@ -103,5 +103,35 @@ describe('AoE split + falloff convention', () => {
     // falloff (long-range projectile falloff is Stage 5 metadata, not applied here).
     const hek = await loadWeapon('vaykor-hek');
     expect(hek!.fireModes![0].components[0].falloff).toBeUndefined();
+  });
+});
+
+describe('Warframe transform (Stage 4)', () => {
+  it('emits the reference frame first with base stats + ability roster', async () => {
+    const frames = await loadWarframes();
+    expect(frames.length).toBeGreaterThan(100);
+    const rhino = frames[0];
+    expect(rhino.name).toBe('Rhino Prime'); // stable reference frame
+    expect(rhino.health).toBe(270);
+    expect(rhino.shield).toBe(455);
+    expect(rhino.armor).toBe(290);
+    expect(rhino.energy).toBe(100); // @wfcd `power`
+    // Ability names/descriptions present; numeric scaling is NOT in this file.
+    expect(rhino.abilities.map((a) => a.id)).toContain('roar');
+    expect((rhino.abilities[0] as unknown as { strengthBase?: number }).strengthBase).toBeUndefined();
+  });
+
+  it('defaults absent slot polarities to null (verified per frame)', async () => {
+    const frames = await loadWarframes();
+    const rhino = frames[0];
+    // @wfcd does not populate Rhino Prime's aura/exilus polarity.
+    expect(rhino.auraPolarity).toBeNull();
+    expect(rhino.polarities).toContain('vazarin');
+  });
+
+  it('ability scaling lives in the committed abilities.json (Roar verified)', async () => {
+    const abilities = await loadAbilities();
+    expect(abilities.roar).toMatchObject({ strengthBase: 0.5, durationBase: 30, rangeBase: 25 });
+    expect(abilities.roar.lowConfidence).toBeUndefined();
   });
 });

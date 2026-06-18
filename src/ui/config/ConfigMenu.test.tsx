@@ -48,4 +48,22 @@ describe('ConfigMenu', () => {
     render(<ConfigMenu />);
     expect(screen.getByLabelText(/Primary Merciless stacks/i)).toBeInTheDocument();
   });
+
+  it('shows a stacks slider for a per-stack frame arcane (Molt Augmented)', () => {
+    store().setActiveCompartment('warframe');
+    store().assignMod(10, 'molt-augmented'); // frame arcane slot
+    render(<ConfigMenu />);
+    expect(screen.getByLabelText(/Molt Augmented stacks/i)).toBeInTheDocument();
+  });
+
+  it('Molt Augmented stacks raise the frame-derived Roar through the engine', async () => {
+    const user = userEvent.setup();
+    store().setActiveCompartment('warframe');
+    store().assignMod(10, 'molt-augmented');
+    render(<ConfigMenu />);
+    await user.click(screen.getByRole('checkbox', { name: /Roar/i })); // toggle Roar on
+    const before = dps();
+    store().setStacks('arcane:molt-augmented', 250); // +60% strength → bigger Roar
+    expect(dps()).toBeGreaterThan(before);
+  });
 });

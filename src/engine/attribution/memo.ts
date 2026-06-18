@@ -21,8 +21,12 @@ function signature(input: CalcInput): string {
     .map(([k, n]) => `${k}:${n}`)
     .sort()
     .join(',');
-  const buffs = input.combat.buffs
-    .map((b) => `${b.id}:${b.strength}`)
+  // Buffs are resolved into 'buff' sources carrying their (frame-derived)
+  // magnitude in `effects`; key on that value so a magnitude change busts the
+  // cache (buff sources have rank 0, so `id@rank` alone wouldn't).
+  const buffs = input.sources
+    .filter((s) => s.kind === 'buff')
+    .map((s) => `${s.id}:${s.effects.map((e) => e.value).join('|')}`)
     .sort()
     .join(',');
   // Fire mode is part of the key: the same loadout yields different results per mode.

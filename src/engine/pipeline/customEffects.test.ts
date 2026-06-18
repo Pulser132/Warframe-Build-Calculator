@@ -11,26 +11,26 @@ function withCombo(count: number, extra: Partial<CombatState> = {}): CombatState
 describe('Blood Rush (custom effect)', () => {
   it('adds 0.4 × tier to critChance at max rank', () => {
     // combo 60 → tier 3 → +1.2 crit chance bucket (wiki: ×(combo−1)=×3 at 4x).
-    const eff = bloodRush({ rank: 10, maxRank: 10, combat: withCombo(60) });
+    const eff = bloodRush({ rank: 10, maxRank: 10, combat: withCombo(60), setCounts: {} });
     expect(eff).toHaveLength(1);
     expect(eff[0].bucket).toBe('critChance');
     expect(eff[0].value).toBeCloseTo(1.2, 6);
   });
 
   it('is zero at tier 0 (combo < 20)', () => {
-    expect(bloodRush({ rank: 10, maxRank: 10, combat: withCombo(19) })).toEqual([]);
+    expect(bloodRush({ rank: 10, maxRank: 10, combat: withCombo(19), setCounts: {} })).toEqual([]);
   });
 
   it('scales linearly with rank', () => {
     // rankFactor(5,10) = 6/11; tier 1 → 0.4 × 6/11.
-    const eff = bloodRush({ rank: 5, maxRank: 10, combat: withCombo(20) });
+    const eff = bloodRush({ rank: 5, maxRank: 10, combat: withCombo(20), setCounts: {} });
     expect(eff[0].value).toBeCloseTo(0.4 * (6 / 11), 6);
   });
 });
 
 describe('Weeping Wounds (custom effect)', () => {
   it('adds 0.4 × tier to statusChance at max rank', () => {
-    const eff = weepingWounds({ rank: 5, maxRank: 5, combat: withCombo(60) });
+    const eff = weepingWounds({ rank: 5, maxRank: 5, combat: withCombo(60), setCounts: {} });
     expect(eff).toHaveLength(1);
     expect(eff[0].bucket).toBe('statusChance');
     expect(eff[0].value).toBeCloseTo(1.2, 6);
@@ -43,6 +43,7 @@ describe('Condition Overload (custom effect)', () => {
       rank: 5,
       maxRank: 5,
       combat: { ...EMPTY_COMBAT_STATE, stacks: { [STATUS_COUNT_KEY]: 4 } },
+      setCounts: {},
     });
     expect(eff).toHaveLength(1);
     expect(eff[0].bucket).toBe('baseDamage');
@@ -54,12 +55,13 @@ describe('Condition Overload (custom effect)', () => {
       rank: 5,
       maxRank: 5,
       combat: { ...EMPTY_COMBAT_STATE, stacks: { [STATUS_COUNT_KEY]: 99 } },
+      setCounts: {},
     });
     expect(eff[0].value).toBeCloseTo(0.8 * 16, 6);
   });
 
   it('is zero with no statuses', () => {
-    expect(conditionOverload({ rank: 5, maxRank: 5, combat: EMPTY_COMBAT_STATE })).toEqual([]);
+    expect(conditionOverload({ rank: 5, maxRank: 5, combat: EMPTY_COMBAT_STATE, setCounts: {} })).toEqual([]);
   });
 });
 

@@ -9,13 +9,23 @@
  * Additive-vs-multiplicative (Goal.md requirement) is encoded by the bucket:
  * members of a bucket add together; buckets multiply across each other.
  */
-import type { EffectDescriptor, ModSlotKind } from '@engine/model/types';
+import type { EffectDescriptor, FrameEffect, ModSlotKind } from '@engine/model/types';
 
 export interface AuthoredMod {
   slot: ModSlotKind;
   effects: EffectDescriptor[];
-  /** Custom-effect registry key (Stage 3): context-dependent mods route here. */
+  /** Custom-effect registry key (Stage 3/4): context-dependent mods route here. */
   customEffectId?: string;
+  /** Frame-stat effects (Stage 4): Warframe mods feed the frame resolver. */
+  frameEffects?: FrameEffect[];
+  /** Set id (Stage 4, ADR 0004): tallied for set bonuses (e.g. `umbral`). */
+  set?: string;
+}
+
+/** Authored arcane: weapon-damage effects and/or frame-stat effects (Stage 4). */
+export interface AuthoredArcane {
+  effects?: EffectDescriptor[];
+  frameEffects?: FrameEffect[];
 }
 
 /** Keyed by curated mod `id` (slug of the name). */
@@ -146,28 +156,112 @@ export const MOD_DESCRIPTORS: Record<string, AuthoredMod> = {
   'sovereign-outcast': { slot: 'stance', effects: [] },
   'tempo-royale': { slot: 'stance', effects: [] },
   'cleaving-whirlwind': { slot: 'stance', effects: [] },
+
+  // ── Warframe mods (Stage 4). Frame mods carry `frameEffects` (not weapon
+  //    `effects`), feeding the frame-stat resolver. Values are @wfcd max-rank
+  //    stats, verified vs the wiki (docs/warframe/mods/*). The four ability
+  //    attributes and survivability stats are all additive within their stat. ──
+  // Ability-attribute mods (normal slot).
+  intensify: { slot: 'normal', effects: [], frameEffects: [{ stat: 'abilityStrength', value: 0.3 }] },
+  'transient-fortitude': {
+    slot: 'normal',
+    effects: [],
+    frameEffects: [
+      { stat: 'abilityStrength', value: 0.55 },
+      { stat: 'abilityDuration', value: -0.275 },
+    ],
+  },
+  'blind-rage': {
+    slot: 'normal',
+    effects: [],
+    frameEffects: [
+      { stat: 'abilityStrength', value: 0.99 },
+      { stat: 'abilityEfficiency', value: -0.55 },
+    ],
+  },
+  overextended: {
+    slot: 'normal',
+    effects: [],
+    frameEffects: [
+      { stat: 'abilityRange', value: 0.9 },
+      { stat: 'abilityStrength', value: -0.6 },
+    ],
+  },
+  streamline: { slot: 'normal', effects: [], frameEffects: [{ stat: 'abilityEfficiency', value: 0.3 }] },
+  'fleeting-expertise': {
+    slot: 'normal',
+    effects: [],
+    frameEffects: [
+      { stat: 'abilityEfficiency', value: 0.6 },
+      { stat: 'abilityDuration', value: -0.6 },
+    ],
+  },
+  'narrow-minded': {
+    slot: 'normal',
+    effects: [],
+    frameEffects: [
+      { stat: 'abilityDuration', value: 0.99 },
+      { stat: 'abilityRange', value: -0.66 },
+    ],
+  },
+  stretch: { slot: 'normal', effects: [], frameEffects: [{ stat: 'abilityRange', value: 0.45 }] },
+  continuity: { slot: 'normal', effects: [], frameEffects: [{ stat: 'abilityDuration', value: 0.3 }] },
+  // Drift mods are exilus.
+  'power-drift': { slot: 'exilus', effects: [], frameEffects: [{ stat: 'abilityStrength', value: 0.15 }] },
+  'cunning-drift': { slot: 'exilus', effects: [], frameEffects: [{ stat: 'abilityRange', value: 0.15 }] },
+  // Umbral set — base stat + count-scaled set bonus via the registry (ADR 0004).
+  // The base stat lives in the custom-effect fn (set bonus needs `setCounts`).
+  'umbral-intensify': { slot: 'normal', effects: [], customEffectId: 'umbral-intensify', set: 'umbral' },
+  'umbral-vitality': { slot: 'normal', effects: [], customEffectId: 'umbral-vitality', set: 'umbral' },
+  'umbral-fiber': { slot: 'normal', effects: [], customEffectId: 'umbral-fiber', set: 'umbral' },
+  // Survivability mods.
+  vitality: { slot: 'normal', effects: [], frameEffects: [{ stat: 'health', value: 1.0 }] },
+  'steel-fiber': { slot: 'normal', effects: [], frameEffects: [{ stat: 'armor', value: 1.0 }] },
+  redirection: { slot: 'normal', effects: [], frameEffects: [{ stat: 'shield', value: 1.0 }] },
+  // Aura — Corrosive Projection strips enemy armor (enemy-facing → Stage 5); no
+  // frame-stat effect, but it occupies the Aura slot and grants capacity.
+  'corrosive-projection': { slot: 'aura', effects: [] },
 };
 
 /** Keyed by curated arcane `id`. */
-export const ARCANE_DESCRIPTORS: Record<string, EffectDescriptor[]> = {
+export const ARCANE_DESCRIPTORS: Record<string, AuthoredArcane> = {
   // +30% Damage per stack, up to 12 (on kill). Separate conditional multiplier.
-  'primary-merciless': [
-    {
-      bucket: 'directDamage',
-      value: 0.3,
-      perStack: true,
-      maxStacks: 12,
-      condition: 'arcane:primary-merciless',
-    },
-  ],
+  'primary-merciless': {
+    effects: [
+      {
+        bucket: 'directDamage',
+        value: 0.3,
+        perStack: true,
+        maxStacks: 12,
+        condition: 'arcane:primary-merciless',
+      },
+    ],
+  },
   // +120% Damage per stack, up to 3 (on headshot kill). Separate conditional multiplier.
-  'primary-deadhead': [
-    {
-      bucket: 'directDamage',
-      value: 1.2,
-      perStack: true,
-      maxStacks: 3,
-      condition: 'arcane:primary-deadhead',
-    },
-  ],
+  'primary-deadhead': {
+    effects: [
+      {
+        bucket: 'directDamage',
+        value: 1.2,
+        perStack: true,
+        maxStacks: 3,
+        condition: 'arcane:primary-deadhead',
+      },
+    ],
+  },
+  // Frame arcane: Molt Augmented — +0.24% Ability Strength per stack, up to 250
+  // (on kill) → +60% at max stacks. Modeled as a per-stack frame-stat effect; the
+  // stack count is a combat-state input (`arcane:molt-augmented`), like the weapon
+  // arcanes' per-stack damage.
+  'molt-augmented': {
+    frameEffects: [
+      {
+        stat: 'abilityStrength',
+        value: 0.0024,
+        perStack: true,
+        maxStacks: 250,
+        condition: 'arcane:molt-augmented',
+      },
+    ],
+  },
 };

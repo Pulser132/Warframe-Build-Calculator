@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Polarity } from '@engine/model/types';
-import { useBuildStore, useCapacity, weaponModGroup } from '@state';
+import { useBuildStore, useCapacity, useActiveGear, weaponModGroup, gearModGroup } from '@state';
 import { ModSlot, ModPicker, CapacityBar } from '../components';
 import styles from './ModdingScreen.module.css';
 
@@ -36,15 +36,20 @@ const CLASS_LABEL: Record<string, string> = {
 };
 
 /**
- * In-game-style modding screen: a weapon picker + (for multi-mode weapons) a
- * fire-mode switcher, then aura + exilus, 8 mod slots, and 2 arcane slots —
- * generalized across every primary and secondary gun.
+ * In-game-style modding screen. A compartment switcher (Warframe | Weapon)
+ * selects the active gear (ADR 0003); the screen then renders that compartment's
+ * item picker, (for a weapon) fire-mode + combo-string switchers, and its slot
+ * layout — header slots (aura/stance/exilus), the normal grid, and arcanes —
+ * driven by the gear's own `slots`, not hard-coded indices.
  */
 export function ModdingScreen() {
   const dataset = useBuildStore((s) => s.dataset);
   const build = useBuildStore((s) => s.build);
+  const activeCompartment = useBuildStore((s) => s.activeCompartment);
+  const setActiveCompartment = useBuildStore((s) => s.setActiveCompartment);
   const activeMode = useBuildStore((s) => s.activeMode);
   const selectWeapon = useBuildStore((s) => s.selectWeapon);
+  const selectWarframe = useBuildStore((s) => s.selectWarframe);
   const setMode = useBuildStore((s) => s.setMode);
   const activeComboString = useBuildStore((s) => s.activeComboString);
   const setComboString = useBuildStore((s) => s.setComboString);
@@ -58,18 +63,25 @@ export function ModdingScreen() {
   const canUndo = useBuildStore((s) => s.past.length > 0);
   const canRedo = useBuildStore((s) => s.future.length > 0);
   const capacity = useCapacity();
+  const gear = useActiveGear();
 
   const [pickerSlot, setPickerSlot] = useState<number | null>(null);
 
   if (!dataset) return null;
-  const weapon = dataset.weapons.find((w) => w.id === build.weaponId);
-  const modGroup = weapon ? weaponModGroup(weapon) : 'rifle';
-  const modes = weapon?.fireModes ?? [];
+  const onWarframe = activeCompartment === 'warframe';
+
+  const weapon = dataset.weapons.find((w) => w.id === build.weapon.itemId);
+  const modGroup = onWarframe
+    ? gearModGroup({ category: 'Warframe' })
+    : weapon
+      ? weaponModGroup(weapon)
+      : 'rifle';
+
+  const modes = onWarframe ? [] : (weapon?.fireModes ?? []);
   const currentMode = activeMode ?? modes[0]?.name ?? null;
   const isNormalMode = (modes.find((m) => m.name === currentMode) ?? modes[0])?.trigger === 'melee';
-  // Combo strings available for the equipped melee weapon (offered on the Normal mode).
   const equippedStances = new Set(
-    build.slots
+    build.weapon.slots
       .filter((s) => s.kind === 'stance' && s.itemId)
       .map((s) => dataset.mods.find((m) => m.id === s.itemId)?.name)
       .filter((n): n is string => !!n),
@@ -77,9 +89,12 @@ export function ModdingScreen() {
   const comboStrings = (weapon?.comboStrings ?? []).filter(
     (c) => equippedStances.size === 0 || equippedStances.has(c.stance),
   );
-  const subLabel = weapon
-    ? `${weapon.category} · ${CLASS_LABEL[weapon.weaponClass] ?? weapon.weaponClass}`
-    : 'Weapon';
+
+  const subLabel = onWarframe
+    ? 'Warframe'
+    : weapon
+      ? `${weapon.category} · ${CLASS_LABEL[weapon.weaponClass] ?? weapon.weaponClass}`
+      : 'Weapon';
 
   const nameFor = (itemId: string | null, isArcane: boolean): string | undefined => {
     if (!itemId) return undefined;
@@ -96,8 +111,16 @@ export function ModdingScreen() {
     );
   };
 
+  const slots = gear?.slots ?? [];
+  const headerIdx = slots
+    .map((s, i) => ({ s, i }))
+    .filter(({ s }) => s.kind === 'aura' || s.kind === 'stance' || s.kind === 'exilus')
+    .map(({ i }) => i);
+  const normalIdx = slots.map((s, i) => ({ s, i })).filter(({ s }) => s.kind === 'normal').map(({ i }) => i);
+  const arcaneIdx = slots.map((s, i) => ({ s, i })).filter(({ s }) => s.kind === 'arcane').map(({ i }) => i);
+
   const renderSlot = (index: number) => {
-    const slot = build.slots[index];
+    const slot = slots[index];
     const isArcane = slot.kind === 'arcane';
     return (
       <ModSlot
@@ -117,20 +140,51 @@ export function ModdingScreen() {
 
   return (
     <section className={styles.screen} aria-label="modding screen">
+      <div className={styles.modes} role="tablist" aria-label="gear compartment">
+        {(['warframe', 'weapon'] as const).map((c) => (
+          <button
+            key={c}
+            type="button"
+            role="tab"
+            aria-selected={activeCompartment === c}
+            className={`${styles.modeTab} ${activeCompartment === c ? styles.modeTabActive : ''}`}
+            onClick={() => setActiveCompartment(c)}
+          >
+            {c === 'warframe' ? 'Warframe' : 'Weapon'}
+          </button>
+        ))}
+      </div>
+
       <header className={styles.bar}>
         <div className={styles.title}>
-          <select
-            className={styles.weaponSelect}
-            value={build.weaponId}
-            onChange={(e) => selectWeapon(e.target.value)}
-            aria-label="select weapon"
-          >
-            {dataset.weapons.map((w) => (
-              <option key={w.id} value={w.id}>
-                {w.name}
-              </option>
-            ))}
-          </select>
+          {onWarframe ? (
+            <select
+              className={styles.weaponSelect}
+              value={build.warframe?.itemId ?? ''}
+              onChange={(e) => selectWarframe(e.target.value || null)}
+              aria-label="select warframe"
+            >
+              <option value="">— No Warframe —</option>
+              {dataset.warframes.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.name}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <select
+              className={styles.weaponSelect}
+              value={build.weapon.itemId}
+              onChange={(e) => selectWeapon(e.target.value)}
+              aria-label="select weapon"
+            >
+              {dataset.weapons.map((w) => (
+                <option key={w.id} value={w.id}>
+                  {w.name}
+                </option>
+              ))}
+            </select>
+          )}
           <span className={styles.sub}>{subLabel}</span>
         </div>
         <div className={styles.controls}>
@@ -138,7 +192,8 @@ export function ModdingScreen() {
           <label className={styles.reactor}>
             <input
               type="checkbox"
-              checked={build.reactor}
+              checked={gear?.reactor ?? true}
+              disabled={!gear}
               onChange={(e) => setReactor(e.target.checked)}
             />
             Reactor
@@ -171,7 +226,7 @@ export function ModdingScreen() {
         </div>
       )}
 
-      {isNormalMode && comboStrings.length > 0 && (
+      {!onWarframe && isNormalMode && comboStrings.length > 0 && (
         <div className={styles.modes} aria-label="combo string">
           <label className={styles.sub} htmlFor="combo-string-select">
             Combo String
@@ -193,29 +248,28 @@ export function ModdingScreen() {
         </div>
       )}
 
-      <div className={styles.layout}>
-        <div className={styles.main}>
-          <div className={styles.topRow}>
-            {renderSlot(0) /* aura */}
-            {renderSlot(1) /* exilus */}
+      {gear ? (
+        <div className={styles.layout}>
+          <div className={styles.main}>
+            <div className={styles.topRow}>{headerIdx.map((i) => renderSlot(i))}</div>
+            <div className={styles.grid}>{normalIdx.map((i) => renderSlot(i))}</div>
           </div>
-          <div className={styles.grid}>
-            {[2, 3, 4, 5, 6, 7, 8, 9].map((i) => renderSlot(i))}
-          </div>
+          <aside className={styles.arcanes} aria-label="arcane slots">
+            {arcaneIdx.map((i) => renderSlot(i))}
+          </aside>
         </div>
-        <aside className={styles.arcanes} aria-label="arcane slots">
-          {[10, 11].map((i) => renderSlot(i))}
-        </aside>
-      </div>
+      ) : (
+        <p className={styles.sub}>No Warframe equipped — pick one above to mod it.</p>
+      )}
 
-      {pickerSlot !== null && (
+      {pickerSlot !== null && gear && (
         <ModPicker
           slotIndex={pickerSlot}
-          slotKind={build.slots[pickerSlot].kind}
+          slotKind={slots[pickerSlot].kind}
           mods={dataset.mods}
           arcanes={dataset.arcanes}
           modGroup={modGroup}
-          weaponClass={weapon?.weaponClass}
+          weaponClass={onWarframe ? undefined : weapon?.weaponClass}
           onAssign={assignMod}
           onClose={() => setPickerSlot(null)}
         />

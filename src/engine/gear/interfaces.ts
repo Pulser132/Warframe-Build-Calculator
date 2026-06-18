@@ -88,3 +88,23 @@ export function hasStance(gear: object): gear is HasStance {
 export function hasReach(gear: object): gear is HasReach {
   return 'range' in gear && 'followThrough' in gear;
 }
+
+// ── Warframe capability interfaces (Stage 4) ──
+
+/** Gear with a Warframe Aura slot. */
+export interface HasAura {
+  /** Innate Aura-slot polarity (`none` when unpolarized). */
+  readonly auraPolarity: import('../model/types').Polarity;
+}
+
+/** Gear with abilities (a Warframe). */
+export interface HasAbilities {
+  readonly abilities: import('../model/types').AbilityMeta[];
+}
+
+export function hasAura(gear: object): gear is HasAura {
+  return 'auraPolarity' in gear;
+}
+export function hasAbilities(gear: object): gear is HasAbilities {
+  return 'abilities' in gear;
+}

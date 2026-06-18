@@ -199,9 +199,23 @@ export interface ModData {
    * Custom-effect registry key (Stage 3). When set, the mod's context-dependent
    * effects come from `CUSTOM_EFFECTS[customEffectId](ctx)` — which returns
    * **final, self-scaled** descriptors — instead of (or in addition to) `effects`.
-   * Used for Condition Overload / Blood Rush / Weeping Wounds. See ADR 0002.
+   * Used for Condition Overload / Blood Rush / Weeping Wounds, and (Stage 4) the
+   * Umbral set-bonus mods. See ADR 0002 / ADR 0004.
    */
   customEffectId?: string;
+  /**
+   * Frame-stat effects (Stage 4): a Warframe mod's contribution to the four
+   * ability attributes / survivability stats. Distinct from weapon-damage
+   * `effects` so the frame resolver and the damage pipeline never cross. Custom
+   * frame mods (Umbral) leave this empty and route through `customEffectId`.
+   */
+  frameEffects?: FrameEffect[];
+  /**
+   * Set id (Stage 4, ADR 0004): mods sharing a `set` are tallied into
+   * `ctx.setCounts[set]` so a set-bonus registry function can read how many are
+   * equipped (e.g. `umbral`).
+   */
+  set?: string;
 }
 
 /** Curated arcane stats + authored effect descriptors. */
@@ -215,4 +229,101 @@ export interface ArcaneData {
   /** Human-readable max-rank stat strings from `@wfcd` (UI/reference). */
   rawMaxStats: string[];
   effects: EffectDescriptor[];
+  /** Frame-stat effects (Stage 4): a Warframe arcane's contribution to the frame
+   * resolver (e.g. Molt Augmented +60% Strength at max stacks). */
+  frameEffects?: FrameEffect[];
+}
+
+// ── Warframe (Stage 4) ───────────────────────────────────────────────────────
+
+/**
+ * Frame-stat buckets (Stage 4). A separate taxonomy from the damage `Bucket`s:
+ * members of a frame-stat bucket combine **additively** (the four ability
+ * attributes and the base survivability stats are all additive mod stacks). The
+ * frame resolver sums these; it is **not** the weapon damage pipeline.
+ */
+export type FrameStat =
+  | 'abilityStrength'
+  | 'abilityDuration'
+  | 'abilityRange'
+  | 'abilityEfficiency'
+  | 'health'
+  | 'shield'
+  | 'armor'
+  | 'energy'
+  | 'sprintSpeed';
+
+/**
+ * A single declarative frame-stat effect (Stage 4). Authored at **max rank**;
+ * the resolver scales `value` by the equipped rank. All frame-stat mods are
+ * additive within their stat (e.g. `abilityStrength += 0.3` for Intensify).
+ *
+ * `condition`/`perStack` mirror {@link EffectDescriptor}: a `condition`-gated
+ * effect applies only when that combat toggle is active, and a `perStack` effect
+ * multiplies `value` by the current stack count (e.g. Molt Augmented's
+ * +0.24% Strength per stack, up to 250).
+ */
+export interface FrameEffect {
+  stat: FrameStat;
+  /** Fraction at max rank (0.3 = +30%, or per stack when `perStack`); negative for trade-offs. */
+  value: number;
+  /** Condition/stack key (e.g. `arcane:molt-augmented`); applies only when active/stacked. */
+  condition?: string;
+  /** If set, `value` is multiplied by the stack count from combat state. */
+  perStack?: boolean;
+  /** Max stacks (display + clamp) when `perStack`. */
+  maxStacks?: number;
+}
+
+/** One ability's authored metadata (Stage 4). Names/descriptions from `@wfcd`;
+ * numeric scaling merged from the offline scraper (`abilities.json`). */
+export interface AbilityMeta {
+  /** Slug of the ability name (e.g. `roar`). */
+  id: string;
+  name: string;
+  description: string;
+}
+
+/** Curated Warframe stats (normalized from `@wfcd/items` by `build-data.mjs`). */
+export interface WarframeData {
+  id: string;
+  uniqueName: string;
+  name: string;
+  /** Base survivability + utility stats. */
+  health: number;
+  shield: number;
+  armor: number;
+  /** Energy pool (`@wfcd power`). */
+  energy: number;
+  sprintSpeed: number;
+  masteryReq: number;
+  passiveDescription: string;
+  /** Ability roster (names/descriptions only; numeric scaling lives in `abilities.json`). */
+  abilities: AbilityMeta[];
+  /** Aura-slot innate polarity (`none` when `@wfcd` does not populate it). */
+  auraPolarity: Polarity | null;
+  /** Exilus-slot innate polarity. */
+  exilusPolarity: Polarity | null;
+  /** Innate normal-slot polarities. */
+  polarities: Polarity[];
+}
+
+/**
+ * Scaled ability numbers (Stage 4 scraper → `abilities.json`). Per ability:
+ * each output's base magnitude and the attribute it scales on. The engine
+ * **mapping** (which output feeds which damage bucket) is authored in TS.
+ */
+export interface AbilityScaling {
+  /** Ability slug (matches `AbilityMeta.id`). */
+  id: string;
+  /** Display name (for the scraper's reviewable output). */
+  name: string;
+  /** Base damage-bonus magnitude at 100% Strength (Roar: 0.5 = +50%). */
+  strengthBase?: number;
+  /** Base duration in seconds at 100% Duration. */
+  durationBase?: number;
+  /** Base range in metres at 100% Range. */
+  rangeBase?: number;
+  /** Flagged when the scrape was uncertain and needs manual review. */
+  lowConfidence?: boolean;
 }

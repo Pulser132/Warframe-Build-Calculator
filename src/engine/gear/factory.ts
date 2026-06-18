@@ -1,7 +1,8 @@
-import type { WeaponData } from '../model/types';
+import type { WarframeData, WeaponData } from '../model/types';
 import { Primary } from './primary';
 import { Secondary } from './secondary';
 import { Melee } from './melee';
+import { Warframe } from './warframe';
 import type { Weapon } from './weapon';
 
 /**
@@ -19,4 +20,11 @@ export function createWeapon(data: WeaponData): Weapon {
     default:
       throw new Error(`Unsupported weapon category: ${String(data.category)}`);
   }
+}
+
+/** Instantiate a `Warframe` gear object (Stage 4). The frame is a sibling of
+ * `Weapon` (no fire modes), so it has its own factory rather than a category
+ * branch in `createWeapon`. */
+export function createWarframe(data: WarframeData): Warframe {
+  return Warframe.from(data);
 }

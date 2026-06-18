@@ -1,0 +1,9 @@
+{
+  "roar": {
+    "id": "roar",
+    "name": "Roar",
+    "strengthBase": 0.5,
+    "durationBase": 30,
+    "rangeBase": 25
+  }
+}

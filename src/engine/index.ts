@@ -11,3 +11,4 @@ export * from './gear';
 export * from './pipeline';
 export * from './attribution';
 export * from './buffs';
+export * from './warframe';

@@ -29,13 +29,13 @@ describe('gear hierarchy — Primary from curated data', () => {
     expect(gun.baseMultishot).toBe(1);
   });
 
-  it('exposes the 12-slot in-game layout', async () => {
+  it('exposes the 11-slot in-game gun layout (no aura — Stage 4)', async () => {
     const data = await loadWeapon('vulkar-wraith');
     const weapon = createWeapon(data!);
     const layout = weapon.slotLayout;
-    expect(layout).toHaveLength(12);
-    expect(layout[0]).toBe('aura');
-    expect(layout[1]).toBe('exilus');
+    expect(layout).toHaveLength(11);
+    expect(layout[0]).toBe('exilus');
+    expect(layout).not.toContain('aura'); // aura is Warframe-only now
     expect(layout.filter((s) => s === 'normal')).toHaveLength(8);
     expect(layout.filter((s) => s === 'arcane')).toHaveLength(2);
   });

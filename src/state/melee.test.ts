@@ -46,17 +46,17 @@ describe('melee build via the store (Kronen Prime)', () => {
 
   it('uses the stance slot layout with the innate stance polarity', () => {
     const { build } = store();
-    expect(build.weaponId).toBe('kronen-prime');
-    expect(build.slots[0].kind).toBe('stance');
-    expect(build.slots[0].polarity).toBe('madurai'); // Kronen Prime stancePolarity
-    expect(build.slots).toHaveLength(12);
+    expect(build.weapon.itemId).toBe('kronen-prime');
+    expect(build.weapon.slots[0].kind).toBe('stance');
+    expect(build.weapon.slots[0].polarity).toBe('madurai'); // Kronen Prime stancePolarity
+    expect(build.weapon.slots).toHaveLength(12); // melee keeps its stance slot
   });
 
   it('equips a compatible Tonfa stance, rejects a Heavy Blade stance', () => {
     store().assignMod(0, 'gemini-cross'); // Tonfa stance → fits Kronen
-    expect(store().build.slots[0].itemId).toBe('gemini-cross');
+    expect(store().build.weapon.slots[0].itemId).toBe('gemini-cross');
     store().assignMod(0, 'tempo-royale'); // Heavy Blade stance → rejected
-    expect(store().build.slots[0].itemId).toBe('gemini-cross');
+    expect(store().build.weapon.slots[0].itemId).toBe('gemini-cross');
   });
 
   it('Blood Rush raises crit chance once a combo is built', () => {

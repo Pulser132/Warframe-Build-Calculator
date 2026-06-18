@@ -1,13 +1,15 @@
 /**
- * Weapon-type → mod-compatibility filtering (pure). Drives both the mod picker
+ * Gear-type → mod-compatibility filtering (pure). Drives both the mod picker
  * (what's offered) and the store guard (what can be equipped), so the rule lives
  * in one place. Stage 2: a gun's category/class selects its mod group. Stage 3
  * adds the `melee` group (melee mods are class-agnostic `Melee`) and **stance**
- * compatibility (gated on the weapon's melee class).
+ * compatibility (gated on the weapon's melee class). Stage 4 adds the `warframe`
+ * group (ADR 0003) and makes aura/arcane compatibility gear-type aware, closing
+ * the latent leak where every aura/arcane matched every group.
  */
-import type { ModData, WeaponCategory, WeaponClass } from '@engine/model/types';
+import type { ArcaneData, ModData, WeaponCategory, WeaponClass } from '@engine/model/types';
 
-export type ModGroup = 'rifle' | 'shotgun' | 'pistol' | 'melee';
+export type ModGroup = 'rifle' | 'shotgun' | 'pistol' | 'melee' | 'warframe';
 
 export interface WeaponLike {
   category: WeaponCategory;
@@ -20,6 +22,13 @@ export function weaponModGroup(weapon: WeaponLike): ModGroup {
   if (weapon.category === 'Secondary') return 'pistol';
   if (weapon.weaponClass === 'shotgun') return 'shotgun';
   return 'rifle';
+}
+
+/** Which mod group a gear compartment accepts. Weapons defer to
+ * {@link weaponModGroup}; the Warframe compartment is its own `warframe` group. */
+export function gearModGroup(gear: WeaponLike | { category: 'Warframe' }): ModGroup {
+  if (gear.category === 'Warframe') return 'warframe';
+  return weaponModGroup(gear as WeaponLike);
 }
 
 /**
@@ -57,20 +66,41 @@ export function stanceMatchesClass(mod: ModData, weaponClass: WeaponClass): bool
 }
 
 /**
- * Whether a mod is compatible with a weapon's mod group (+ class for stances).
- * Aura/arcane items are not class-specific. Stance mods (`slot: 'stance'`) only
- * fit a melee weapon of the matching class; class-tagged `normal`/`exilus` mods
- * must match the weapon's group via their `compat` tag.
+ * Whether a mod is compatible with a gear compartment's mod group (+ class for
+ * stances). Aura mods + `WARFRAME`-tagged mods fit **only** the `warframe` group;
+ * Stance mods (`slot: 'stance'`) fit only a melee weapon of the matching class;
+ * class-tagged `normal`/`exilus` weapon mods match their group via `compat`.
+ * This closes the Stage-2 leak where auras matched every group.
  */
 export function modMatchesGroup(mod: ModData, group: ModGroup, weaponClass?: WeaponClass): boolean {
-  if (mod.slot === 'aura' || mod.slot === 'arcane') return true;
+  const compat = mod.compat.toLowerCase();
+
+  // Warframe compartment: the Aura slot + WARFRAME-tagged mods.
+  if (group === 'warframe') {
+    return mod.slot === 'aura' || compat.includes('warframe');
+  }
+
+  // Weapon compartments: auras are Warframe-only (Stage 4 removed the gun aura).
+  if (mod.slot === 'aura') return false;
+  // WARFRAME-tagged mods never fit a weapon.
+  if (compat.includes('warframe')) return false;
   if (mod.slot === 'stance') {
     return group === 'melee' && weaponClass != null && stanceMatchesClass(mod, weaponClass);
   }
-  const compat = mod.compat.toLowerCase();
   if (group === 'melee') return compat.includes('melee');
   if (!compat) return true; // untagged utility
   if (group === 'pistol') return compat.includes('pistol');
   if (group === 'shotgun') return compat.includes('shotgun');
   return compat.includes('rifle');
+}
+
+/**
+ * Whether an arcane fits a compartment (Stage 4). Frame arcanes (those carrying
+ * `frameEffects`, e.g. Molt Augmented) fit **only** the `warframe` group; weapon
+ * arcanes (damage `effects`, e.g. Primary Merciless) fit only weapon groups.
+ * Closes the leak where every arcane matched every compartment.
+ */
+export function arcaneMatchesGroup(arcane: ArcaneData, group: ModGroup): boolean {
+  const isFrameArcane = (arcane.frameEffects?.length ?? 0) > 0;
+  return group === 'warframe' ? isFrameArcane : !isFrameArcane;
 }

@@ -10,11 +10,11 @@ import type { DamageMap } from '../model/result';
 import type { FireMode } from '../model/firemode';
 import { synthesizeFireMode } from '../model/firemode';
 
-/** The 12-slot in-game layout: aura, exilus, 8× normal, 2× arcane. Shared by all
- * guns (Stage 1 applied this Warframe-style layout to the rifle; secondaries
- * reuse it — only mod *compatibility* differs, not the slot count). */
+/** The 11-slot in-game gun layout: exilus, 8× normal, 2× arcane. Guns have **no
+ * Aura slot** in-game (Stage 4 removed the Stage 1 simplification); `'aura'` is
+ * now Warframe-only. Primary and Secondary share this layout — only mod
+ * *compatibility* differs, not the slot count. (Melee keeps its Stance slot.) */
 export const GUN_SLOT_LAYOUT: readonly ModSlotKind[] = [
-  'aura',
   'exilus',
   'normal',
   'normal',

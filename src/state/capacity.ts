@@ -7,7 +7,7 @@
  * cost (the old mismatch penalty was removed). Auras have negative drain and
  * **grant** capacity, doubled by a matching polarity. Arcanes don't use capacity.
  */
-import type { Build } from '@engine/model/build';
+import type { GearBuild } from '@engine/model/build';
 import type { ModData } from '@engine/model/types';
 
 export interface CapacityInfo {
@@ -30,12 +30,12 @@ export function modCost(mod: ModData, slotPolarity: string, rank: number): numbe
   return matches ? Math.round(magnitude / 2) : magnitude;
 }
 
-export function computeCapacity(build: Build, modsById: Map<string, ModData>): CapacityInfo {
+export function computeCapacity(gear: GearBuild, modsById: Map<string, ModData>): CapacityInfo {
   let used = 0;
   let auraBonus = 0;
   const perSlot: number[] = [];
 
-  for (const slot of build.slots) {
+  for (const slot of gear.slots) {
     if (slot.kind === 'arcane' || !slot.itemId) {
       perSlot.push(0);
       continue;
@@ -51,6 +51,6 @@ export function computeCapacity(build: Build, modsById: Map<string, ModData>): C
     else used += cost;
   }
 
-  const total = build.baseCapacity * (build.reactor ? 2 : 1) + auraBonus;
+  const total = gear.baseCapacity * (gear.reactor ? 2 : 1) + auraBonus;
   return { used, total, over: used > total, perSlot };
 }
