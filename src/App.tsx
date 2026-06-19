@@ -12,10 +12,13 @@ import {
 } from '@ui';
 import styles from './App.module.css';
 
+type ResultsTab = 'build' | 'target';
+
 export function App() {
   const initFromDataset = useBuildStore((s) => s.initFromDataset);
   const dataset = useBuildStore((s) => s.dataset);
   const [error, setError] = useState<string | null>(null);
+  const [tab, setTab] = useState<ResultsTab>('build');
   const result = useDamageResult();
   const warframe = useWarframe();
   const frameStats = useWarframeStats();
@@ -41,7 +44,7 @@ export function App() {
           Warframe <span className={styles.accent}>Build Calculator</span>
         </h1>
         <p className={styles.tagline}>
-          Mod a rifle as in-game and see exactly where your damage comes from.
+          Mod any weapon or Warframe as in-game and see exactly where your damage comes from.
         </p>
       </header>
 
@@ -53,14 +56,46 @@ export function App() {
           <ModdingScreen />
           <div className={styles.results}>
             <div className={styles.resultsMain}>
-              {result && <DamageSummary result={result} />}
-              {warframe && frameStats && <FramePanel frameName={warframe.name} stats={frameStats} />}
-              {result && <PipelineChain result={result} />}
-              {result?.contributions && <ContributionList contributions={result.contributions} />}
+              <div className={styles.tabs} role="tablist" aria-label="results view">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === 'build'}
+                  className={`${styles.tab} ${tab === 'build' ? styles.tabActive : ''}`}
+                  onClick={() => setTab('build')}
+                >
+                  Build
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === 'target'}
+                  className={`${styles.tab} ${tab === 'target' ? styles.tabActive : ''}`}
+                  onClick={() => setTab('target')}
+                >
+                  vs Target
+                </button>
+              </div>
+
+              {tab === 'build' ? (
+                <div className={styles.tabPanel} role="tabpanel" aria-label="build output">
+                  {result && <DamageSummary result={result} />}
+                  {warframe && frameStats && (
+                    <FramePanel frameName={warframe.name} stats={frameStats} />
+                  )}
+                  {result && <PipelineChain result={result} />}
+                  {result?.contributions && (
+                    <ContributionList contributions={result.contributions} />
+                  )}
+                </div>
+              ) : (
+                <div className={styles.tabPanel} role="tabpanel" aria-label="vs target">
+                  <TargetPanel />
+                </div>
+              )}
             </div>
             <aside className={styles.sidebar}>
               <ConfigMenu />
-              <TargetPanel />
             </aside>
           </div>
         </main>

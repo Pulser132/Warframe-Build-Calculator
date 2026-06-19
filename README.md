@@ -4,15 +4,18 @@ A client-only web app for building Warframe loadouts and seeing **exactly where
 your damage comes from** — each equipped mod's contribution is computed by a
 framework-agnostic, fully unit-tested damage engine.
 
-**Stage 2 (current milestone)** generalizes the engine to **every primary and
-secondary gun** in the game: pick any of them, mod it in the same in-game-style
-screen, switch fire modes where it has them, and see accurate per-mode damage/DPS
-and per-mod contributions. Every trigger type (auto/semi/burst/charge), beam
-(held-continuous), shotgun (per-pellet status + pellet multishot), AoE with
-linear falloff, and multi-mode weapons are modeled — each matching a hand-verified
-wiki reference. Stage 1's foundation (the bucket pipeline, attribution, gear
-hierarchy, data pipeline) is unchanged underneath. See `docs/planning/Overview.md`
-for the full architecture and the 8-stage roadmap.
+**Current state (Stages 1–5 complete).** The engine spans **every primary &
+secondary gun, melee weapon, and Warframe** in the game: equip gear in an
+in-game-style modding screen, switch fire modes / combo strings, configure the
+**combat state** (buffs, combo count, stacks), and evaluate the build against a
+configurable **enemy/target** (armor, shields, overguard, level & Steel-Path
+scaling, faction). The results column splits into a **Build** view (intrinsic
+damage/DPS, the pipeline chain, per-mod contributions) and a **vs Target** view
+(effective damage, time-to-kill, enemy EHP). Every trigger type
+(auto/semi/burst/charge), beam (held-continuous), shotgun (per-pellet status +
+pellet multishot), AoE with linear falloff, and multi-mode weapons are modeled —
+each matching a hand-verified wiki reference. See `docs/planning/Overview.md` for
+the full architecture and the 8-stage roadmap.
 
 ## Quick start
 
@@ -110,6 +113,8 @@ fixtures (`src/data/transform.test.ts`). Run `npm test`.
 
 ## Status
 
-Stage 2 complete (all gun types). Stages 3–8 (melee, warframes, enemy model,
-incarnon/specials, companions, sharing) build on the seams established here — see
-`docs/planning/initial-layout/STAGE-NOTES.md` for what those stages must honor.
+Stages 1–5 complete: guns (all types), melee, Warframe modding, combat-state /
+buffs, and the enemy/target model (effective damage + TTK). Stages 6–8 (incarnon
+& special cases, companions & operator, sharing & persistence) remain — they build
+on the seams established here; see `docs/planning/initial-layout/STAGE-NOTES.md`
+for what those stages must honor.

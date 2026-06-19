@@ -8,3 +8,4 @@ coverage/
 
 # Playwright CLI runtime artifacts (snapshots, sessions)
 .playwright-cli/
+.playwright/

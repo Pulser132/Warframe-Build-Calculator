@@ -39,8 +39,8 @@
 
 .stats {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-1) var(--sp-3);
+  flex-direction: column;
+  gap: var(--sp-1);
 }
 
 .stat {
@@ -49,13 +49,11 @@
 }
 
 .rarity {
-  position: absolute;
-  top: var(--sp-2);
-  right: var(--sp-3);
   font-size: var(--fs-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--c-text-faint);
+  white-space: nowrap;
 }
 .rare {
   color: var(--c-gold);

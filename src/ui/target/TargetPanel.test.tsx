@@ -51,12 +51,9 @@ describe('TargetPanel', () => {
     expect(store().target.overguard).toBe(true);
   });
 
-  it('reveals the vs-target contribution list when toggled', async () => {
-    const user = userEvent.setup();
+  it('shows the vs-target contribution list (the vs-Target view is the effective attribution)', () => {
     store().assignMod(1, 'serration');
     render(<TargetPanel />);
-    expect(screen.queryByLabelText(/mod contributions/i)).not.toBeInTheDocument();
-    await user.click(screen.getByLabelText(/contribution vs this target/i));
     const list = screen.getByLabelText(/mod contributions/i);
     expect(within(list).getByText(/Serration/i)).toBeInTheDocument();
   });

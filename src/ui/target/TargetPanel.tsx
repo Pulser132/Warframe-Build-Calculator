@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { critTiers } from '@engine';
 import type { DamageType } from '@engine/model/types';
 import type { Faction, TargetState } from '@engine/target/types';
@@ -47,8 +46,10 @@ export function TargetPanel() {
   const setCustomTarget = useBuildStore((s) => s.setCustomTarget);
   const applyTargetPreset = useBuildStore((s) => s.applyTargetPreset);
 
-  const [vsTarget, setVsTarget] = useState(false);
-  const data = useTargetResult(vsTarget);
+  // The vs-Target tab is the effective view, so the vs-target leave-one-out
+  // contribution list is always computed and shown (no separate toggle — the
+  // Build tab carries the intrinsic attribution).
+  const data = useTargetResult(true);
   if (!data) return null;
   const { result, intrinsic } = data;
   const isCustom = target.enemyId === 'custom';
@@ -270,17 +271,7 @@ export function TargetPanel() {
         timelines are deferred). Status application above is informational, not folded into TTK.
       </p>
 
-      <label className={styles.toggle}>
-        <input
-          type="checkbox"
-          checked={vsTarget}
-          aria-label="contribution vs this target"
-          onChange={(e) => setVsTarget(e.target.checked)}
-        />
-        Show contribution vs this target
-      </label>
-
-      {vsTarget && data.contributions && <ContributionList contributions={data.contributions} />}
+      {data.contributions && <ContributionList contributions={data.contributions} />}
     </section>
   );
 }

@@ -19,6 +19,9 @@ export function ModCard({ name, polarity, drain, rarity, stats, onClick }: Props
       <div className={styles.top}>
         {polarity && <PolarityBadge polarity={polarity} size="sm" />}
         <span className={styles.name}>{name}</span>
+        {rarity && (
+          <span className={`${styles.rarity} ${styles[rarity.toLowerCase()] ?? ''}`}>{rarity}</span>
+        )}
         {typeof drain === 'number' && (
           <span className={styles.drain} title="base drain">
             {drain < 0 ? `+${-drain}` : drain}
@@ -32,7 +35,6 @@ export function ModCard({ name, polarity, drain, rarity, stats, onClick }: Props
           </span>
         ))}
       </div>
-      {rarity && <span className={`${styles.rarity} ${styles[rarity.toLowerCase()] ?? ''}`}>{rarity}</span>}
     </button>
   );
 }

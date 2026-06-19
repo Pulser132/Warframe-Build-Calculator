@@ -57,6 +57,41 @@
   min-width: 0;
 }
 
+/* Results view tabs: Build (intrinsic) | vs Target (effective). Mirrors the
+ * modding-screen compartment/fire-mode tabs so the whole app reads as one tool. */
+.tabs {
+  display: flex;
+  gap: var(--sp-1);
+  border-bottom: 1px solid var(--c-line);
+}
+.tab {
+  background: transparent;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: var(--radius) var(--radius) 0 0;
+  color: var(--c-text-dim);
+  font-size: var(--fs-md);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: var(--sp-2) var(--sp-4);
+  margin-bottom: -1px;
+}
+.tab:hover {
+  color: var(--c-text);
+}
+.tabActive {
+  background: var(--c-surface-1);
+  border-color: var(--c-line);
+  border-bottom-color: var(--c-surface-1);
+  color: var(--c-primary);
+}
+.tabPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  min-width: 0;
+}
+
 .sidebar {
   position: sticky;
   top: var(--sp-4);

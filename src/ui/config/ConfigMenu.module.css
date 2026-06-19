@@ -41,17 +41,33 @@
 .slider {
   display: flex;
   align-items: center;
-  gap: var(--sp-3);
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-3);
 }
 .slider input[type='range'] {
   flex: 1;
-  accent-color: var(--c-primary);
+  min-width: 120px;
+}
+/* A number-input control inside a slider row (e.g. a buff's manual magnitude)
+ * must stay compact — without a cap it stretches the row full-width and reads
+ * as a broken slider, and overflows the narrow sidebar. */
+.slider input[type='number'] {
+  flex: 0 0 auto;
+  width: 72px;
+  text-align: center;
+  background: var(--c-surface-0, var(--c-surface-1));
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  color: var(--c-text);
+  font-family: var(--font-mono);
+  padding: 4px 6px;
 }
 
 .sliderLabel {
+  flex: 1;
   font-size: var(--fs-sm);
   color: var(--c-text-dim);
-  min-width: 130px;
+  min-width: 96px;
 }
 
 .buff {
@@ -128,6 +144,21 @@
   border-radius: var(--radius);
   color: var(--c-text);
   font-family: var(--font-mono);
+}
+
+/* Drop the native number spinners on combat-state inputs — they clash with the
+ * dark theme, and on the stepper they duplicate the −/+ buttons. */
+.slider input[type='number'],
+.stepper input[type='number'] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.slider input[type='number']::-webkit-outer-spin-button,
+.slider input[type='number']::-webkit-inner-spin-button,
+.stepper input[type='number']::-webkit-outer-spin-button,
+.stepper input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 .empty {
   color: var(--c-text-faint);
