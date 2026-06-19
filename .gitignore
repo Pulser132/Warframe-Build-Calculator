@@ -5,3 +5,6 @@ coverage/
 *.local
 .DS_Store
 *.tsbuildinfo
+
+# Playwright CLI runtime artifacts (snapshots, sessions)
+.playwright-cli/
