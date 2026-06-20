@@ -4,7 +4,15 @@
  * **faction-based** damage-type modifiers (decision 6). No legacy 13-health-type
  * modelling.
  */
-import type { DamageMap } from '../model/result';
+import type {
+  DamageMap,
+  AoeResult,
+  BeamResult,
+  ComponentResult,
+  FollowThroughResult,
+  HeavyLoopResultRef,
+  ComboStringResultRef,
+} from '../model/result';
 
 /** Canonical factions the modifier table is keyed on (`Other` = no modifiers). */
 export type Faction = 'Grineer' | 'Corpus' | 'Infested' | 'Orokin' | 'Sentient' | 'Other';
@@ -62,6 +70,10 @@ export interface TargetResult {
   effectiveHitAverage: number;
   /** Effective sustained DPS vs the health layer. */
   effectiveDps: number;
+  /** Effective **burst** DPS — the burst twin of `effectiveDps` (decision 6). */
+  effectiveBurstDps: number;
+  /** Per-hit effective ratio (`effectiveHitAverage / avgHitPerShot`, 0-guarded). */
+  effectiveScale: number;
   /** Direct-damage TTK in seconds (excludes status DoT) — deplete OG→Shield→Health. */
   ttkSeconds: number;
   /** Raw intrinsic damage required to clear each layer (an EHP view). */
@@ -80,4 +92,21 @@ export interface TargetResult {
   };
   /** The scaled enemy the routing used (for the UI readout). */
   scaled: ScaledEnemy;
+
+  // ── Effective mechanic sub-results (ADR-0006) — present only when the
+  //    intrinsic result carries the corresponding field. Same shapes as the
+  //    intrinsic `DamageResult` so the UI can feed them to `DamageSummary`. ──
+
+  /** Effective AoE center/rim (per-type routed; radius/falloff unchanged). */
+  aoe?: AoeResult;
+  /** Effective per-component damage (each `perType` routed; role/delivery kept). */
+  components?: ComponentResult[];
+  /** Effective beam per-tick (= `effectiveHitAverage`; tickRate/ramp unchanged). */
+  beam?: BeamResult;
+  /** Effective sustained heavy loop (hits/DPS × `effectiveScale`). */
+  heavyLoop?: HeavyLoopResultRef;
+  /** Effective follow-through (single/total/per-target × `effectiveScale`). */
+  followThrough?: FollowThroughResult;
+  /** Effective combo string (totals/per-hit × `effectiveScale`; forced-proc DoT deferred). */
+  comboString?: ComboStringResultRef;
 }

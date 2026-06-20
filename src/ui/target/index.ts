@@ -1,1 +1,2 @@
-export { TargetPanel } from './TargetPanel';
+export { TargetControls } from './TargetControls';
+export { TargetExtras } from './TargetExtras';

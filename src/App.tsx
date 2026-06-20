@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
 import { loadDataset } from '@data/loaders';
-import { useBuildStore, useDamageResult, useWarframe, useWarframeStats } from '@state';
+import {
+  useBuildStore,
+  useDamageResult,
+  useEffectiveResult,
+  useWarframe,
+  useWarframeStats,
+} from '@state';
 import {
   ModdingScreen,
   DamageSummary,
@@ -8,18 +14,21 @@ import {
   PipelineChain,
   ConfigMenu,
   FramePanel,
-  TargetPanel,
+  TargetControls,
+  TargetExtras,
 } from '@ui';
 import styles from './App.module.css';
-
-type ResultsTab = 'build' | 'target';
 
 export function App() {
   const initFromDataset = useBuildStore((s) => s.initFromDataset);
   const dataset = useBuildStore((s) => s.dataset);
   const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState<ResultsTab>('build');
+  // The results readout: Build (intrinsic) vs vs-Target (effective). Ephemeral
+  // local state, default Build (decision 11); the sidebar Target config is always
+  // visible regardless of this toggle.
+  const [vsTarget, setVsTarget] = useState(false);
   const result = useDamageResult();
+  const effective = useEffectiveResult();
   const warframe = useWarframe();
   const frameStats = useWarframeStats();
 
@@ -56,29 +65,25 @@ export function App() {
           <ModdingScreen />
           <div className={styles.results}>
             <div className={styles.resultsMain}>
-              <div className={styles.tabs} role="tablist" aria-label="results view">
+              <div className={styles.viewHeader}>
+                <span className={styles.viewName}>{vsTarget ? 'vs Target' : 'Build'}</span>
                 <button
                   type="button"
-                  role="tab"
-                  aria-selected={tab === 'build'}
-                  className={`${styles.tab} ${tab === 'build' ? styles.tabActive : ''}`}
-                  onClick={() => setTab('build')}
+                  role="switch"
+                  aria-checked={vsTarget}
+                  aria-label="vs Target"
+                  className={`${styles.switch} ${vsTarget ? styles.switchOn : ''}`}
+                  onClick={() => setVsTarget((v) => !v)}
                 >
-                  Build
-                </button>
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={tab === 'target'}
-                  className={`${styles.tab} ${tab === 'target' ? styles.tabActive : ''}`}
-                  onClick={() => setTab('target')}
-                >
+                  <span className={styles.switchTrack}>
+                    <span className={styles.switchThumb} />
+                  </span>
                   vs Target
                 </button>
               </div>
 
-              {tab === 'build' ? (
-                <div className={styles.tabPanel} role="tabpanel" aria-label="build output">
+              {!vsTarget ? (
+                <div className={styles.viewPanel} aria-label="build output">
                   {result && <DamageSummary result={result} />}
                   {warframe && frameStats && (
                     <FramePanel frameName={warframe.name} stats={frameStats} />
@@ -89,13 +94,22 @@ export function App() {
                   )}
                 </div>
               ) : (
-                <div className={styles.tabPanel} role="tabpanel" aria-label="vs target">
-                  <TargetPanel />
+                <div className={styles.viewPanel} aria-label="vs target output">
+                  {effective && <DamageSummary result={effective.projection} />}
+                  {effective && <TargetExtras result={effective.result} />}
+                  {warframe && frameStats && (
+                    <FramePanel frameName={warframe.name} stats={frameStats} />
+                  )}
+                  {result && <PipelineChain result={result} />}
+                  {effective?.contributions && (
+                    <ContributionList contributions={effective.contributions} />
+                  )}
                 </div>
               )}
             </div>
             <aside className={styles.sidebar}>
               <ConfigMenu />
+              <TargetControls />
             </aside>
           </div>
         </main>

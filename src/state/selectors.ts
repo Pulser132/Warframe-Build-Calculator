@@ -11,6 +11,7 @@ import type { GearBuild } from '@engine/model/build';
 import type { WarframeData, WeaponData } from '@engine/model/types';
 import { useBuildStore } from './store';
 import { computeResult, computeTargetResult, resolveFrameStats } from './resolve';
+import { buildEffectiveProjection } from './effective';
 import { computeCapacity, type CapacityInfo } from './capacity';
 
 const sharedCalc = createMemoizedCalc(128);
@@ -61,6 +62,27 @@ export function useTargetResult(withAttribution = false): {
         : null,
     [build, combat, target, dataset, activeMode, activeComboString, withAttribution],
   );
+}
+
+/**
+ * The vs-Target readout: the post-intrinsic `TargetResult`, its vs-target
+ * contributions, and the **effective projection** (decision 9) — a synthetic
+ * `DamageResult` the shared `DamageSummary` renders for the effective view.
+ */
+export function useEffectiveResult(): {
+  projection: DamageResult;
+  result: TargetResult;
+  contributions?: Contribution[];
+} | null {
+  const data = useTargetResult(true);
+  return useMemo(() => {
+    if (!data) return null;
+    return {
+      projection: buildEffectiveProjection(data.intrinsic, data.result),
+      result: data.result,
+      contributions: data.contributions,
+    };
+  }, [data]);
 }
 
 /** The loaded enemy dataset (for the Target picker). */

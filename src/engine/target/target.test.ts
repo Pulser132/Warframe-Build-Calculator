@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import type { DamageResult, DamageMap } from '../model/result';
 import {
   applyTarget,
+  routeToHealth,
   enemyArmorDR,
   armorDamageMultiplier,
   netArmorAfterStrip,
@@ -209,5 +210,90 @@ describe('shields: face value, Toxin bypass', () => {
     expect(r.enemyEhp.shield).toBe(0); // toxin does not register against shield
     expect(r.ttkSeconds).toBeLessThan(Infinity);
     expect(r.ttkSeconds).toBeCloseTo(60 / 100, 6); // health 60 ÷ 100 toxin/hit
+  });
+});
+
+// ── Effective layer for the vs-Target view (routeToHealth + effective scalars) ──
+
+const bombard: EnemyData = { id: 'bombard', name: 'Bombard', faction: 'Grineer', baseLevel: 1, health: 1e9, shield: 0, armor: 500, armorType: 'Alloy' };
+const charger: EnemyData = { id: 'charger', name: 'Charger', faction: 'Infested', baseLevel: 1, health: 1e9, shield: 0, armor: 0 };
+
+describe('routeToHealth (extracted health-layer routing helper)', () => {
+  it('is the single source of truth for effectiveHitAverage (faction × armor × floor)', () => {
+    const scaled = scaleEnemy(bombard, { level: 1, steelPath: false, armorStripPct: 0, overguard: false });
+    // Grineer: Impact ×1.5, Slash neutral; armorMult 0.8333.
+    const routed = routeToHealth({ slash: 100, impact: 100 }, scaled);
+    expect(routed.perType.slash).toBeCloseTo(83.333, 3);
+    expect(routed.perType.impact).toBeCloseTo(125, 3);
+    expect(routed.total).toBeCloseTo(208.333, 3);
+    // It is exactly what applyTarget reports as effectiveHitAverage.
+    const r = applyTarget(makeIntrinsic({ perType: { slash: 100, impact: 100 } }), target({ enemyId: 'bombard' }), bombard);
+    expect(r.effectiveHitAverage).toBeCloseTo(routed.total, 9);
+  });
+});
+
+describe('effectiveBurstDps (burst twin of effectiveDps)', () => {
+  it('preserves the intrinsic burst/sustained ratio', () => {
+    const base = makeIntrinsic({ perType: { slash: 100, impact: 100 } });
+    const intrinsic = { ...base, burstDps: 500, sustainedDps: 250 }; // ratio 2
+    const r = applyTarget(intrinsic, target({ enemyId: 'bombard' }), bombard);
+    expect(r.effectiveBurstDps / r.effectiveDps).toBeCloseTo(500 / 250, 9);
+    expect(r.effectiveBurstDps).toBeCloseTo(r.effectiveHitAverage * (500 / base.avgHitPerShot), 6);
+  });
+
+  it('guards div-by-zero (empty shot → 0 burst/scale)', () => {
+    const r = applyTarget(makeIntrinsic({ perType: {} }), target({ enemyId: 'charger' }), charger);
+    expect(r.effectiveBurstDps).toBe(0);
+    expect(r.effectiveScale).toBe(0);
+  });
+});
+
+describe('effectiveScale (exact for same-composition mechanics, ADR-0006)', () => {
+  it('equals per-type routing — beam per-tick and heavy hit both land on effectiveHitAverage', () => {
+    const base = makeIntrinsic({ perType: { slash: 100, impact: 100 } }); // avgHit 200
+    const intrinsic = {
+      ...base,
+      beam: { tickRate: 1, perTickDamage: 200, procsPerSecond: 0, rampStartPct: 0.2, rampSeconds: 0.6 },
+      heavyLoop: { sustainedDps: 400, comboConsumed: 5, rebuildHits: 10, loopSeconds: 2, normalHit: 50, heavyHit: 200 },
+      followThrough: { factor: 0.5, targetCount: 2, singleTarget: 200, total: 300, perTarget: [200, 100] },
+      comboString: { name: 'Slot', stance: 'St', totalDamage: 600, hitCount: 3, averagePerHit: 200, durationSeconds: 1, dps: 600, perHit: [200, 200, 200], forcedProcs: [] },
+    };
+    const r = applyTarget(intrinsic, target({ enemyId: 'bombard' }), bombard);
+    const s = r.effectiveScale;
+    expect(s).toBeCloseTo(25 / 24, 9); // effHit 1250/6 ÷ avgHit 200
+    // Beam per-tick = effectiveHitAverage directly; heavy hit = avgHit × scale —
+    // both equal, proving the exact-scale path equals direct routing.
+    expect(r.beam?.perTickDamage).toBeCloseTo(r.effectiveHitAverage, 9);
+    expect(r.heavyLoop?.heavyHit).toBeCloseTo(r.effectiveHitAverage, 9);
+    expect(r.heavyLoop?.sustainedDps).toBeCloseTo(400 * s, 9);
+    expect(r.heavyLoop?.normalHit).toBeCloseTo(50 * s, 9);
+    expect(r.followThrough?.total).toBeCloseTo(300 * s, 9);
+    expect(r.followThrough?.perTarget[1]).toBeCloseTo(100 * s, 9);
+    expect(r.comboString?.dps).toBeCloseTo(600 * s, 9);
+    expect(r.comboString?.perHit[0]).toBeCloseTo(200 * s, 9);
+  });
+});
+
+describe('effective AoE / components routed per-type (composition differs)', () => {
+  it('routes a Blast radial and a Slash direct hit by their own type (Infested)', () => {
+    const base = makeIntrinsic({ perType: { blast: 100, slash: 100 } });
+    const intrinsic = {
+      ...base,
+      components: [
+        { name: 'Direct', role: 'direct' as const, delivery: 'projectile' as const, perType: { slash: 100 }, perPelletAverage: 100 },
+        { name: 'Radial', role: 'radial' as const, delivery: 'aoe' as const, perType: { blast: 100 }, perPelletAverage: 100, rimPerPelletAverage: 70, falloff: { start: 0, end: 7, maxReduction: 0.3 } },
+      ],
+      aoe: { falloffStart: 0, radius: 7, centerAverage: 100, rimAverage: 70, centerPerType: { blast: 100 }, rimPerType: { blast: 70 } },
+    };
+    const r = applyTarget(intrinsic, target({ enemyId: 'charger' }), charger);
+    // Infested: Blast neutral, Slash ×1.5, no armor.
+    expect(r.aoe?.centerAverage).toBeCloseTo(100, 6); // blast neutral
+    expect(r.aoe?.rimAverage).toBeCloseTo(70, 6);
+    expect(r.aoe?.centerPerType.blast).toBeCloseTo(100, 6);
+    const direct = r.components?.find((c) => c.role === 'direct');
+    const radial = r.components?.find((c) => c.role === 'radial');
+    expect(direct?.perPelletAverage).toBeCloseTo(150, 6); // slash ×1.5 — differs from the blast center
+    expect(radial?.perPelletAverage).toBeCloseTo(100, 6);
+    expect(radial?.rimPerPelletAverage).toBeCloseTo(70, 6); // rim ratio preserved
   });
 });

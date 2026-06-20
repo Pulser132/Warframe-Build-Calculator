@@ -57,35 +57,76 @@
   min-width: 0;
 }
 
-/* Results view tabs: Build (intrinsic) | vs Target (effective). Mirrors the
- * modding-screen compartment/fire-mode tabs so the whole app reads as one tool. */
-.tabs {
+/* Results header: the view name + a single "vs Target" switch (off = Build,
+ * intrinsic; on = effective). Replaces the old Build / vs-Target tab strip — the
+ * toggle swaps the readout, while the Target config lives in the sidebar. */
+.viewHeader {
   display: flex;
-  gap: var(--sp-1);
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding-bottom: var(--sp-2);
   border-bottom: 1px solid var(--c-line);
 }
-.tab {
+.viewName {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--c-primary);
+}
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
   background: transparent;
-  border: 1px solid transparent;
-  border-bottom: none;
-  border-radius: var(--radius) var(--radius) 0 0;
+  border: none;
   color: var(--c-text-dim);
   font-size: var(--fs-md);
   font-weight: 600;
   letter-spacing: 0.02em;
-  padding: var(--sp-2) var(--sp-4);
-  margin-bottom: -1px;
+  cursor: pointer;
+  padding: var(--sp-1) 0;
 }
-.tab:hover {
+.switch:hover {
   color: var(--c-text);
 }
-.tabActive {
-  background: var(--c-surface-1);
-  border-color: var(--c-line);
-  border-bottom-color: var(--c-surface-1);
+.switchOn {
   color: var(--c-primary);
 }
-.tabPanel {
+.switchTrack {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--c-surface-2, var(--c-surface-1));
+  border: 1px solid var(--c-line);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.switchOn .switchTrack {
+  background: var(--c-primary);
+  border-color: var(--c-primary);
+}
+.switchThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--c-text);
+  transition: transform 0.15s ease;
+}
+.switchOn .switchThumb {
+  transform: translateX(16px);
+  background: var(--c-bg, #000);
+}
+.switch:focus-visible {
+  outline: 2px solid var(--c-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+.viewPanel {
   display: flex;
   flex-direction: column;
   gap: var(--sp-4);
@@ -95,6 +136,9 @@
 .sidebar {
   position: sticky;
   top: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
 }
 
 @media (max-width: 920px) {

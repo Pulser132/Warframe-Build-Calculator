@@ -7,6 +7,7 @@ export type { BuildStore } from './store';
 export {
   useDamageResult,
   useTargetResult,
+  useEffectiveResult,
   useEnemies,
   useCapacity,
   useWeapon,
@@ -14,6 +15,7 @@ export {
   useWarframeStats,
   useActiveGear,
 } from './selectors';
+export { buildEffectiveProjection } from './effective';
 export {
   computeResult,
   computeTargetResult,
