@@ -40,7 +40,9 @@ Generic frame mods = `type: "Warframe Mod"`, `uniqueName` under
 - **`isAugment` is useless here.** In this `@wfcd` build it is `true` for *every*
   `Warframe Mod`, including Intensify, Vitality, and Corrosive Projection. Do
   **not** filter on it. Use the path + `compatName` test above instead.
-- **Tier/PvP variants share display names.** Intensify resolves to three records:
+- **Tier/PvP variants share display names.** PvP/Conclave is out of scope
+  project-wide (`../Overview.md`, locked decisions); this is where the dedup
+  enforces it. Intensify resolves to three records:
   base (`+30%`), `…/Beginner/…` (`+12%`), `…/Expert/…` (`+55%`). 32 names have >1
   record; 26 records match PvP/Conclave paths. Keep the canonical PvE record (no
   `Beginner|Intermediate|Expert` path segment, no PvP/Conclave path) and drop the

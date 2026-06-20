@@ -30,6 +30,7 @@ contribution** made visible, and a modding UI that mirrors the in-game screens.
 | Plan depth | Stage 1 fully task-detailed; Stages 2–8 actionable outlines, each expanded to full task granularity immediately before it is implemented. |
 | Build model | A `Build` is a container of generic **gear compartments** (`GearBuild` = item + slots + capacity), one per gear type (weapon, warframe, later companion/operator); `CombatState` is shared at the top. Mod compatibility is **gear-type aware**. See ADR 0003. |
 | Frame stats | Warframe stats use a **separate resolver** (`resolveWarframe → WarframeStats`) that reuses the bucket primitive but is **not** the weapon damage pipeline. |
+| PvP / Conclave | **Out of scope, entirely.** The calculator models PvE only. Conclave-exclusive mods, the PvP stat variants of shared mods (the `…/Beginner`, `…/Intermediate`, `…/Expert` and Conclave-pathed records in `@wfcd/items`), and PvP damage/balance rules are excluded from data, engine, and UI. Data pipelines dedup such variants to the canonical PvE record. |
 
 ---
 
