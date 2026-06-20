@@ -118,6 +118,21 @@ cross-gear link: a frame ability modifying weapon damage.
 An extra effect a mod grants that scales with **how many mods of the same set are
 equipped** (e.g. the **Umbral** set). Distinct from the mod's own base stat.
 
+**Frame-stat Mod**:
+A Warframe-slot mod whose whole modeled effect is a **flat additive change to one
+of the frame's modeled stats** — the four ability attributes plus
+health/shield/armor/energy/sprint speed. This is what "warframe mods" means in the
+calculator. A mod is *coverable* only insofar as its effects map to these stats;
+effects that don't (damage resistance, energy regen, conditional procs, parkour)
+are either ignored as calc-irrelevant or deferred. _Avoid_: "warframe mod" bare
+(ambiguous with augments).
+
+**Augment Mod**:
+A **frame-specific** mod that alters one named ability's behavior — its `compat`
+is a single Warframe (e.g. Valkyr), not `WARFRAME`. **Out of scope** for the
+calculator's stat model and excluded from coverage. _Avoid_: calling a generic
+Frame-stat Mod an "augment".
+
 **Effective Health (EHP)**:
 A Warframe's survivability expressed as a single number combining health, shield,
 and armor (armor gives health a damage-reduction multiplier; shields are largely
